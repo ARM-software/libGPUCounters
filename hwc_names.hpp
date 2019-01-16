@@ -3006,7 +3006,7 @@ struct CounterMapping
 	const char *const *names_lut;
 };
 
-static const counter_mapping products[] =
+static const CounterMapping products[] =
     {
         {
             PRODUCT_ID_MASK_OLD,
