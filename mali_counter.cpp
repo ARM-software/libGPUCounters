@@ -312,7 +312,7 @@ void MaliCounter::init()
 		throw std::runtime_error("Failed to map sample data.");
 	}
 
-	auto product = std::find_if(std::begin(mali_userspace::products), std::end(mali_userspace::products), [&](const mali_userspace::counter_mapping &cm) {
+	auto product = std::find_if(std::begin(mali_userspace::products), std::end(mali_userspace::products), [&](const mali_userspace::CounterMapping &cm) {
 		return (cm.product_mask & hw_info.gpu_id) == cm.product_id;
 	});
 
