@@ -458,14 +458,16 @@ void MaliCounter::stop()
 	sample_counters();
 	wait_next_event();
 
-	const uint32_t *counter         = get_counters(mali_userspace::MALI_NAME_BLOCK_JM);
-	_counters.at("GPU_ACTIVE")      = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "GPU_ACTIVE")], _counters.at("GPU_ACTIVE").unit());
-	_counters.at("JS0_JOBS")        = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS0_JOBS")], _counters.at("JS0_JOBS").unit());
-	_counters.at("JS1_JOBS")        = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS1_JOBS")], _counters.at("JS1_JOBS").unit());
-	_counters.at("L2_READ_LOOKUP")  = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "L2_READ_LOOKUP")], _counters.at("L2_READ_LOOKUP").unit());
-	_counters.at("L2_EXT_READ")     = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "L2_EXT_READ")], _counters.at("L2_EXT_READ").unit());
-	_counters.at("L2_WRITE_LOOKUP") = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "L2_WRITE_LOOKUP")], _counters.at("L2_WRITE_LOOKUP").unit());
-	_counters.at("L2_EXT_WRITE")    = Measurement(counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "L2_EXT_WRITE")], _counters.at("L2_EXT_WRITE").unit());
+	const uint32_t *jm_counter = get_counters(mali_userspace::MALI_NAME_BLOCK_JM);
+	_counters.at("GPU_ACTIVE") = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "GPU_ACTIVE")], _counters.at("GPU_ACTIVE").unit());
+	_counters.at("JS0_JOBS")   = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS0_JOBS")], _counters.at("JS0_JOBS").unit());
+	_counters.at("JS1_JOBS")   = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS1_JOBS")], _counters.at("JS1_JOBS").unit());
+
+	const uint32_t *mmu_counter     = get_counters(mali_userspace::MALI_NAME_BLOCK_MMU);
+	_counters.at("L2_READ_LOOKUP")  = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_READ_LOOKUP")], _counters.at("L2_READ_LOOKUP").unit());
+	_counters.at("L2_EXT_READ")     = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ")], _counters.at("L2_EXT_READ").unit());
+	_counters.at("L2_WRITE_LOOKUP") = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_WRITE_LOOKUP")], _counters.at("L2_WRITE_LOOKUP").unit());
+	_counters.at("L2_EXT_WRITE")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE")], _counters.at("L2_EXT_WRITE").unit());
 
 	_stop_time = _timestamp;
 }
