@@ -28,6 +28,7 @@
 #include <list>
 #include <ostream>
 #include <sstream>
+#include <limits>
 #include <string>
 
 namespace vkb
