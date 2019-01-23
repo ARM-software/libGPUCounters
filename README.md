@@ -23,8 +23,8 @@ To use HWCPipe, build it as a shared library in your Android Project, to do this
 To enable a counter, create either a PMU or Mali counter and then call its start function.
 
 ```
-	Instrument instrument_ = PMUCounter();
-	instrument_.start();
+Instrument instrument_ = PMUCounter();
+instrument_.start();
 ```
 
 #### Reading a Counter:
@@ -32,8 +32,8 @@ To enable a counter, create either a PMU or Mali counter and then call its start
 To read a counter, first stop it and then call its measurements function to store results in the MeasurementsMap variable which can then be read from.
 
 ```
-	instrument_.stop();
-	MeasurementsMap measurements = instrument_.measurements();
+instrument_.stop();
+MeasurementsMap measurements = instrument_.measurements();
 ```
 
 
