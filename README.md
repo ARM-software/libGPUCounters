@@ -18,6 +18,19 @@ To use HWCPipe, build it as a shared library in your Android Project, to do this
 
 ## Using
 
+### Performance data
+
+In order for CPU performance data to be displayed, profiling needs to be enabled on the device.
+Some devices may disable it by default.
+
+Profiling can be enabled via adb:
+
+```
+adb shell setprop security.perf_harden 0
+```
+
+GPU performance data should be collected regardless of this setting.
+
 #### Enabling a Counter:
 
 To enable a counter, create either a PMU or Mali counter and then call its start function.
