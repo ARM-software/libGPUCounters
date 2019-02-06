@@ -67,7 +67,9 @@ The counters are separated into two categories: PMU and Mali counters, the avail
  - Vertex/compute jobs
  - L2 cache read lookups
  - L2 cache external reads
+ - L2 cache external read stalls
  - L2 cache write lookups
  - L2 cache external writes
+ - L2 cache external write stalls
 
 For more information regarding these counters, see [Mali Performance Counters](https://community.arm.com/graphics/b/blog/posts/mali-bifrost-family-performance-counters).
