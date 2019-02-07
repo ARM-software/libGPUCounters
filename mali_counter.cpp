@@ -54,8 +54,12 @@ namespace
 
 			if (mali_userspace::mali_ioctl(fd, version_check_args) != 0)
 			{
-				throw std::runtime_error("Failed to check version.");
-				close(fd);
+				mali_userspace::kbase_ioctl_version_check _version_check_args = { 0, 0 };
+				if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK, &_version_check_args) < 0)
+				{
+					close(fd);
+					throw std::runtime_error("Failed to check version.");
+				}
 			}
 		}
 
@@ -67,8 +71,12 @@ namespace
 
 			if (mali_userspace::mali_ioctl(fd, flags) != 0)
 			{
-				throw std::runtime_error("Failed settings flags ioctl.");
-				close(fd);
+				mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
+				if (ioctl(fd, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
+				{
+					close(fd);
+					throw std::runtime_error("Failed settings flags ioctl.");
+				}
 			}
 		}
 
@@ -240,7 +248,11 @@ void MaliCounter::init()
 
 		if (mali_userspace::mali_ioctl(_fd, check) != 0)
 		{
-			throw std::runtime_error("Failed to get ABI version.");
+			mali_userspace::kbase_ioctl_version_check _check = { 0, 0 };
+			if (ioctl(_fd, KBASE_IOCTL_VERSION_CHECK, &_check) < 0)
+			{
+				throw std::runtime_error("Failed to get ABI version.");
+			}
 		}
 		else if (check.major < 10)
 		{
@@ -256,7 +268,11 @@ void MaliCounter::init()
 
 		if (mali_userspace::mali_ioctl(_fd, flags) != 0)
 		{
-			throw std::runtime_error("Failed settings flags ioctl.");
+			mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
+			if (ioctl(_fd, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
+			{
+				throw std::runtime_error("Failed settings flags ioctl.");
+			}
 		}
 	}
 
@@ -273,10 +289,24 @@ void MaliCounter::init()
 
 		if (mali_userspace::mali_ioctl(_fd, setup) != 0)
 		{
-			throw std::runtime_error("Failed setting hwcnt reader ioctl.");
-		}
+			mali_userspace::kbase_ioctl_hwcnt_reader_setup _setup = {};
+			_setup.buffer_count = _buffer_count;
+			_setup.jm_bm = -1;
+			_setup.shader_bm = -1;
+			_setup.tiler_bm = -1;
+			_setup.mmu_l2_bm = -1;
 
-		_hwc_fd = setup.fd;
+			int ret;
+			if ((ret = ioctl(_fd, KBASE_IOCTL_HWCNT_READER_SETUP, &_setup)) < 0)
+			{
+				throw std::runtime_error("Failed setting hwcnt reader ioctl.");
+			}
+			_hwc_fd = ret;
+		}
+		else
+		{
+			_hwc_fd = setup.fd;
+		}
 	}
 
 	{

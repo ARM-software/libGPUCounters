@@ -309,9 +309,9 @@ namespace
 
 #	define KBASE_IOCTL_TYPE 0x80
 #	define KBASE_IOCTL_GET_GPUPROPS MALI_IOW(KBASE_IOCTL_TYPE, 3, struct mali_userspace::kbase_ioctl_get_gpuprops)
-#	define KBASE_IOCTL_VERSION_CHECK _IOWR(KBASE_IOCTL_TYPE, 0, struct kbase_ioctl_version_check)
-#	define KBASE_IOCTL_SET_FLAGS _IOW(KBASE_IOCTL_TYPE, 1, struct kbase_ioctl_set_flags)
-#	define KBASE_IOCTL_HWCNT_READER_SETUP _IOW(KBASE_IOCTL_TYPE, 8, struct kbase_ioctl_hwcnt_reader_setup)
+#	define KBASE_IOCTL_VERSION_CHECK _IOWR(KBASE_IOCTL_TYPE, 0, struct mali_userspace::kbase_ioctl_version_check)
+#	define KBASE_IOCTL_SET_FLAGS _IOW(KBASE_IOCTL_TYPE, 1, struct mali_userspace::kbase_ioctl_set_flags)
+#	define KBASE_IOCTL_HWCNT_READER_SETUP _IOW(KBASE_IOCTL_TYPE, 8, struct mali_userspace::kbase_ioctl_hwcnt_reader_setup)
 
 	/** IOCTL parameters to set flags */
 	struct kbase_uk_hwcnt_reader_set_flags
