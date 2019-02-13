@@ -70,13 +70,13 @@ void PMU::open(const perf_event_attr &perf_config)
 
 	if (_fd < 0)
 	{
-		printf("perf_event_open failed");
+		LOG("perf_event_open failed");
 	}
 
 	const int result = ioctl(_fd, PERF_EVENT_IOC_ENABLE, 0);
 	if (result == -1)
 	{
-		printf("Failed to enable PMU counter: %s", std::to_string(errno).c_str());
+		LOG("Failed to enable PMU counter: %s", std::to_string(errno).c_str());
 	}
 }
 
