@@ -34,12 +34,12 @@
 
 #define HWCPIPE_TAG "HWCPipe"
 
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+#if defined(__ANDROID__)
 #	include <android/log.h>
 
-#	define LOG(...) __android_log_print(ANDROID_LOG_INFO, HWCPIPE_TAG, __VA_ARGS__)
+#	define HWCPIPE_LOG(...) __android_log_print(ANDROID_LOG_VERBOSE, HWCPIPE_TAG, __VA_ARGS__)
 #else
-#	define LOG(...)                                  \
+#	define HWCPIPE_LOG(...)                                  \
 		{                                              \
 			fprintf(stdout, "%s [INFO] : ", HWCPIPE_TAG); \
 			fprintf(stdout, __VA_ARGS__);              \
@@ -92,6 +92,9 @@ class PMU {
 
 	/** Reset counter. */
 	void reset();
+
+	/** Print counter config ID. */
+	std::string config_to_str(const perf_event_attr &perf_config);
 
   private:
 	perf_event_attr _perf_config;
