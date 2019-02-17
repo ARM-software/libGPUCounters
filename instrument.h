@@ -30,8 +30,6 @@
 #include <memory>
 #include <string>
 
-namespace vkb
-{
 enum class ScaleFactor : unsigned int
 {
 	None,     /* Default scale */
@@ -43,7 +41,8 @@ enum class ScaleFactor : unsigned int
 };
 
 /** Interface for classes that can be used to measure performance. */
-class Instrument {
+class Instrument
+{
   public:
 	/** Default constructor. */
 	Instrument() = default;
@@ -117,5 +116,3 @@ class Instrument {
   protected:
 	std::string _unit{};
 };
-
-}        // namespace vkb

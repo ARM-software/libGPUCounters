@@ -25,14 +25,12 @@
 #pragma once
 
 #include <cmath>
+#include <limits>
 #include <list>
 #include <ostream>
 #include <sstream>
-#include <limits>
 #include <string>
 
-namespace vkb
-{
 /** Generic measurement that stores values as either double or long long int. */
 struct Measurement
 {
@@ -315,5 +313,3 @@ struct Measurement
 	std::list<std::string> _raw_data;
 	Value                  _value;
 };
-
-}        // namespace vkb
