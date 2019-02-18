@@ -23,8 +23,6 @@
  */
 #include "pmu_counter.h"
 
-namespace vkb
-{
 std::string PMUCounter::id() const
 {
 	return "PMU Counter";
@@ -106,4 +104,3 @@ Instrument::MeasurementsMap PMUCounter::measurements() const
 	    {"Branch miss ratio", Measurement(static_cast<double>(_branch_misses) / _branch_instructions, "")},
 	};
 }
-}        // namespace vkb

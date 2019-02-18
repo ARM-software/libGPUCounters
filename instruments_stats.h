@@ -28,11 +28,10 @@
 
 #include <vector>
 
-namespace vkb
-{
 /** Generate common statistics for a set of measurements
      */
-class InstrumentsStats {
+class InstrumentsStats
+{
   public:
 	/** Compute statistics for the passed set of measurements
      *
@@ -77,5 +76,3 @@ class InstrumentsStats {
 	Measurement::Value _mean;
 	double             _stddev;
 };
-
-}        // namespace vkb

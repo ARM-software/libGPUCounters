@@ -23,185 +23,183 @@
  */
 #include "mali_counter.h"
 
-namespace vkb
-{
 namespace
 {
-	struct MaliHWInfo
+struct MaliHWInfo
+{
+	unsigned mp_count;
+	unsigned gpu_id;
+	unsigned r_value;
+	unsigned p_value;
+	unsigned core_mask;
+	unsigned l2_slices;
+};
+
+MaliHWInfo get_mali_hw_info(const char *path)
+{
+	int fd = open(path, O_RDWR);        // NOLINT
+
+	if (fd < 0)
 	{
-		unsigned mp_count;
-		unsigned gpu_id;
-		unsigned r_value;
-		unsigned p_value;
-		unsigned core_mask;
-		unsigned l2_slices;
-	};
+		throw std::runtime_error("Failed to get HW info.");
+	}
 
-	MaliHWInfo get_mali_hw_info(const char *path)
 	{
-		int fd = open(path, O_RDWR);        // NOLINT
+		mali_userspace::kbase_uk_hwcnt_reader_version_check_args version_check_args;
+		version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION;        // NOLINT
+		version_check_args.major     = 10;
+		version_check_args.minor     = 2;
 
-		if (fd < 0)
+		if (mali_userspace::mali_ioctl(fd, version_check_args) != 0)
 		{
-			throw std::runtime_error("Failed to get HW info.");
-		}
-
-		{
-			mali_userspace::kbase_uk_hwcnt_reader_version_check_args version_check_args;
-			version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION;        // NOLINT
-			version_check_args.major     = 10;
-			version_check_args.minor     = 2;
-
-			if (mali_userspace::mali_ioctl(fd, version_check_args) != 0)
+			mali_userspace::kbase_ioctl_version_check _version_check_args = {0, 0};
+			if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK, &_version_check_args) < 0)
 			{
-				mali_userspace::kbase_ioctl_version_check _version_check_args = { 0, 0 };
-				if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK, &_version_check_args) < 0)
-				{
-					close(fd);
-					throw std::runtime_error("Failed to check version.");
-				}
+				close(fd);
+				throw std::runtime_error("Failed to check version.");
 			}
 		}
+	}
 
+	{
+		mali_userspace::kbase_uk_hwcnt_reader_set_flags flags;        // NOLINT
+		memset(&flags, 0, sizeof(flags));
+		flags.header.id    = mali_userspace::KBASE_FUNC_SET_FLAGS;        // NOLINT
+		flags.create_flags = mali_userspace::BASE_CONTEXT_CREATE_KERNEL_FLAGS;
+
+		if (mali_userspace::mali_ioctl(fd, flags) != 0)
 		{
-			mali_userspace::kbase_uk_hwcnt_reader_set_flags flags;        // NOLINT
-			memset(&flags, 0, sizeof(flags));
-			flags.header.id    = mali_userspace::KBASE_FUNC_SET_FLAGS;        // NOLINT
-			flags.create_flags = mali_userspace::BASE_CONTEXT_CREATE_KERNEL_FLAGS;
-
-			if (mali_userspace::mali_ioctl(fd, flags) != 0)
+			mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
+			if (ioctl(fd, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
 			{
-				mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
-				if (ioctl(fd, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
-				{
-					close(fd);
-					throw std::runtime_error("Failed settings flags ioctl.");
-				}
+				close(fd);
+				throw std::runtime_error("Failed settings flags ioctl.");
 			}
 		}
+	}
 
+	{
+		MaliHWInfo hw_info;        // NOLINT
+		memset(&hw_info, 0, sizeof(hw_info));
+		mali_userspace::kbase_uk_gpuprops props = {};
+		props.header.id                         = mali_userspace::KBASE_FUNC_GPU_PROPS_REG_DUMP;
+		if (mali_ioctl(fd, props) == 0)
 		{
-			MaliHWInfo hw_info;        // NOLINT
-			memset(&hw_info, 0, sizeof(hw_info));
-			mali_userspace::kbase_uk_gpuprops props = {};
-			props.header.id                         = mali_userspace::KBASE_FUNC_GPU_PROPS_REG_DUMP;
-			if (mali_ioctl(fd, props) == 0)
-			{
-				hw_info.gpu_id  = props.props.core_props.product_id;
-				hw_info.r_value = props.props.core_props.major_revision;
-				hw_info.p_value = props.props.core_props.minor_revision;
-				for (uint32_t i = 0; i < props.props.coherency_info.num_core_groups; i++)
-					hw_info.core_mask |= props.props.coherency_info.group[i].core_mask;
-				hw_info.mp_count  = __builtin_popcountll(hw_info.core_mask);
-				hw_info.l2_slices = props.props.l2_props.num_l2_slices;
+			hw_info.gpu_id  = props.props.core_props.product_id;
+			hw_info.r_value = props.props.core_props.major_revision;
+			hw_info.p_value = props.props.core_props.minor_revision;
+			for (uint32_t i = 0; i < props.props.coherency_info.num_core_groups; i++)
+				hw_info.core_mask |= props.props.coherency_info.group[i].core_mask;
+			hw_info.mp_count  = __builtin_popcountll(hw_info.core_mask);
+			hw_info.l2_slices = props.props.l2_props.num_l2_slices;
 
+			close(fd);
+		}
+		else
+		{
+			mali_userspace::kbase_ioctl_get_gpuprops get_props = {};
+			int                                      ret;
+			if ((ret = ioctl(fd, KBASE_IOCTL_GET_GPUPROPS, &get_props)) < 0)
+			{
+				throw std::runtime_error("Failed getting GPU properties.");
 				close(fd);
 			}
-			else
-			{
-				mali_userspace::kbase_ioctl_get_gpuprops get_props = {};
-				int                                      ret;
-				if ((ret = ioctl(fd, KBASE_IOCTL_GET_GPUPROPS, &get_props)) < 0)
-				{
-					throw std::runtime_error("Failed getting GPU properties.");
-					close(fd);
-				}
 
-				get_props.size = ret;
-				std::vector<uint8_t> buffer(ret);
-				get_props.buffer.value = buffer.data();
-				ret                    = ioctl(fd, KBASE_IOCTL_GET_GPUPROPS, &get_props);
-				if (ret < 0)
-				{
-					throw std::runtime_error("Failed getting GPU properties.");
-					close(fd);
-				}
+			get_props.size = ret;
+			std::vector<uint8_t> buffer(ret);
+			get_props.buffer.value = buffer.data();
+			ret                    = ioctl(fd, KBASE_IOCTL_GET_GPUPROPS, &get_props);
+			if (ret < 0)
+			{
+				throw std::runtime_error("Failed getting GPU properties.");
+				close(fd);
+			}
 
 #define READ_U8(p) ((p)[0])
 #define READ_U16(p) (READ_U8((p)) | (uint16_t(READ_U8((p) + 1)) << 8))
 #define READ_U32(p) (READ_U16((p)) | (uint32_t(READ_U16((p) + 2)) << 16))
 #define READ_U64(p) (READ_U32((p)) | (uint64_t(READ_U32((p) + 4)) << 32))
 
-				mali_userspace::gpu_props props = {};
+			mali_userspace::gpu_props props = {};
 
-				const auto *ptr  = buffer.data();
-				int         size = ret;
-				while (size > 0)
+			const auto *ptr  = buffer.data();
+			int         size = ret;
+			while (size > 0)
+			{
+				uint32_t type       = READ_U32(ptr);
+				uint32_t value_type = type & 3;
+				uint64_t value;
+
+				ptr += 4;
+				size -= 4;
+
+				switch (value_type)
 				{
-					uint32_t type       = READ_U32(ptr);
-					uint32_t value_type = type & 3;
-					uint64_t value;
-
-					ptr += 4;
-					size -= 4;
-
-					switch (value_type)
-					{
-						case KBASE_GPUPROP_VALUE_SIZE_U8:
-							value = READ_U8(ptr);
-							ptr++;
-							size--;
-							break;
-						case KBASE_GPUPROP_VALUE_SIZE_U16:
-							value = READ_U16(ptr);
-							ptr += 2;
-							size -= 2;
-							break;
-						case KBASE_GPUPROP_VALUE_SIZE_U32:
-							value = READ_U32(ptr);
-							ptr += 4;
-							size -= 4;
-							break;
-						case KBASE_GPUPROP_VALUE_SIZE_U64:
-							value = READ_U64(ptr);
-							ptr += 8;
-							size -= 8;
-							break;
-					}
-
-					for (unsigned i = 0; mali_userspace::gpu_property_mapping[i].type; i++)
-					{
-						if (mali_userspace::gpu_property_mapping[i].type == (type >> 2))
-						{
-							auto  offset = mali_userspace::gpu_property_mapping[i].offset;
-							void *p      = reinterpret_cast<uint8_t *>(&props) + offset;
-							switch (mali_userspace::gpu_property_mapping[i].size)
-							{
-								case 1:
-									*reinterpret_cast<uint8_t *>(p) = value;
-									break;
-								case 2:
-									*reinterpret_cast<uint16_t *>(p) = value;
-									break;
-								case 4:
-									*reinterpret_cast<uint32_t *>(p) = value;
-									break;
-								case 8:
-									*reinterpret_cast<uint64_t *>(p) = value;
-									break;
-								default:
-									throw std::runtime_error("Invalid property size.");
-									close(fd);
-							}
-							break;
-						}
-					}
+					case KBASE_GPUPROP_VALUE_SIZE_U8:
+						value = READ_U8(ptr);
+						ptr++;
+						size--;
+						break;
+					case KBASE_GPUPROP_VALUE_SIZE_U16:
+						value = READ_U16(ptr);
+						ptr += 2;
+						size -= 2;
+						break;
+					case KBASE_GPUPROP_VALUE_SIZE_U32:
+						value = READ_U32(ptr);
+						ptr += 4;
+						size -= 4;
+						break;
+					case KBASE_GPUPROP_VALUE_SIZE_U64:
+						value = READ_U64(ptr);
+						ptr += 8;
+						size -= 8;
+						break;
 				}
 
-				hw_info.gpu_id  = props.product_id;
-				hw_info.r_value = props.major_revision;
-				hw_info.p_value = props.minor_revision;
-				for (uint32_t i = 0; i < props.num_core_groups; i++)
-					hw_info.core_mask |= props.core_mask[i];
-				hw_info.mp_count = __builtin_popcountll(hw_info.core_mask);
-				//hw_info.l2_slices = props.l2_slices;
-
-				close(fd);
+				for (unsigned i = 0; mali_userspace::gpu_property_mapping[i].type; i++)
+				{
+					if (mali_userspace::gpu_property_mapping[i].type == (type >> 2))
+					{
+						auto  offset = mali_userspace::gpu_property_mapping[i].offset;
+						void *p      = reinterpret_cast<uint8_t *>(&props) + offset;
+						switch (mali_userspace::gpu_property_mapping[i].size)
+						{
+							case 1:
+								*reinterpret_cast<uint8_t *>(p) = value;
+								break;
+							case 2:
+								*reinterpret_cast<uint16_t *>(p) = value;
+								break;
+							case 4:
+								*reinterpret_cast<uint32_t *>(p) = value;
+								break;
+							case 8:
+								*reinterpret_cast<uint64_t *>(p) = value;
+								break;
+							default:
+								throw std::runtime_error("Invalid property size.");
+								close(fd);
+						}
+						break;
+					}
+				}
 			}
 
-			return hw_info;
+			hw_info.gpu_id  = props.product_id;
+			hw_info.r_value = props.major_revision;
+			hw_info.p_value = props.minor_revision;
+			for (uint32_t i = 0; i < props.num_core_groups; i++)
+				hw_info.core_mask |= props.core_mask[i];
+			hw_info.mp_count = __builtin_popcountll(hw_info.core_mask);
+			//hw_info.l2_slices = props.l2_slices;
+
+			close(fd);
 		}
+
+		return hw_info;
 	}
+}
 }        // namespace
 
 MaliCounter::MaliCounter()
@@ -248,7 +246,7 @@ void MaliCounter::init()
 
 		if (mali_userspace::mali_ioctl(_fd, check) != 0)
 		{
-			mali_userspace::kbase_ioctl_version_check _check = { 0, 0 };
+			mali_userspace::kbase_ioctl_version_check _check = {0, 0};
 			if (ioctl(_fd, KBASE_IOCTL_VERSION_CHECK, &_check) < 0)
 			{
 				throw std::runtime_error("Failed to get ABI version.");
@@ -290,11 +288,11 @@ void MaliCounter::init()
 		if (mali_userspace::mali_ioctl(_fd, setup) != 0)
 		{
 			mali_userspace::kbase_ioctl_hwcnt_reader_setup _setup = {};
-			_setup.buffer_count = _buffer_count;
-			_setup.jm_bm = -1;
-			_setup.shader_bm = -1;
-			_setup.tiler_bm = -1;
-			_setup.mmu_l2_bm = -1;
+			_setup.buffer_count                                   = _buffer_count;
+			_setup.jm_bm                                          = -1;
+			_setup.shader_bm                                      = -1;
+			_setup.tiler_bm                                       = -1;
+			_setup.mmu_l2_bm                                      = -1;
 
 			int ret;
 			if ((ret = ioctl(_fd, KBASE_IOCTL_HWCNT_READER_SETUP, &_setup)) < 0)
@@ -528,4 +526,3 @@ Instrument::MeasurementsMap MaliCounter::measurements() const
 
 	return measurements;
 }
-}        // namespace vkb

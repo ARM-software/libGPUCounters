@@ -27,8 +27,6 @@
 #include <algorithm>
 #include <numeric>
 
-namespace vkb
-{
 /** Perform an index sort of a given vector.
  *
  * @param[in] v Vector to sort
@@ -78,4 +76,3 @@ InstrumentsStats::InstrumentsStats(const std::vector<Measurement> &measurements)
 	auto variance = sq_sum / measurements.size();
 	_stddev       = Measurement::Value::relative_standard_deviation(variance, _mean);
 }
-}        // namespace vkb

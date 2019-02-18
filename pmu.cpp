@@ -29,8 +29,6 @@
 #include <stdexcept>
 #include <sys/ioctl.h>
 
-namespace vkb
-{
 PMU::PMU() :
     _perf_config()
 {
@@ -97,63 +95,62 @@ bool PMU::reset()
 
 std::string PMU::config_to_str(const perf_event_attr &perf_config)
 {
-	switch(perf_config.type)
+	switch (perf_config.type)
 	{
 		case PERF_TYPE_HARDWARE:
-			switch(perf_config.config)
+			switch (perf_config.config)
 			{
 				case PERF_COUNT_HW_CPU_CYCLES:
 					return "PERF_COUNT_HW_CPU_CYCLES";
-                case PERF_COUNT_HW_INSTRUCTIONS:
-	                return "PERF_COUNT_HW_INSTRUCTIONS";
-                case PERF_COUNT_HW_CACHE_REFERENCES:
-	                return "PERF_COUNT_HW_CACHE_REFERENCES";
-                case PERF_COUNT_HW_CACHE_MISSES:
-	                return "PERF_COUNT_HW_CACHE_MISSES";
-                case PERF_COUNT_HW_BRANCH_INSTRUCTIONS:
-	                return "PERF_COUNT_HW_BRANCH_INSTRUCTIONS";
-                case PERF_COUNT_HW_BRANCH_MISSES:
-	                return "PERF_COUNT_HW_BRANCH_MISSES";
-                case PERF_COUNT_HW_BUS_CYCLES:
-	                return "PERF_COUNT_HW_BUS_CYCLES";
-                case PERF_COUNT_HW_STALLED_CYCLES_FRONTEND:
-	                return "PERF_COUNT_HW_STALLED_CYCLES_FRONTEND";
-                case PERF_COUNT_HW_STALLED_CYCLES_BACKEND:
-	                return "PERF_COUNT_HW_STALLED_CYCLES_BACKEND";
-                case PERF_COUNT_HW_REF_CPU_CYCLES:
-	                return "PERF_COUNT_HW_REF_CPU_CYCLES";
+				case PERF_COUNT_HW_INSTRUCTIONS:
+					return "PERF_COUNT_HW_INSTRUCTIONS";
+				case PERF_COUNT_HW_CACHE_REFERENCES:
+					return "PERF_COUNT_HW_CACHE_REFERENCES";
+				case PERF_COUNT_HW_CACHE_MISSES:
+					return "PERF_COUNT_HW_CACHE_MISSES";
+				case PERF_COUNT_HW_BRANCH_INSTRUCTIONS:
+					return "PERF_COUNT_HW_BRANCH_INSTRUCTIONS";
+				case PERF_COUNT_HW_BRANCH_MISSES:
+					return "PERF_COUNT_HW_BRANCH_MISSES";
+				case PERF_COUNT_HW_BUS_CYCLES:
+					return "PERF_COUNT_HW_BUS_CYCLES";
+				case PERF_COUNT_HW_STALLED_CYCLES_FRONTEND:
+					return "PERF_COUNT_HW_STALLED_CYCLES_FRONTEND";
+				case PERF_COUNT_HW_STALLED_CYCLES_BACKEND:
+					return "PERF_COUNT_HW_STALLED_CYCLES_BACKEND";
+				case PERF_COUNT_HW_REF_CPU_CYCLES:
+					return "PERF_COUNT_HW_REF_CPU_CYCLES";
 				default:
 					return "UNKNOWN HARDWARE COUNTER";
 			}
 
 		case PERF_TYPE_SOFTWARE:
-			switch(perf_config.config)
+			switch (perf_config.config)
 			{
-                case PERF_COUNT_SW_CPU_CLOCK:
-	                return "PERF_COUNT_SW_CPU_CLOCK";
-                case PERF_COUNT_SW_TASK_CLOCK:
-	                return "PERF_COUNT_SW_TASK_CLOCK";
-                case PERF_COUNT_SW_PAGE_FAULTS:
-	                return "PERF_COUNT_SW_PAGE_FAULTS";
-                case PERF_COUNT_SW_CONTEXT_SWITCHES:
-	                return "PERF_COUNT_SW_CONTEXT_SWITCHES";
-                case PERF_COUNT_SW_CPU_MIGRATIONS:
-	                return "PERF_COUNT_SW_CPU_MIGRATIONS";
-                case PERF_COUNT_SW_PAGE_FAULTS_MIN:
-	                return "PERF_COUNT_SW_PAGE_FAULTS_MIN";
-                case PERF_COUNT_SW_PAGE_FAULTS_MAJ:
-	                return "PERF_COUNT_SW_PAGE_FAULTS_MAJ";
-                case PERF_COUNT_SW_ALIGNMENT_FAULTS:
-	                return "PERF_COUNT_SW_ALIGNMENT_FAULTS";
-                case PERF_COUNT_SW_EMULATION_FAULTS:
-	                return "PERF_COUNT_SW_EMULATION_FAULTS";
-                case PERF_COUNT_SW_DUMMY:
-	                return "PERF_COUNT_SW_DUMMY";
+				case PERF_COUNT_SW_CPU_CLOCK:
+					return "PERF_COUNT_SW_CPU_CLOCK";
+				case PERF_COUNT_SW_TASK_CLOCK:
+					return "PERF_COUNT_SW_TASK_CLOCK";
+				case PERF_COUNT_SW_PAGE_FAULTS:
+					return "PERF_COUNT_SW_PAGE_FAULTS";
+				case PERF_COUNT_SW_CONTEXT_SWITCHES:
+					return "PERF_COUNT_SW_CONTEXT_SWITCHES";
+				case PERF_COUNT_SW_CPU_MIGRATIONS:
+					return "PERF_COUNT_SW_CPU_MIGRATIONS";
+				case PERF_COUNT_SW_PAGE_FAULTS_MIN:
+					return "PERF_COUNT_SW_PAGE_FAULTS_MIN";
+				case PERF_COUNT_SW_PAGE_FAULTS_MAJ:
+					return "PERF_COUNT_SW_PAGE_FAULTS_MAJ";
+				case PERF_COUNT_SW_ALIGNMENT_FAULTS:
+					return "PERF_COUNT_SW_ALIGNMENT_FAULTS";
+				case PERF_COUNT_SW_EMULATION_FAULTS:
+					return "PERF_COUNT_SW_EMULATION_FAULTS";
+				case PERF_COUNT_SW_DUMMY:
+					return "PERF_COUNT_SW_DUMMY";
 				default:
 					return "UNKNOWN SOFTWARE COUNTER";
 			}
-        default:
+		default:
 			return std::to_string(perf_config.config);
 	}
 }
-}        // namespace vkb

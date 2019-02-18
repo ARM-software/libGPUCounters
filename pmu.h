@@ -39,20 +39,17 @@
 
 #	define HWCPIPE_LOG(...) __android_log_print(ANDROID_LOG_VERBOSE, HWCPIPE_TAG, __VA_ARGS__)
 #else
-#	define HWCPIPE_LOG(...)                                  \
-		{                                              \
+#	define HWCPIPE_LOG(...)                              \
+		{                                                 \
 			fprintf(stdout, "%s [INFO] : ", HWCPIPE_TAG); \
-			fprintf(stdout, __VA_ARGS__);              \
-			fprintf(stdout, "\n");                     \
+			fprintf(stdout, __VA_ARGS__);                 \
+			fprintf(stdout, "\n");                        \
 		}
 #endif
 
-
-
-namespace vkb
-{
 /** Class provides access to CPU hardware counters. */
-class PMU {
+class PMU
+{
   public:
 	/** Default constructor. */
 	PMU();
@@ -116,4 +113,3 @@ T PMU::get_value() const
 
 	return value;
 }
-}        // namespace vkb
