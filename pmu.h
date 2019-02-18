@@ -90,8 +90,10 @@ class PMU {
 	/** Close the currently open counter. */
 	void close();
 
-	/** Reset counter. */
-	void reset();
+	/** Reset counter.
+	 *
+	 * @return false if reset fails. */
+	bool reset();
 
 	/** Print counter config ID. */
 	std::string config_to_str(const perf_event_attr &perf_config);

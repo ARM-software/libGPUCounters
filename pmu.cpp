@@ -89,13 +89,10 @@ void PMU::close()
 	}
 }
 
-void PMU::reset()
+bool PMU::reset()
 {
 	const int result = ioctl(_fd, PERF_EVENT_IOC_RESET, 0);
-	if (result == -1)
-	{
-		HWCPIPE_LOG("Failed to reset PMU counter: %s", std::to_string(errno).c_str());
-	}
+	return result != -1;
 }
 
 std::string PMU::config_to_str(const perf_event_attr &perf_config)

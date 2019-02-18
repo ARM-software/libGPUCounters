@@ -34,6 +34,10 @@ void PMUCounter::start()
 {
 	_pmu_cycles.reset();
 	_pmu_instructions.reset();
+	_pmu_cache_references.reset();
+	_pmu_cache_misses.reset();
+	_pmu_branch_instructions.reset();
+	_pmu_branch_misses.reset();
 }
 
 void PMUCounter::stop()
