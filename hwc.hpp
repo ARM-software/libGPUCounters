@@ -252,147 +252,147 @@ struct kbase_hwcnt_reader_metadata
 
 namespace
 {
-	/** Message header */
-	union kbase_uk_hwcnt_header
-	{
-		/* 32-bit number identifying the UK function to be called. */
-		uint32_t id;
-		/* The int return code returned by the called UK function. */
-		uint32_t ret;
-		/* Used to ensure 64-bit alignment of this union. Do not remove. */
-		uint64_t sizer;
-	};
+/** Message header */
+union kbase_uk_hwcnt_header
+{
+	/* 32-bit number identifying the UK function to be called. */
+	uint32_t id;
+	/* The int return code returned by the called UK function. */
+	uint32_t ret;
+	/* Used to ensure 64-bit alignment of this union. Do not remove. */
+	uint64_t sizer;
+};
 
-	/** IOCTL parameters to check version */
-	struct kbase_uk_hwcnt_reader_version_check_args
-	{
-		union kbase_uk_hwcnt_header header;
+/** IOCTL parameters to check version */
+struct kbase_uk_hwcnt_reader_version_check_args
+{
+	union kbase_uk_hwcnt_header header;
 
-		uint16_t major;
-		uint16_t minor;
-		uint8_t  padding[4];
-	};
+	uint16_t major;
+	uint16_t minor;
+	uint8_t  padding[4];
+};
 
-	union kbase_pointer
-	{
-		void *   value;
-		uint32_t compat_value;
-		uint64_t sizer;
-	};
+union kbase_pointer
+{
+	void *   value;
+	uint32_t compat_value;
+	uint64_t sizer;
+};
 
-	struct kbase_ioctl_get_gpuprops
-	{
-		kbase_pointer buffer;
-		uint32_t      size;
-		uint32_t      flags;
-	};
+struct kbase_ioctl_get_gpuprops
+{
+	kbase_pointer buffer;
+	uint32_t      size;
+	uint32_t      flags;
+};
 
-	struct kbase_ioctl_version_check
-	{
-		uint16_t major;
-		uint16_t minor;
-	};
+struct kbase_ioctl_version_check
+{
+	uint16_t major;
+	uint16_t minor;
+};
 
-	struct kbase_ioctl_set_flags
-	{
-		uint32_t create_flags;
-	};
+struct kbase_ioctl_set_flags
+{
+	uint32_t create_flags;
+};
 
-	struct kbase_ioctl_hwcnt_reader_setup
-	{
-		uint32_t buffer_count;
-		uint32_t jm_bm;
-		uint32_t shader_bm;
-		uint32_t tiler_bm;
-		uint32_t mmu_l2_bm;
-	};
+struct kbase_ioctl_hwcnt_reader_setup
+{
+	uint32_t buffer_count;
+	uint32_t jm_bm;
+	uint32_t shader_bm;
+	uint32_t tiler_bm;
+	uint32_t mmu_l2_bm;
+};
 
 #	define KBASE_IOCTL_TYPE 0x80
 #	define KBASE_IOCTL_GET_GPUPROPS MALI_IOW(KBASE_IOCTL_TYPE, 3, struct mali_userspace::kbase_ioctl_get_gpuprops)
-#	define KBASE_IOCTL_VERSION_CHECK _IOWR(KBASE_IOCTL_TYPE, 0, struct kbase_ioctl_version_check)
-#	define KBASE_IOCTL_SET_FLAGS _IOW(KBASE_IOCTL_TYPE, 1, struct kbase_ioctl_set_flags)
-#	define KBASE_IOCTL_HWCNT_READER_SETUP _IOW(KBASE_IOCTL_TYPE, 8, struct kbase_ioctl_hwcnt_reader_setup)
+#	define KBASE_IOCTL_VERSION_CHECK _IOWR(KBASE_IOCTL_TYPE, 0, struct mali_userspace::kbase_ioctl_version_check)
+#	define KBASE_IOCTL_SET_FLAGS _IOW(KBASE_IOCTL_TYPE, 1, struct mali_userspace::kbase_ioctl_set_flags)
+#	define KBASE_IOCTL_HWCNT_READER_SETUP _IOW(KBASE_IOCTL_TYPE, 8, struct mali_userspace::kbase_ioctl_hwcnt_reader_setup)
 
-	/** IOCTL parameters to set flags */
-	struct kbase_uk_hwcnt_reader_set_flags
-	{
-		union kbase_uk_hwcnt_header header;
+/** IOCTL parameters to set flags */
+struct kbase_uk_hwcnt_reader_set_flags
+{
+	union kbase_uk_hwcnt_header header;
 
-		uint32_t create_flags;
-		uint32_t padding;
-	};
+	uint32_t create_flags;
+	uint32_t padding;
+};
 
-	/** IOCTL parameters to configure reader */
-	struct kbase_uk_hwcnt_reader_setup
-	{
-		union kbase_uk_hwcnt_header header;
+/** IOCTL parameters to configure reader */
+struct kbase_uk_hwcnt_reader_setup
+{
+	union kbase_uk_hwcnt_header header;
 
-		/* IN */
-		uint32_t buffer_count;
-		uint32_t jm_bm;
-		uint32_t shader_bm;
-		uint32_t tiler_bm;
-		uint32_t mmu_l2_bm;
+	/* IN */
+	uint32_t buffer_count;
+	uint32_t jm_bm;
+	uint32_t shader_bm;
+	uint32_t tiler_bm;
+	uint32_t mmu_l2_bm;
 
-		/* OUT */
-		int32_t fd;
-	};
+	/* OUT */
+	int32_t fd;
+};
 
-	static const uint32_t HWCNT_READER_API = 1;
+static const uint32_t HWCNT_READER_API = 1;
 
-	struct uku_version_check_args
-	{
-		uk_header header;
-		uint16_t  major;
-		uint16_t  minor;
-		uint8_t   padding[4];
-	};
+struct uku_version_check_args
+{
+	uk_header header;
+	uint16_t  major;
+	uint16_t  minor;
+	uint8_t   padding[4];
+};
 
-	enum
-	{
-		UKP_FUNC_ID_CHECK_VERSION = 0,
-		/* Related to mali0 ioctl interface */
-		LINUX_UK_BASE_MAGIC              = 0x80,
-		BASE_CONTEXT_CREATE_KERNEL_FLAGS = 0x2,
-		KBASE_FUNC_HWCNT_UK_FUNC_ID      = 512,
-		KBASE_FUNC_GPU_PROPS_REG_DUMP    = KBASE_FUNC_HWCNT_UK_FUNC_ID + 14,
-		KBASE_FUNC_HWCNT_READER_SETUP    = KBASE_FUNC_HWCNT_UK_FUNC_ID + 36,
-		KBASE_FUNC_HWCNT_DUMP            = KBASE_FUNC_HWCNT_UK_FUNC_ID + 11,
-		KBASE_FUNC_HWCNT_CLEAR           = KBASE_FUNC_HWCNT_UK_FUNC_ID + 12,
-		KBASE_FUNC_SET_FLAGS             = KBASE_FUNC_HWCNT_UK_FUNC_ID + 18,
+enum
+{
+	UKP_FUNC_ID_CHECK_VERSION = 0,
+	/* Related to mali0 ioctl interface */
+	LINUX_UK_BASE_MAGIC              = 0x80,
+	BASE_CONTEXT_CREATE_KERNEL_FLAGS = 0x2,
+	KBASE_FUNC_HWCNT_UK_FUNC_ID      = 512,
+	KBASE_FUNC_GPU_PROPS_REG_DUMP    = KBASE_FUNC_HWCNT_UK_FUNC_ID + 14,
+	KBASE_FUNC_HWCNT_READER_SETUP    = KBASE_FUNC_HWCNT_UK_FUNC_ID + 36,
+	KBASE_FUNC_HWCNT_DUMP            = KBASE_FUNC_HWCNT_UK_FUNC_ID + 11,
+	KBASE_FUNC_HWCNT_CLEAR           = KBASE_FUNC_HWCNT_UK_FUNC_ID + 12,
+	KBASE_FUNC_SET_FLAGS             = KBASE_FUNC_HWCNT_UK_FUNC_ID + 18,
 
-		/* The ids of ioctl commands for the reader interface */
-		KBASE_HWCNT_READER                 = 0xBE,
-		KBASE_HWCNT_READER_GET_HWVER       = MALI_IOR(KBASE_HWCNT_READER, 0x00, uint32_t),
-		KBASE_HWCNT_READER_GET_BUFFER_SIZE = MALI_IOR(KBASE_HWCNT_READER, 0x01, uint32_t),
-		KBASE_HWCNT_READER_DUMP            = MALI_IOW(KBASE_HWCNT_READER, 0x10, uint32_t),
-		KBASE_HWCNT_READER_CLEAR           = MALI_IOW(KBASE_HWCNT_READER, 0x11, uint32_t),
-		KBASE_HWCNT_READER_GET_BUFFER      = MALI_IOR(KBASE_HWCNT_READER, 0x20, struct kbase_hwcnt_reader_metadata),
-		KBASE_HWCNT_READER_PUT_BUFFER      = MALI_IOW(KBASE_HWCNT_READER, 0x21, struct kbase_hwcnt_reader_metadata),
-		KBASE_HWCNT_READER_SET_INTERVAL    = MALI_IOW(KBASE_HWCNT_READER, 0x30, uint32_t),
-		KBASE_HWCNT_READER_ENABLE_EVENT    = MALI_IOW(KBASE_HWCNT_READER, 0x40, uint32_t),
-		KBASE_HWCNT_READER_DISABLE_EVENT   = MALI_IOW(KBASE_HWCNT_READER, 0x41, uint32_t),
-		KBASE_HWCNT_READER_GET_API_VERSION = MALI_IOW(KBASE_HWCNT_READER, 0xFF, uint32_t)
-	};
+	/* The ids of ioctl commands for the reader interface */
+	KBASE_HWCNT_READER                 = 0xBE,
+	KBASE_HWCNT_READER_GET_HWVER       = MALI_IOR(KBASE_HWCNT_READER, 0x00, uint32_t),
+	KBASE_HWCNT_READER_GET_BUFFER_SIZE = MALI_IOR(KBASE_HWCNT_READER, 0x01, uint32_t),
+	KBASE_HWCNT_READER_DUMP            = MALI_IOW(KBASE_HWCNT_READER, 0x10, uint32_t),
+	KBASE_HWCNT_READER_CLEAR           = MALI_IOW(KBASE_HWCNT_READER, 0x11, uint32_t),
+	KBASE_HWCNT_READER_GET_BUFFER      = MALI_IOR(KBASE_HWCNT_READER, 0x20, struct kbase_hwcnt_reader_metadata),
+	KBASE_HWCNT_READER_PUT_BUFFER      = MALI_IOW(KBASE_HWCNT_READER, 0x21, struct kbase_hwcnt_reader_metadata),
+	KBASE_HWCNT_READER_SET_INTERVAL    = MALI_IOW(KBASE_HWCNT_READER, 0x30, uint32_t),
+	KBASE_HWCNT_READER_ENABLE_EVENT    = MALI_IOW(KBASE_HWCNT_READER, 0x40, uint32_t),
+	KBASE_HWCNT_READER_DISABLE_EVENT   = MALI_IOW(KBASE_HWCNT_READER, 0x41, uint32_t),
+	KBASE_HWCNT_READER_GET_API_VERSION = MALI_IOW(KBASE_HWCNT_READER, 0xFF, uint32_t)
+};
 
-	enum
-	{
-		PIPE_DESCRIPTOR_IN,  /**< The index of a pipe's input descriptor. */
-		PIPE_DESCRIPTOR_OUT, /**< The index of a pipe's output descriptor. */
+enum
+{
+	PIPE_DESCRIPTOR_IN,  /**< The index of a pipe's input descriptor. */
+	PIPE_DESCRIPTOR_OUT, /**< The index of a pipe's output descriptor. */
 
-		PIPE_DESCRIPTOR_COUNT /**< The number of descriptors forming a pipe. */
-	};
+	PIPE_DESCRIPTOR_COUNT /**< The number of descriptors forming a pipe. */
+};
 
-	enum
-	{
-		POLL_DESCRIPTOR_SIGNAL,       /**< The index of the signal descriptor in poll fds array. */
-		POLL_DESCRIPTOR_HWCNT_READER, /**< The index of the hwcnt reader descriptor in poll fds array. */
+enum
+{
+	POLL_DESCRIPTOR_SIGNAL,       /**< The index of the signal descriptor in poll fds array. */
+	POLL_DESCRIPTOR_HWCNT_READER, /**< The index of the hwcnt reader descriptor in poll fds array. */
 
-		POLL_DESCRIPTOR_COUNT /**< The number of descriptors poll is waiting for. */
-	};
+	POLL_DESCRIPTOR_COUNT /**< The number of descriptors poll is waiting for. */
+};
 
-	/** Write a single byte into the pipe to interrupt the reader thread */
-	typedef char poll_data_t;
+/** Write a single byte into the pipe to interrupt the reader thread */
+typedef char poll_data_t;
 }        // namespace
 
 template <typename T>

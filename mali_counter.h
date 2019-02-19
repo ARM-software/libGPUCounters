@@ -31,10 +31,9 @@
 #include <map>
 #include <vector>
 
-namespace vkb
-{
 /** Instrument implementation for mali hw counters. */
-class MaliCounter : public Instrument {
+class MaliCounter : public Instrument
+{
   public:
 	/// @brief Construct a Mali counter.
 	MaliCounter();
@@ -81,4 +80,3 @@ class MaliCounter : public Instrument {
 	int                       _fd{-1};
 	int                       _hwc_fd{-1};
 };
-}        // namespace vkb

@@ -32,10 +32,24 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-namespace vkb
-{
+#define HWCPIPE_TAG "HWCPipe"
+
+#if defined(__ANDROID__)
+#	include <android/log.h>
+
+#	define HWCPIPE_LOG(...) __android_log_print(ANDROID_LOG_VERBOSE, HWCPIPE_TAG, __VA_ARGS__)
+#else
+#	define HWCPIPE_LOG(...)                              \
+		{                                                 \
+			fprintf(stdout, "%s [INFO] : ", HWCPIPE_TAG); \
+			fprintf(stdout, __VA_ARGS__);                 \
+			fprintf(stdout, "\n");                        \
+		}
+#endif
+
 /** Class provides access to CPU hardware counters. */
-class PMU {
+class PMU
+{
   public:
 	/** Default constructor. */
 	PMU();
@@ -73,8 +87,13 @@ class PMU {
 	/** Close the currently open counter. */
 	void close();
 
-	/** Reset counter. */
-	void reset();
+	/** Reset counter.
+	 *
+	 * @return false if reset fails. */
+	bool reset();
+
+	/** Print counter config ID. */
+	std::string config_to_str(const perf_event_attr &perf_config);
 
   private:
 	perf_event_attr _perf_config;
@@ -94,4 +113,3 @@ T PMU::get_value() const
 
 	return value;
 }
-}        // namespace vkb

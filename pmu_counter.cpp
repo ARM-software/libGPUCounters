@@ -23,8 +23,6 @@
  */
 #include "pmu_counter.h"
 
-namespace vkb
-{
 std::string PMUCounter::id() const
 {
 	return "PMU Counter";
@@ -34,6 +32,10 @@ void PMUCounter::start()
 {
 	_pmu_cycles.reset();
 	_pmu_instructions.reset();
+	_pmu_cache_references.reset();
+	_pmu_cache_misses.reset();
+	_pmu_branch_instructions.reset();
+	_pmu_branch_misses.reset();
 }
 
 void PMUCounter::stop()
@@ -102,4 +104,3 @@ Instrument::MeasurementsMap PMUCounter::measurements() const
 	    {"Branch miss ratio", Measurement(static_cast<double>(_branch_misses) / _branch_instructions, "")},
 	};
 }
-}        // namespace vkb

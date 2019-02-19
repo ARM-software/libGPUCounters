@@ -27,10 +27,9 @@
 #include "instrument.h"
 #include "pmu.h"
 
-namespace vkb
-{
 /** Implementation of an instrument to count CPU cycles. */
-class PMUCounter : public Instrument {
+class PMUCounter : public Instrument
+{
   public:
 	/// @brief Construct a PMU counter.
 	PMUCounter(){};
@@ -54,4 +53,3 @@ class PMUCounter : public Instrument {
 	long long _branch_instructions{0};
 	long long _branch_misses{0};
 };
-}        // namespace vkb
