@@ -215,8 +215,8 @@ MaliCounter::MaliCounter()
 	        {"L2_WRITE_LOOKUP", Measurement(0, "cache lookups")},
 	        {"L2_EXT_WRITE", Measurement(0, "transactions")},
 	        {"L2_EXT_W_STALL", Measurement(0, "stall cycles")},
-            {"L2_EXT_READ_BEATS", Measurement(0, "bus cycles")},
-            {"L2_EXT_WRITE_BEATS", Measurement(0, "bus cycles")}
+	        {"L2_EXT_READ_BEATS", Measurement(0, "bus cycles")},
+	        {"L2_EXT_WRITE_BEATS", Measurement(0, "bus cycles")}
 	    };
 
 	init();
@@ -495,14 +495,14 @@ void MaliCounter::stop()
 	_counters.at("JS0_JOBS")   = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS0_JOBS")], _counters.at("JS0_JOBS").unit());
 	_counters.at("JS1_JOBS")   = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS1_JOBS")], _counters.at("JS1_JOBS").unit());
 
-	const uint32_t *mmu_counter       = get_counters(mali_userspace::MALI_NAME_BLOCK_MMU);
-	_counters.at("L2_READ_LOOKUP")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_READ_LOOKUP")], _counters.at("L2_READ_LOOKUP").unit());
-	_counters.at("L2_EXT_READ")       = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ")], _counters.at("L2_EXT_READ").unit());
-	_counters.at("L2_EXT_AR_STALL")   = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_AR_STALL")], _counters.at("L2_EXT_AR_STALL").unit());
-	_counters.at("L2_WRITE_LOOKUP")   = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_WRITE_LOOKUP")], _counters.at("L2_WRITE_LOOKUP").unit());
-	_counters.at("L2_EXT_WRITE")      = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE")], _counters.at("L2_EXT_WRITE").unit());
-	_counters.at("L2_EXT_W_STALL")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_W_STALL")], _counters.at("L2_EXT_W_STALL").unit());
-    _counters.at("L2_EXT_READ_BEATS") = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ_BEATS")], _counters.at("L2_EXT_READ_BEATS").unit());
+	const uint32_t *mmu_counter        = get_counters(mali_userspace::MALI_NAME_BLOCK_MMU);
+	_counters.at("L2_READ_LOOKUP")     = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_READ_LOOKUP")], _counters.at("L2_READ_LOOKUP").unit());
+	_counters.at("L2_EXT_READ")        = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ")], _counters.at("L2_EXT_READ").unit());
+	_counters.at("L2_EXT_AR_STALL")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_AR_STALL")], _counters.at("L2_EXT_AR_STALL").unit());
+	_counters.at("L2_WRITE_LOOKUP")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_WRITE_LOOKUP")], _counters.at("L2_WRITE_LOOKUP").unit());
+	_counters.at("L2_EXT_WRITE")       = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE")], _counters.at("L2_EXT_WRITE").unit());
+	_counters.at("L2_EXT_W_STALL")     = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_W_STALL")], _counters.at("L2_EXT_W_STALL").unit());
+    _counters.at("L2_EXT_READ_BEATS")  = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ_BEATS")], _counters.at("L2_EXT_READ_BEATS").unit());
     _counters.at("L2_EXT_WRITE_BEATS") = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE_BEATS")], _counters.at("L2_EXT_WRITE_BEATS").unit());
 
 	_stop_time = _timestamp;
@@ -526,8 +526,9 @@ Instrument::MeasurementsMap MaliCounter::measurements() const
 	    {"L2 cache write lookups", _counters.at("L2_WRITE_LOOKUP")},
 	    {"L2 cache external writes", _counters.at("L2_EXT_WRITE")},
 	    {"L2 cache external write stalls", _counters.at("L2_EXT_W_STALL")},
-	    {"L2 external read beats", _counters.at("L2_EXT_READ_BEATS")},
-	    {"L2 external write beats", _counters.at("L2_EXT_WRITE_BEATS")}};
+	    {"L2 cache external read beats", _counters.at("L2_EXT_READ_BEATS")},
+	    {"L2 cache external write beats", _counters.at("L2_EXT_WRITE_BEATS")},
+	};
 
 	return measurements;
 }
