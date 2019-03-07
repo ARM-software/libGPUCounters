@@ -3242,8 +3242,7 @@ static const char *const hardware_counters_mali_tNOx[] =
         "",
         "",
         "",
-        "",
-};
+        ""};
 
 enum
 {
