@@ -444,23 +444,30 @@ const uint32_t *MaliCounter::get_counters() const
 	return _raw_counter_buffer.data();
 }
 
-const uint32_t *MaliCounter::get_counters(mali_userspace::MaliCounterBlockName block, int core) const
+const uint32_t *MaliCounter::get_counters(mali_userspace::MaliCounterBlockName block, int index) const
 {
 	switch (block)
 	{
 		case mali_userspace::MALI_NAME_BLOCK_JM:
 			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * 0;
 		case mali_userspace::MALI_NAME_BLOCK_MMU:
-			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * 2;
-		case mali_userspace::MALI_NAME_BLOCK_TILER:
-			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * 1;
-		default:
-			if (core < 0)
+			if (index < 0 || index >= _num_l2_slices)
 			{
 				throw std::runtime_error("Invalid core number.");
 			}
 
-			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * (3 + _core_index_remap[core]);
+			// If an MMU counter is selected, index refers to the MMU slice
+			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * (2 + index);
+		case mali_userspace::MALI_NAME_BLOCK_TILER:
+			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * 1;
+		default:
+			if (index < 0 || index >= _num_cores)
+			{
+				throw std::runtime_error("Invalid core number.");
+			}
+
+			// If a shader core counter is selected, index refers to the core index
+			return _raw_counter_buffer.data() + mali_userspace::MALI_NAME_BLOCK_SIZE * (2 + _num_l2_slices + _core_index_remap[index]);
 	}
 }
 
