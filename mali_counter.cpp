@@ -191,8 +191,8 @@ MaliHWInfo get_mali_hw_info(const char *path)
 			hw_info.p_value = props.minor_revision;
 			for (uint32_t i = 0; i < props.num_core_groups; i++)
 				hw_info.core_mask |= props.core_mask[i];
-			hw_info.mp_count = __builtin_popcountll(hw_info.core_mask);
-			//hw_info.l2_slices = props.l2_slices;
+			hw_info.mp_count  = __builtin_popcountll(hw_info.core_mask);
+			hw_info.l2_slices = props.l2_slices;
 
 			close(fd);
 		}
@@ -233,7 +233,8 @@ void MaliCounter::init()
 
 	MaliHWInfo hw_info = get_mali_hw_info(_device);
 
-	_num_cores = hw_info.mp_count;
+	_num_cores     = hw_info.mp_count;
+	_num_l2_slices = hw_info.l2_slices;
 
 	_fd = open(_device, O_RDWR | O_CLOEXEC | O_NONBLOCK);        // NOLINT
 

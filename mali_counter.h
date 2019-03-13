@@ -68,6 +68,7 @@ class MaliCounter : public Instrument
 
 	const char *const  _device{"/dev/mali0"};
 	int                _num_cores{0};
+	int                _num_l2_slices{0};
 	uint32_t           _hw_ver{0};
 	int                _buffer_count{16};
 	size_t             _buffer_size{0};
