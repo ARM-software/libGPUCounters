@@ -43,6 +43,7 @@ void PMUCounter::stop()
 	try
 	{
 		_cycles = _pmu_cycles.get_value<long long>();
+		_pmu_cycles.reset();
 	}
 	catch (const std::runtime_error &)
 	{
@@ -52,6 +53,7 @@ void PMUCounter::stop()
 	try
 	{
 		_instructions = _pmu_instructions.get_value<long long>();
+		_pmu_instructions.reset();
 	}
 	catch (const std::runtime_error &)
 	{
@@ -61,6 +63,7 @@ void PMUCounter::stop()
 	try
 	{
 		_cache_references = _pmu_cache_references.get_value<long long>();
+		_pmu_cache_references.reset();
 	}
 	catch (const std::runtime_error &)
 	{
@@ -70,6 +73,7 @@ void PMUCounter::stop()
 	try
 	{
 		_cache_misses = _pmu_cache_misses.get_value<long long>();
+		_pmu_cache_misses.reset();
 	}
 	catch (const std::runtime_error &)
 	{
@@ -79,6 +83,7 @@ void PMUCounter::stop()
 	try
 	{
 		_branch_instructions = _pmu_branch_instructions.get_value<long long>();
+		_pmu_branch_instructions.reset();
 	}
 	catch (const std::runtime_error &)
 	{
@@ -88,6 +93,7 @@ void PMUCounter::stop()
 	try
 	{
 		_branch_misses = _pmu_branch_misses.get_value<long long>();
+		_pmu_branch_misses.reset();
 	}
 	catch (const std::runtime_error &)
 	{
