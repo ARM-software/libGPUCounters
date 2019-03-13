@@ -61,6 +61,10 @@ class MaliCounter : public Instrument
 	const uint32_t *get_counters(mali_userspace::MaliCounterBlockName block, int index = -1) const;
 	int             find_counter_index_by_name(mali_userspace::MaliCounterBlockName block, const char *name);
 
+	const std::vector<const std::pair<const char *, const char *>> _jm_counter_names{
+	    {"GPU_ACTIVE", "cycles"}, {"JS0_JOBS", "jobs"}, {"JS1_JOBS", "jobs"}};
+	const std::vector<const std::pair<const char *, const char *>> _mmu_counter_names{
+	    {"L2_READ_LOOKUP", "cache lookups"}, {"L2_EXT_READ", "transactions"}, {"L2_EXT_AR_STALL", "stall cycles"}, {"L2_WRITE_LOOKUP", "cache lookups"}, {"L2_EXT_WRITE", "transactions"}, {"L2_EXT_W_STALL", "stall cycles"}, {"L2_EXT_READ_BEATS", "bus cycles"}, {"L2_EXT_WRITE_BEATS", "bus cycles"}};
 	std::map<std::string, Measurement> _counters{};
 
 	uint64_t _start_time{0};

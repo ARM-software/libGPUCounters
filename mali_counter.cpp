@@ -204,20 +204,15 @@ MaliHWInfo get_mali_hw_info(const char *path)
 
 MaliCounter::MaliCounter()
 {
-	_counters =
-	    {
-	        {"GPU_ACTIVE", Measurement(0, "cycles")},
-	        {"JS0_JOBS", Measurement(0, "jobs")},
-	        {"JS1_JOBS", Measurement(0, "jobs")},
-	        {"L2_READ_LOOKUP", Measurement(0, "cache lookups")},
-	        {"L2_EXT_READ", Measurement(0, "transactions")},
-	        {"L2_EXT_AR_STALL", Measurement(0, "stall cycles")},
-	        {"L2_WRITE_LOOKUP", Measurement(0, "cache lookups")},
-	        {"L2_EXT_WRITE", Measurement(0, "transactions")},
-	        {"L2_EXT_W_STALL", Measurement(0, "stall cycles")},
-	        {"L2_EXT_READ_BEATS", Measurement(0, "bus cycles")},
-	        {"L2_EXT_WRITE_BEATS", Measurement(0, "bus cycles")}
-	    };
+	for (const auto &jm_counter : _jm_counter_names)
+	{
+		_counters.emplace(std::make_pair(jm_counter.first, Measurement{0, jm_counter.second}));
+	}
+
+	for (const auto &mmu_counter : _mmu_counter_names)
+	{
+		_counters.emplace(std::make_pair(mmu_counter.first, Measurement{0, mmu_counter.second}));
+	}
 
 	init();
 }
@@ -499,19 +494,29 @@ void MaliCounter::stop()
 	wait_next_event();
 
 	const uint32_t *jm_counter = get_counters(mali_userspace::MALI_NAME_BLOCK_JM);
-	_counters.at("GPU_ACTIVE") = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "GPU_ACTIVE")], _counters.at("GPU_ACTIVE").unit());
-	_counters.at("JS0_JOBS")   = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS0_JOBS")], _counters.at("JS0_JOBS").unit());
-	_counters.at("JS1_JOBS")   = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, "JS1_JOBS")], _counters.at("JS1_JOBS").unit());
 
-	const uint32_t *mmu_counter        = get_counters(mali_userspace::MALI_NAME_BLOCK_MMU);
-	_counters.at("L2_READ_LOOKUP")     = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_READ_LOOKUP")], _counters.at("L2_READ_LOOKUP").unit());
-	_counters.at("L2_EXT_READ")        = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ")], _counters.at("L2_EXT_READ").unit());
-	_counters.at("L2_EXT_AR_STALL")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_AR_STALL")], _counters.at("L2_EXT_AR_STALL").unit());
-	_counters.at("L2_WRITE_LOOKUP")    = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_WRITE_LOOKUP")], _counters.at("L2_WRITE_LOOKUP").unit());
-	_counters.at("L2_EXT_WRITE")       = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE")], _counters.at("L2_EXT_WRITE").unit());
-	_counters.at("L2_EXT_W_STALL")     = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_W_STALL")], _counters.at("L2_EXT_W_STALL").unit());
-    _counters.at("L2_EXT_READ_BEATS")  = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_READ_BEATS")], _counters.at("L2_EXT_READ_BEATS").unit());
-    _counters.at("L2_EXT_WRITE_BEATS") = Measurement(mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE_BEATS")], _counters.at("L2_EXT_WRITE_BEATS").unit());
+	for (const auto &jm_counter_name : _jm_counter_names)
+	{
+		_counters.at(jm_counter_name.first) = Measurement(jm_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_JM, jm_counter_name.first)], _counters.at(jm_counter_name.first).unit());
+	}
+
+	// We have one MMU counter per L2 cache slice
+	std::vector<const uint32_t *> mmu_counters;
+	for (int i = 0; i < _num_l2_slices; i++)
+	{
+		mmu_counters.push_back(get_counters(mali_userspace::MALI_NAME_BLOCK_MMU, i));
+	}
+
+	// We iterate over counter names and accumulate data from all L2 cache slices
+	for (const auto &mmu_counter_name : _mmu_counter_names)
+	{
+		uint32_t mmu_counter_value = 0;
+		for (const auto &mmu_counter : mmu_counters)
+		{
+			mmu_counter_value += mmu_counter[find_counter_index_by_name(mali_userspace::MALI_NAME_BLOCK_MMU, mmu_counter_name.first)];
+		}
+		_counters.at(mmu_counter_name.first) = Measurement(mmu_counter_value, _counters.at(mmu_counter_name.first).unit());
+	}
 
 	_stop_time = _timestamp;
 }
