@@ -448,7 +448,7 @@ const uint32_t *MaliCounter::get_counters(mali_userspace::MaliCounterBlockName b
 		case mali_userspace::MALI_NAME_BLOCK_MMU:
 			if (index < 0 || index >= _num_l2_slices)
 			{
-				throw std::runtime_error("Invalid core number.");
+				throw std::runtime_error("Invalid slice number.");
 			}
 
 			// If an MMU counter is selected, index refers to the MMU slice
