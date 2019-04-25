@@ -65,7 +65,11 @@ class MaliCounter : public Instrument
 	const std::vector<std::pair<const char *, const char *>> _jm_counter_names{
 	    {"GPU_ACTIVE", "cycles"},
 	    {"JS0_JOBS", "jobs"},
-	    {"JS1_JOBS", "jobs"}};
+	    {"JS1_JOBS", "jobs"},
+	    {"JS2_JOBS", "jobs"},
+	    {"JS0_ACTIVE", "cycles"},
+	    {"JS1_ACTIVE", "cycles"},
+	    {"JS2_ACTIVE", "cycles"}};
 	const std::vector<std::pair<const char *, const char *>> _mmu_counter_names{
 	    {"L2_READ_LOOKUP", "cache lookups"},
 	    {"L2_EXT_READ", "transactions"},
