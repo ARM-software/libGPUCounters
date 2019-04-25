@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 ARM Limited.
+ * Copyright (c) 2019 ARM Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -24,32 +24,17 @@
 
 #pragma once
 
-#include "instrument.h"
-#include "pmu.h"
+#define HWCPIPE_TAG "HWCPipe"
 
-/** Implementation of an instrument to count CPU cycles. */
-class PMUCounter : public Instrument
-{
-  public:
-	/// @brief Construct a PMU counter.
-	PMUCounter(){};
+#if defined(__ANDROID__)
+#	include <android/log.h>
 
-	std::string     id() const override;
-	void            start() override;
-	void            stop() override;
-	MeasurementsMap measurements() const override;
-
-  private:
-	PMU       _pmu_cycles{PERF_COUNT_HW_CPU_CYCLES};
-	PMU       _pmu_instructions{PERF_COUNT_HW_INSTRUCTIONS};
-	PMU       _pmu_cache_references{PERF_COUNT_HW_CACHE_REFERENCES};
-	PMU       _pmu_cache_misses{PERF_COUNT_HW_CACHE_MISSES};
-	PMU       _pmu_branch_instructions{PERF_COUNT_HW_BRANCH_INSTRUCTIONS};
-	PMU       _pmu_branch_misses{PERF_COUNT_HW_BRANCH_MISSES};
-	long long _cycles{0};
-	long long _instructions{0};
-	long long _cache_references{0};
-	long long _cache_misses{0};
-	long long _branch_instructions{0};
-	long long _branch_misses{0};
-};
+#	define HWCPIPE_LOG(...) __android_log_print(ANDROID_LOG_VERBOSE, HWCPIPE_TAG, __VA_ARGS__)
+#else
+#	define HWCPIPE_LOG(...)                              \
+		{                                                 \
+			fprintf(stdout, "%s [INFO] : ", HWCPIPE_TAG); \
+			fprintf(stdout, __VA_ARGS__);                 \
+			fprintf(stdout, "\n");                        \
+		}
+#endif

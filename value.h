@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 ARM Limited.
+ * Copyright (c) 2019 ARM Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -24,55 +24,46 @@
 
 #pragma once
 
-#include "measurement.h"
-
-#include <vector>
-
-/** Generate common statistics for a set of measurements
-     */
-class InstrumentsStats
+namespace hwcpipe
+{
+class Value
 {
   public:
-	/** Compute statistics for the passed set of measurements
-     *
-     * @param[in] measurements The measurements to process
-     */
-	InstrumentsStats(const std::vector<Measurement> &measurements);
-	/** The measurement with the minimum value
-             */
-	const Measurement &min() const
+	Value() :
+	    is_int_(true),
+	    int_(0),
+	    double_(0.0f)
+	{}
+	Value(long long value) :
+	    is_int_(true),
+	    int_(value)
+	{}
+	Value(double value) :
+	    is_int_(false),
+	    double_(value)
+	{}
+
+	template <typename T>
+	T get() const
 	{
-		return *_min;
+		return is_int_ ? static_cast<T>(int_) : static_cast<T>(double_);
 	}
-	/** The measurement with the maximum value
-             */
-	const Measurement &max() const
+
+	void set(long long value)
 	{
-		return *_max;
+		int_    = value;
+		is_int_ = true;
 	}
-	/** The median measurement
-             */
-	const Measurement &median() const
+
+	void set(double value)
 	{
-		return *_median;
-	}
-	/** The average of all the measurements
-             */
-	const Measurement::Value &mean() const
-	{
-		return _mean;
-	}
-	/** The relative standard deviation of the measurements
-             */
-	double relative_standard_deviation() const
-	{
-		return _stddev;
+		double_ = value;
+		is_int_ = false;
 	}
 
   private:
-	const Measurement *_min;
-	const Measurement *_max;
-	const Measurement *_median;
-	Measurement::Value _mean;
-	double             _stddev;
+	bool      is_int_;
+	long long int_{0};
+	double    double_{0.0};
 };
+}        // namespace hwcpipe

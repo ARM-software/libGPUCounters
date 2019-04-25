@@ -22,14 +22,14 @@
  * SOFTWARE.
  */
 
-#include "pmu.h"
+#include "pmu_counter.h"
 
 #include <asm/unistd.h>
 #include <cstring>
 #include <stdexcept>
 #include <sys/ioctl.h>
 
-PMU::PMU() :
+PmuCounter::PmuCounter() :
     _perf_config()
 {
 	_perf_config.type = PERF_TYPE_HARDWARE;
@@ -44,41 +44,41 @@ PMU::PMU() :
 	_perf_config.inherit_stat = 1;
 }
 
-PMU::PMU(uint64_t config) :
-    PMU()
+PmuCounter::PmuCounter(uint64_t config) :
+    PmuCounter()
 {
 	open(config);
 }
 
-PMU::~PMU()
+PmuCounter::~PmuCounter()
 {
 	close();
 }
 
-void PMU::open(uint64_t config)
+void PmuCounter::open(uint64_t config)
 {
 	_perf_config.config = config;
 	open(_perf_config);
 }
 
-void PMU::open(const perf_event_attr &perf_config)
+void PmuCounter::open(const perf_event_attr &perf_config)
 {
 	// Measure this process/thread (+ children) on any CPU
 	_fd = syscall(__NR_perf_event_open, &perf_config, 0, -1, -1, 0);
 
 	if (_fd < 0)
 	{
-		HWCPIPE_LOG("perf_event_open failed. Counter ID: %s", config_to_str(_perf_config).c_str());
+		throw std::runtime_error("perf_event_open failed. Counter ID: " + config_to_str(_perf_config));
 	}
 
 	const int result = ioctl(_fd, PERF_EVENT_IOC_ENABLE, 0);
 	if (result == -1)
 	{
-		HWCPIPE_LOG("Failed to enable PMU counter: %s", std::to_string(errno).c_str());
+		throw std::runtime_error("Failed to enable PMU counter: " + std::to_string(errno));
 	}
 }
 
-void PMU::close()
+void PmuCounter::close()
 {
 	if (_fd != -1)
 	{
@@ -87,13 +87,13 @@ void PMU::close()
 	}
 }
 
-bool PMU::reset()
+bool PmuCounter::reset()
 {
 	const int result = ioctl(_fd, PERF_EVENT_IOC_RESET, 0);
 	return result != -1;
 }
 
-std::string PMU::config_to_str(const perf_event_attr &perf_config)
+std::string PmuCounter::config_to_str(const perf_event_attr &perf_config)
 {
 	switch (perf_config.type)
 	{
