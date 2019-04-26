@@ -32,39 +32,26 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#define HWCPIPE_TAG "HWCPipe"
-
-#if defined(__ANDROID__)
-#	include <android/log.h>
-
-#	define HWCPIPE_LOG(...) __android_log_print(ANDROID_LOG_VERBOSE, HWCPIPE_TAG, __VA_ARGS__)
-#else
-#	define HWCPIPE_LOG(...)                              \
-		{                                                 \
-			fprintf(stdout, "%s [INFO] : ", HWCPIPE_TAG); \
-			fprintf(stdout, __VA_ARGS__);                 \
-			fprintf(stdout, "\n");                        \
-		}
-#endif
+#include "hwcpipe_log.h"
 
 /** Class provides access to CPU hardware counters. */
-class PMU
+class PmuCounter
 {
   public:
 	/** Default constructor. */
-	PMU();
+	PmuCounter();
 
-	/** Create PMU with specified counter.
+	/** Create PMU counter with specified config.
      *
      * This constructor automatically calls @ref open with the default
      * configuration.
      *
      * @param[in] config Counter identifier.
      */
-	explicit PMU(uint64_t config);
+	explicit PmuCounter(uint64_t config);
 
 	/** Default destructor. */
-	~PMU();
+	~PmuCounter();
 
 	/** Get the counter value.
      *
@@ -101,15 +88,15 @@ class PMU
 };
 
 template <typename T>
-T PMU::get_value() const
+T PmuCounter::get_value() const
 {
-	T             value{};
-	const ssize_t result = read(_fd, &value, sizeof(T));
+	long long     value{};
+	const ssize_t result = read(_fd, &value, sizeof(long long));
 
 	if (result == -1)
 	{
 		throw std::runtime_error("Can't get PMU counter value: " + std::to_string(errno));
 	}
 
-	return value;
+	return static_cast<T>(value);
 }
