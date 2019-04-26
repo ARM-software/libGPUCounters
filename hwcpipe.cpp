@@ -25,12 +25,9 @@
 #include "hwcpipe.h"
 #include "hwcpipe_log.h"
 
-#ifdef __ANDROID__
-#	include "vendor/arm/mali/mali_profiler.h"
-#endif
-
 #ifdef linux
 #	include "vendor/arm/pmu/pmu_profiler.h"
+#	include "vendor/arm/mali/mali_profiler.h"
 #endif
 
 #include <json.hpp>
