@@ -25,6 +25,8 @@
 
 #include "hwcpipe_log.h"
 
+#include <algorithm>
+
 using mali_userspace::MALI_NAME_BLOCK_JM;
 using mali_userspace::MALI_NAME_BLOCK_MMU;
 using mali_userspace::MALI_NAME_BLOCK_SHADER;

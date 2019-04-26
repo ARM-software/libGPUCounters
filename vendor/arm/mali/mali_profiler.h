@@ -28,6 +28,7 @@
 
 #include "hwc.hpp"
 
+#include <functional>
 #include <vector>
 
 namespace hwcpipe
