@@ -83,7 +83,7 @@ if (measurements.cpu)
     if (counter != measurements.cpu->end())
     {
         // Get the data stored in the counter, casted to the type you need
-        auto value = cpu_res->counter.get<float>();
+        auto value = counter->second.get<float>();
     }
 }
 ```
