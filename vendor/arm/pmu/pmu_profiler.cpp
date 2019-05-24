@@ -48,8 +48,12 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 		{
 			try
 			{
-				auto pmu_counter = pmu_counters_.emplace(counter, PmuCounter{pmu_config->second});
-				pmu_counters_[counter].get_value<double>();
+				// Create a PMU counter with the specified configuration
+				auto pmu_counter_res = pmu_counters_.emplace(counter, pmu_config->second);
+
+				// Try reading a value from the counter to check that it opened correctly
+				auto &pmu_counter = pmu_counter_res.first->second;
+				pmu_counter.get_value<double>();
 
 				// PMU counter is created and can retrieve values
 				available_counters_.insert(counter);
