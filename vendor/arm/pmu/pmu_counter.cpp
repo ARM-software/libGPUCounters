@@ -74,7 +74,7 @@ void PmuCounter::open(const perf_event_attr &perf_config)
 	const int result = ioctl(_fd, PERF_EVENT_IOC_ENABLE, 0);
 	if (result == -1)
 	{
-		throw std::runtime_error("Failed to enable PMU counter: " + std::to_string(errno));
+		throw std::runtime_error("Failed to enable PMU counter: " + std::string(strerror(errno)));
 	}
 }
 
