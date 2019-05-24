@@ -61,6 +61,7 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 			catch (const std::runtime_error &e)
 			{
 				// PMU counter initialization failed
+				HWCPIPE_LOG("%s", e.what());
 			}
 		}
 	}
