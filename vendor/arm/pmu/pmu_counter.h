@@ -95,7 +95,7 @@ T PmuCounter::get_value() const
 
 	if (result == -1)
 	{
-		throw std::runtime_error("Can't get PMU counter value: " + std::to_string(errno));
+		throw std::runtime_error("Can't get PMU counter value: " + std::string(strerror(errno)));
 	}
 
 	return static_cast<T>(value);
