@@ -25,6 +25,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstring>
 #include <errno.h>
 #include <linux/perf_event.h>
 #include <stdexcept>
@@ -95,7 +96,7 @@ T PmuCounter::get_value() const
 
 	if (result == -1)
 	{
-		throw std::runtime_error("Can't get PMU counter value: " + std::string(strerror(errno)));
+		throw std::runtime_error("Can't get PMU counter value: " + std::string(std::strerror(errno)));
 	}
 
 	return static_cast<T>(value);
