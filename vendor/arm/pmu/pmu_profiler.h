@@ -70,6 +70,7 @@ class PmuProfiler : public CpuProfiler
 
 	bool            running_{false};
 	CpuMeasurements measurements_{};
+	CpuMeasurements prev_measurements_{};
 
 	std::unordered_map<CpuCounter, PmuCounter, CpuCounterHash> pmu_counters_{};
 };
