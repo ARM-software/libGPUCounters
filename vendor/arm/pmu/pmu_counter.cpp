@@ -90,6 +90,12 @@ void PmuCounter::close()
 bool PmuCounter::reset()
 {
 	const int result = ioctl(_fd, PERF_EVENT_IOC_RESET, 0);
+
+	if (result == -1)
+	{
+		throw std::runtime_error("Failed to reset PMU counter: " + std::string(std::strerror(errno)));
+	}
+
 	return result != -1;
 }
 
