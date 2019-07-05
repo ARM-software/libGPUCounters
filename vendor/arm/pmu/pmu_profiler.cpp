@@ -93,8 +93,12 @@ const CpuMeasurements &PmuProfiler::sample()
 
 		try
 		{
-			measurements_[pmu_counter->first] = pmu_counter->second.get_value<long long>();
-			pmu_counter->second.reset();
+			auto value = pmu_counter->second.get_value<long long>();
+
+			// Resetting the PMU counter every frame seems to alter the data,
+			// so we make a differential reading.
+			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<long long>();
+			prev_measurements_[pmu_counter->first] = value;
 		}
 		catch (const std::runtime_error &e)
 		{
