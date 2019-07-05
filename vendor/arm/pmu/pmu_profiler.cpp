@@ -53,7 +53,7 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 
 				// Try reading a value from the counter to check that it opened correctly
 				auto &pmu_counter = pmu_counter_res.first->second;
-				pmu_counter.get_value<double>();
+				pmu_counter.get_value<long long>();
 
 				// PMU counter is created and can retrieve values
 				available_counters_.insert(counter);
