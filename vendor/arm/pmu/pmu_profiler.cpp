@@ -49,11 +49,11 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 			try
 			{
 				// Create a PMU counter with the specified configuration
-				auto pmu_counter_res = pmu_counters_.emplace(counter, PmuCounter{pmu_config->second});
+				auto pmu_counter_res = pmu_counters_.emplace(counter, pmu_config->second);
 
 				// Try reading a value from the counter to check that it opened correctly
 				auto &pmu_counter = pmu_counter_res.first->second;
-				pmu_counter.get_value<double>();
+				pmu_counter.get_value<long long>();
 
 				// PMU counter is created and can retrieve values
 				available_counters_.insert(counter);
@@ -77,6 +77,7 @@ void PmuProfiler::run()
 	for (auto &pmu_counter : pmu_counters_)
 	{
 		pmu_counter.second.reset();
+		prev_measurements_[pmu_counter.first] = Value{};
 	}
 }
 
@@ -92,8 +93,12 @@ const CpuMeasurements &PmuProfiler::sample()
 
 		try
 		{
-			measurements_[pmu_counter->first] = pmu_counter->second.get_value<long long>();
-			pmu_counter->second.reset();
+			auto value = pmu_counter->second.get_value<long long>();
+
+			// Resetting the PMU counter every frame seems to alter the data,
+			// so we make a differential reading.
+			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<long long>();
+			prev_measurements_[pmu_counter->first] = value;
 		}
 		catch (const std::runtime_error &e)
 		{
