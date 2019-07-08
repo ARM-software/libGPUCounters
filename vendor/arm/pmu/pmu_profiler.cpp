@@ -77,7 +77,7 @@ void PmuProfiler::run()
 	for (auto &pmu_counter : pmu_counters_)
 	{
 		pmu_counter.second.reset();
-		prev_measurements_[pmu_counter->first] = 0;
+		prev_measurements_[pmu_counter.first] = Value{};
 	}
 }
 
