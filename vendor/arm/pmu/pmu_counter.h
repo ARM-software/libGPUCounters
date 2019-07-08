@@ -49,7 +49,7 @@ class PmuCounter
      *
      * @param[in] config Counter identifier.
      */
-	explicit PmuCounter(uint64_t config);
+	PmuCounter(uint64_t config);
 
 	/** Default destructor. */
 	~PmuCounter();
