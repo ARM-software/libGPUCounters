@@ -44,6 +44,7 @@ enum class GpuCounter
 	FragmentJobs,
 	Pixels,
 
+	Tiles,
 	EarlyZTests,
 	EarlyZKilled,
 	LateZTests,
@@ -77,6 +78,7 @@ const std::unordered_map<std::string, GpuCounter> gpu_counter_names{
     {"TilerCycles", GpuCounter::TilerCycles},
 
     {"VertexComputeJobs", GpuCounter::VertexComputeJobs},
+    {"Tiles", GpuCounter::Tiles},
     {"FragmentJobs", GpuCounter::FragmentJobs},
     {"Pixels", GpuCounter::Pixels},
 
@@ -127,6 +129,7 @@ const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter
     {GpuCounter::TilerCycles, {"Number of tiler cycles", "cycles"}},
 
     {GpuCounter::VertexComputeJobs, {"Number of vertex/compute jobs", "jobs"}},
+    {GpuCounter::Tiles, {"Number of physical tiles written", "tiles"}},
     {GpuCounter::FragmentJobs, {"Number of fragment jobs", "jobs"}},
     {GpuCounter::Pixels, {"Number of pixels shaded", "cycles"}},
 

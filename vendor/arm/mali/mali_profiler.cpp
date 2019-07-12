@@ -231,6 +231,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_JOBS"); }},
 	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 1024; }},
 
+	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::EarlyZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_TEST"); }},
 	    {GpuCounter::EarlyZKilled, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_KILL"); }},
 	    {GpuCounter::LateZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_LZS_TEST"); }},
@@ -263,6 +264,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_JOBS"); }},
 	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 1024; }},
 
+	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::EarlyZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_TEST"); }},
 	    {GpuCounter::EarlyZKilled, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_KILLED"); }},
 	    {GpuCounter::LateZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_THREADS_LZS_TEST"); }},
