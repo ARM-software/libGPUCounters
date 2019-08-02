@@ -68,7 +68,6 @@ class PmuProfiler : public CpuProfiler
 	    CpuCounter::BranchInstructions,
 	    CpuCounter::BranchMisses};
 
-	bool            running_{false};
 	CpuMeasurements measurements_{};
 	CpuMeasurements prev_measurements_{};
 

@@ -91,8 +91,6 @@ class MaliProfiler : public GpuProfiler
 	    GpuCounter::ExternalMemoryWriteBytes,
 	};
 
-	bool running_{false};
-
 	typedef std::function<double(void)>                             MaliValueGetter;
 	std::unordered_map<GpuCounter, MaliValueGetter, GpuCounterHash> mappings_{};
 
