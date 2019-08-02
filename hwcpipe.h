@@ -79,8 +79,6 @@ class HWCPipe
 	}
 
   private:
-	bool running_{false};
-
 	std::unique_ptr<CpuProfiler> cpu_profiler_{};
 	std::unique_ptr<GpuProfiler> gpu_profiler_{};
 
