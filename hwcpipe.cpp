@@ -25,7 +25,7 @@
 #include "hwcpipe.h"
 #include "hwcpipe_log.h"
 
-#ifdef linux
+#ifdef __linux__
 #	include "vendor/arm/pmu/pmu_profiler.h"
 #	include "vendor/arm/mali/mali_profiler.h"
 #endif
@@ -171,7 +171,7 @@ void HWCPipe::stop()
 void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
 {
 	// Automated platform detection
-#ifdef linux
+#ifdef __linux__
 	try
 	{
 		cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
