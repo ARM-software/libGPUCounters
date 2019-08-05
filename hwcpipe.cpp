@@ -30,13 +30,16 @@
 #	include "vendor/arm/mali/mali_profiler.h"
 #endif
 
+#ifndef HWCPIPE_NO_JSON
 #include <json.hpp>
 using json = nlohmann::json;
+#endif
 
 #include <memory>
 
 namespace hwcpipe
 {
+#ifndef HWCPIPE_NO_JSON
 HWCPipe::HWCPipe(const char *json_string)
 {
 	auto json = json::parse(json_string);
@@ -79,6 +82,7 @@ HWCPipe::HWCPipe(const char *json_string)
 
 	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));
 }
+#endif
 
 HWCPipe::HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
 {
