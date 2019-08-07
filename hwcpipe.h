@@ -42,8 +42,10 @@ struct Measurements
 class HWCPipe
 {
   public:
+#ifndef HWCPIPE_NO_JSON
 	// Initializes HWCPipe via a JSON configuration string
 	explicit HWCPipe(const char *json_string);
+#endif
 
 	// Initializes HWCPipe with the specified counters
 	HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters);
