@@ -69,6 +69,7 @@ class MaliProfiler : public GpuProfiler
 	    GpuCounter::TilerCycles,
 	    GpuCounter::VertexComputeJobs,
 	    GpuCounter::Tiles,
+	    GpuCounter::TransactionEliminations,
 	    GpuCounter::FragmentJobs,
 	    GpuCounter::Pixels,
 	    GpuCounter::EarlyZTests,
