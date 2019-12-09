@@ -28,6 +28,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <sys/ioctl.h>
+#include <linux/version.h>
 
 PmuCounter::PmuCounter() :
     _perf_config()
@@ -120,12 +121,16 @@ std::string PmuCounter::config_to_str(const perf_event_attr &perf_config)
 					return "PERF_COUNT_HW_BRANCH_MISSES";
 				case PERF_COUNT_HW_BUS_CYCLES:
 					return "PERF_COUNT_HW_BUS_CYCLES";
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)
 				case PERF_COUNT_HW_STALLED_CYCLES_FRONTEND:
 					return "PERF_COUNT_HW_STALLED_CYCLES_FRONTEND";
 				case PERF_COUNT_HW_STALLED_CYCLES_BACKEND:
 					return "PERF_COUNT_HW_STALLED_CYCLES_BACKEND";
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,3,0)
 				case PERF_COUNT_HW_REF_CPU_CYCLES:
 					return "PERF_COUNT_HW_REF_CPU_CYCLES";
+#endif
 				default:
 					return "UNKNOWN HARDWARE COUNTER";
 			}
@@ -147,12 +152,16 @@ std::string PmuCounter::config_to_str(const perf_event_attr &perf_config)
 					return "PERF_COUNT_SW_PAGE_FAULTS_MIN";
 				case PERF_COUNT_SW_PAGE_FAULTS_MAJ:
 					return "PERF_COUNT_SW_PAGE_FAULTS_MAJ";
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)
 				case PERF_COUNT_SW_ALIGNMENT_FAULTS:
 					return "PERF_COUNT_SW_ALIGNMENT_FAULTS";
 				case PERF_COUNT_SW_EMULATION_FAULTS:
 					return "PERF_COUNT_SW_EMULATION_FAULTS";
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)
 				case PERF_COUNT_SW_DUMMY:
 					return "PERF_COUNT_SW_DUMMY";
+#endif
 				default:
 					return "UNKNOWN SOFTWARE COUNTER";
 			}
