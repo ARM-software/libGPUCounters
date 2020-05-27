@@ -35,6 +35,12 @@
 
 #include "hwcpipe_log.h"
 
+struct PmuEventInfo
+{
+	uint64_t type;
+	uint64_t event;
+};
+
 /** Class provides access to CPU hardware counters. */
 class PmuCounter
 {
@@ -47,9 +53,9 @@ class PmuCounter
      * This constructor automatically calls @ref open with the default
      * configuration.
      *
-     * @param[in] config Counter identifier.
+     * @param[in] config Counter info.
      */
-	PmuCounter(uint64_t config);
+	PmuCounter(PmuEventInfo config);
 
 	/** Default destructor. */
 	~PmuCounter();
@@ -62,9 +68,9 @@ class PmuCounter
 
 	/** Open the specified counter based on the default configuration.
      *
-     * @param[in] config The default configuration.
+     * @param[in] config The configuration.
      */
-	void open(uint64_t config);
+	void open(PmuEventInfo config);
 
 	/** Open the specified configuration.
      *

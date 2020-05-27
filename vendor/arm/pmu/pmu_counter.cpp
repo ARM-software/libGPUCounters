@@ -45,7 +45,7 @@ PmuCounter::PmuCounter() :
 	_perf_config.inherit_stat = 1;
 }
 
-PmuCounter::PmuCounter(uint64_t config) :
+PmuCounter::PmuCounter(PmuEventInfo config) :
     PmuCounter()
 {
 	open(config);
@@ -56,9 +56,10 @@ PmuCounter::~PmuCounter()
 	close();
 }
 
-void PmuCounter::open(uint64_t config)
+void PmuCounter::open(PmuEventInfo config)
 {
-	_perf_config.config = config;
+	_perf_config.config = config.event;
+	_perf_config.type   = config.type;
 	open(_perf_config);
 }
 

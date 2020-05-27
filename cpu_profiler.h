@@ -41,6 +41,7 @@ enum class CpuCounter
 	CacheMisses,
 	BranchInstructions,
 	BranchMisses,
+	BusRead,
 
 	MaxValue
 };
@@ -53,6 +54,7 @@ const std::unordered_map<std::string, CpuCounter> cpu_counter_names{
     {"CacheMisses", CpuCounter::CacheMisses},
     {"BranchInstructions", CpuCounter::BranchInstructions},
     {"BranchMisses", CpuCounter::BranchMisses},
+    {"BusRead", CpuCounter::BusRead},
 };
 
 // A hash function for CpuCounter values
@@ -79,6 +81,7 @@ const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter
     {CpuCounter::CacheMisses, {"Number of cache misses", "misses"}},
     {CpuCounter::BranchInstructions, {"Number of branch instructions", "instructions"}},
     {CpuCounter::BranchMisses, {"Number of branch misses", "misses"}},
+    {CpuCounter::BusRead, {"Bus read", "reads"}},
 };
 
 typedef std::unordered_set<CpuCounter, CpuCounterHash> CpuCounterSet;

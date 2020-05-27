@@ -28,13 +28,14 @@
 
 namespace hwcpipe
 {
-const std::unordered_map<CpuCounter, uint64_t, CpuCounterHash> pmu_mappings{
-    {CpuCounter::Cycles, PERF_COUNT_HW_CPU_CYCLES},
-    {CpuCounter::Instructions, PERF_COUNT_HW_INSTRUCTIONS},
-    {CpuCounter::CacheReferences, PERF_COUNT_HW_CACHE_REFERENCES},
-    {CpuCounter::CacheMisses, PERF_COUNT_HW_CACHE_MISSES},
-    {CpuCounter::BranchInstructions, PERF_COUNT_HW_BRANCH_INSTRUCTIONS},
-    {CpuCounter::BranchMisses, PERF_COUNT_HW_BRANCH_MISSES},
+const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings{
+    {CpuCounter::Cycles, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES}},
+    {CpuCounter::Instructions, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS}},
+    {CpuCounter::CacheReferences, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES}},
+    {CpuCounter::CacheMisses, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES}},
+    {CpuCounter::BranchInstructions, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS}},
+    {CpuCounter::BranchMisses, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES}},
+    {CpuCounter::BusRead, {PERF_TYPE_RAW, 0x60}},
 };
 
 PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
