@@ -35,7 +35,18 @@ const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings{
     {CpuCounter::CacheMisses, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_MISSES}},
     {CpuCounter::BranchInstructions, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_INSTRUCTIONS}},
     {CpuCounter::BranchMisses, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_BRANCH_MISSES}},
-    {CpuCounter::BusRead, {PERF_TYPE_RAW, 0x60}},
+
+    {CpuCounter::L1Accesses, {PERF_TYPE_RAW, PmuImplDefined::L1_ACCESSES}},
+    {CpuCounter::InstrRetired, {PERF_TYPE_RAW, PmuImplDefined::INSTR_RETIRED}},
+    {CpuCounter::L2Accesses, {PERF_TYPE_RAW, PmuImplDefined::L2_ACCESSES}},
+    {CpuCounter::L3Accesses, {PERF_TYPE_RAW, PmuImplDefined::L3_ACCESSES}},
+    {CpuCounter::BusReads, {PERF_TYPE_RAW, PmuImplDefined::BUS_READS}},
+    {CpuCounter::BusWrites, {PERF_TYPE_RAW, PmuImplDefined::BUS_WRITES}},
+    {CpuCounter::MemReads, {PERF_TYPE_RAW, PmuImplDefined::MEM_READS}},
+    {CpuCounter::MemWrites, {PERF_TYPE_RAW, PmuImplDefined::MEM_WRITES}},
+    {CpuCounter::ASESpec, {PERF_TYPE_RAW, PmuImplDefined::ASE_SPEC}},
+    {CpuCounter::VFPSpec, {PERF_TYPE_RAW, PmuImplDefined::VFP_SPEC}},
+    {CpuCounter::CryptoSpec, {PERF_TYPE_RAW, PmuImplDefined::CRYPTO_SPEC}},
 };
 
 PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :

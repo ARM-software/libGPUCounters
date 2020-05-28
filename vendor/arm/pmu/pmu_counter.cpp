@@ -33,7 +33,6 @@
 PmuCounter::PmuCounter() :
     _perf_config()
 {
-	_perf_config.type = PERF_TYPE_HARDWARE;
 	_perf_config.size = sizeof(perf_event_attr);
 
 	// Start disabled
@@ -166,6 +165,36 @@ std::string PmuCounter::config_to_str(const perf_event_attr &perf_config)
 				default:
 					return "UNKNOWN SOFTWARE COUNTER";
 			}
+
+		case PERF_TYPE_RAW:
+			switch (static_cast<PmuImplDefined>(perf_config.config))
+			{
+				case PmuImplDefined::L1_ACCESSES:
+					return "L1_ACCESSES";
+				case PmuImplDefined::INSTR_RETIRED:
+					return "INSTR_RETIRED";
+				case PmuImplDefined::L2_ACCESSES:
+					return "L2_ACCESSES";
+				case PmuImplDefined::L3_ACCESSES:
+					return "L3_ACCESSES";
+				case PmuImplDefined::BUS_READS:
+					return "BUS_READS";
+				case PmuImplDefined::BUS_WRITES:
+					return "BUS_WRITES";
+				case PmuImplDefined::MEM_READS:
+					return "MEM_READS";
+				case PmuImplDefined::MEM_WRITES:
+					return "MEM_WRITES";
+				case PmuImplDefined::ASE_SPEC:
+					return "ASE_SPEC";
+				case PmuImplDefined::VFP_SPEC:
+					return "VFP_SPEC";
+				case PmuImplDefined::CRYPTO_SPEC:
+					return "CRYPTO_SPEC";
+				default:
+					return "UNKNOWN RAW COUNTER";
+			}
+
 		default:
 			return std::to_string(perf_config.config);
 	}
