@@ -66,7 +66,20 @@ class PmuProfiler : public CpuProfiler
 	    CpuCounter::CacheReferences,
 	    CpuCounter::CacheMisses,
 	    CpuCounter::BranchInstructions,
-	    CpuCounter::BranchMisses};
+	    CpuCounter::BranchMisses,
+
+	    CpuCounter::L1Accesses,
+	    CpuCounter::InstrRetired,
+	    CpuCounter::L2Accesses,
+	    CpuCounter::L3Accesses,
+	    CpuCounter::BusReads,
+	    CpuCounter::BusWrites,
+	    CpuCounter::MemReads,
+	    CpuCounter::MemWrites,
+	    CpuCounter::ASESpec,
+	    CpuCounter::VFPSpec,
+	    CpuCounter::CryptoSpec,
+	};
 
 	CpuMeasurements measurements_{};
 	CpuMeasurements prev_measurements_{};

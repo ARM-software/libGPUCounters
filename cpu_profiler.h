@@ -42,6 +42,18 @@ enum class CpuCounter
 	BranchInstructions,
 	BranchMisses,
 
+	L1Accesses,
+	InstrRetired,
+	L2Accesses,
+	L3Accesses,
+	BusReads,
+	BusWrites,
+	MemReads,
+	MemWrites,
+	ASESpec,
+	VFPSpec,
+	CryptoSpec,
+
 	MaxValue
 };
 
@@ -53,6 +65,18 @@ const std::unordered_map<std::string, CpuCounter> cpu_counter_names{
     {"CacheMisses", CpuCounter::CacheMisses},
     {"BranchInstructions", CpuCounter::BranchInstructions},
     {"BranchMisses", CpuCounter::BranchMisses},
+
+    {"L1Accesses", CpuCounter::L1Accesses},
+    {"InstrRetired", CpuCounter::InstrRetired},
+    {"L2Accesses", CpuCounter::L2Accesses},
+    {"L3Accesses", CpuCounter::L3Accesses},
+    {"BusReads", CpuCounter::BusReads},
+    {"BusWrites", CpuCounter::BusWrites},
+    {"MemReads", CpuCounter::MemReads},
+    {"MemWrites", CpuCounter::MemWrites},
+    {"ASESpec", CpuCounter::ASESpec},
+    {"VFPSpec", CpuCounter::VFPSpec},
+    {"CryptoSpec", CpuCounter::CryptoSpec},
 };
 
 // A hash function for CpuCounter values
@@ -79,6 +103,18 @@ const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter
     {CpuCounter::CacheMisses, {"Number of cache misses", "misses"}},
     {CpuCounter::BranchInstructions, {"Number of branch instructions", "instructions"}},
     {CpuCounter::BranchMisses, {"Number of branch misses", "misses"}},
+
+    {CpuCounter::L1Accesses, {"L1 data cache accesses", "accesses"}},
+    {CpuCounter::InstrRetired, {"All retired instructions", "instructions"}},
+    {CpuCounter::L2Accesses, {"L2 data cache accesses", "accesses"}},
+    {CpuCounter::L3Accesses, {"L3 data cache accesses", "accesses"}},
+    {CpuCounter::BusReads, {"Bus access reads", "beats"}},
+    {CpuCounter::BusWrites, {"Bus access writes", "beats"}},
+    {CpuCounter::MemReads, {"Data memory access, load instructions", "instructions"}},
+    {CpuCounter::MemWrites, {"Data memory access, store instructions", "instructions"}},
+    {CpuCounter::ASESpec, {"Speculatively executed SIMD operations", "operations"}},
+    {CpuCounter::VFPSpec, {"Speculatively executed floating point operations", "operations"}},
+    {CpuCounter::CryptoSpec, {"Speculatively executed cryptographic operations", "operations"}},
 };
 
 typedef std::unordered_set<CpuCounter, CpuCounterHash> CpuCounterSet;

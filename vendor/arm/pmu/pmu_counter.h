@@ -35,6 +35,36 @@
 
 #include "hwcpipe_log.h"
 
+enum class PmuImplDefined : uint64_t
+{
+	L1_ACCESSES   = 0x4,
+	INSTR_RETIRED = 0x8,
+	L2_ACCESSES   = 0x16,
+	L3_ACCESSES   = 0x2b,
+	BUS_READS     = 0x60,
+	BUS_WRITES    = 0x61,
+	MEM_READS     = 0x66,
+	MEM_WRITES    = 0x67,
+	ASE_SPEC      = 0x74,
+	VFP_SPEC      = 0x75,
+	CRYPTO_SPEC   = 0x77,
+};
+
+struct PmuEventInfo
+{
+	uint64_t type;
+	uint64_t event;
+
+	PmuEventInfo(uint64_t type, uint64_t event) :
+		type(type),
+		event(event)
+	{}
+
+	PmuEventInfo(uint64_t type, PmuImplDefined event) :
+		PmuEventInfo(type, static_cast<uint64_t>(event))
+	{}
+};
+
 /** Class provides access to CPU hardware counters. */
 class PmuCounter
 {
@@ -47,9 +77,9 @@ class PmuCounter
      * This constructor automatically calls @ref open with the default
      * configuration.
      *
-     * @param[in] config Counter identifier.
+     * @param[in] config Counter info.
      */
-	PmuCounter(uint64_t config);
+	PmuCounter(PmuEventInfo config);
 
 	/** Default destructor. */
 	~PmuCounter();
@@ -60,11 +90,11 @@ class PmuCounter
 	template <typename T>
 	T get_value() const;
 
-	/** Open the specified counter based on the default configuration.
+	/** Open the specified counter based on the given configuration.
      *
-     * @param[in] config The default configuration.
+     * @param[in] config The configuration.
      */
-	void open(uint64_t config);
+	void open(PmuEventInfo config);
 
 	/** Open the specified configuration.
      *
