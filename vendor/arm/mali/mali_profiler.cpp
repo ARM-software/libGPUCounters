@@ -344,11 +344,13 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 			case mali_userspace::PRODUCT_ID_THEX:
 				mappings_                                  = bifrost_mappings;
 				mappings_[GpuCounter::ShaderTextureCycles] = [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_COORD_ISSUE"); };
+				break;
 			case mali_userspace::PRODUCT_ID_TSIX:
 			case mali_userspace::PRODUCT_ID_TNOX:
 			case mali_userspace::PRODUCT_ID_TGOX:
 			case mali_userspace::PRODUCT_ID_TDVX:
 				mappings_ = bifrost_mappings;
+				break;
 			case mali_userspace::PRODUCT_ID_TNAXa:
 			case mali_userspace::PRODUCT_ID_TNAXb:
 			case mali_userspace::PRODUCT_ID_TTRX:
