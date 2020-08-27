@@ -67,9 +67,6 @@ while (main_loop) {
 
     [...]
 }
-
-// At the end of the profiling session, stop HWCPipe
-h.stop();
 ```
 
 The `sample` function returns a `Measurements` struct, which can be accessed like this:

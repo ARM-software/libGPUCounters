@@ -121,9 +121,4 @@ const CpuMeasurements &PmuProfiler::sample()
 	return measurements_;
 }
 
-void PmuProfiler::stop()
-{
-	// We don't need to do anything on stop()
-}
-
 }        // namespace hwcpipe

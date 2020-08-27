@@ -54,7 +54,6 @@ class PmuProfiler : public CpuProfiler
 
 	virtual void                   run() override;
 	virtual const CpuMeasurements &sample() override;
-	virtual void                   stop() override;
 
   private:
 	CpuCounterSet enabled_counters_{};

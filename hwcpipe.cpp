@@ -156,18 +156,6 @@ Measurements HWCPipe::sample()
 	return m;
 }
 
-void HWCPipe::stop()
-{
-	if (cpu_profiler_)
-	{
-		cpu_profiler_->stop();
-	}
-	if (gpu_profiler_)
-	{
-		gpu_profiler_->stop();
-	}
-}
-
 void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
 {
 	// Automated platform detection

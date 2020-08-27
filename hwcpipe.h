@@ -68,9 +68,6 @@ class HWCPipe
 	// A profiling session must be running when sampling the counters.
 	Measurements sample();
 
-	// Stops the active profiling session
-	void stop();
-
 	const CpuProfiler *cpu_profiler()
 	{
 		return cpu_profiler_.get();

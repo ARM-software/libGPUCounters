@@ -143,9 +143,6 @@ class CpuProfiler
 	// that are both available and enabled.
 	// A profiling session must be running when sampling the counters.
 	virtual const CpuMeasurements &sample() = 0;
-
-	// Stops the active profiling session
-	virtual void stop() = 0;
 };
 
 }        // namespace hwcpipe

@@ -363,6 +363,14 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	}
 }
 
+MaliProfiler::~MaliProfiler()
+{
+	if (fd_ != -1)
+	{
+		close(fd_);
+	}
+}
+
 void MaliProfiler::init()
 {
 	MaliHWInfo hw_info = get_mali_hw_info(device_);
@@ -513,11 +521,6 @@ void MaliProfiler::run()
 {
 	sample_counters();
 	wait_next_event();
-}
-
-void MaliProfiler::stop()
-{
-	// We don't need to do anything on stop()
 }
 
 const GpuMeasurements &MaliProfiler::sample()
