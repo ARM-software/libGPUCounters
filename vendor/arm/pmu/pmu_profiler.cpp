@@ -58,29 +58,22 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 		const auto &pmu_config = pmu_mappings.find(counter);
 		if (pmu_config != pmu_mappings.end())
 		{
-			try
+			// Create a PMU counter with the specified configuration
+			auto pmu_counter_res = pmu_counters_.emplace(counter, pmu_config->second);
+
+			// Try reading a value from the counter to check that it opened correctly
+			auto &pmu_counter = pmu_counter_res.first->second;
+			if (pmu_counter.get_value<long long>() < 0)
 			{
-				// Create a PMU counter with the specified configuration
-				auto pmu_counter_res = pmu_counters_.emplace(counter, pmu_config->second);
-
-				// Try reading a value from the counter to check that it opened correctly
-				auto &pmu_counter = pmu_counter_res.first->second;
-				pmu_counter.get_value<long long>();
-
+				// PMU counter initialization failed
+				HWCPIPE_LOG("Failed to get value from PMU: %s.", std::strerror(errno));
+			}
+			else
+			{
 				// PMU counter is created and can retrieve values
 				available_counters_.insert(counter);
 			}
-			catch (const std::runtime_error &e)
-			{
-				// PMU counter initialization failed
-				HWCPIPE_LOG("%s", e.what());
-			}
 		}
-	}
-
-	if (available_counters_.size() == 0)
-	{
-		throw std::runtime_error("PMU counters not available.");
 	}
 }
 
@@ -103,18 +96,18 @@ const CpuMeasurements &PmuProfiler::sample()
 			continue;
 		}
 
-		try
+		auto value = pmu_counter->second.get_value<long long>();
+		if (value < 0)
 		{
-			auto value = pmu_counter->second.get_value<long long>();
-
+			HWCPIPE_LOG("Failed to get value from PMU: %s.", std::strerror(errno));
+			measurements_[pmu_counter->first] = value;
+		}
+		else
+		{
 			// Resetting the PMU counter every frame seems to alter the data,
 			// so we make a differential reading.
 			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<long long>();
 			prev_measurements_[pmu_counter->first] = value;
-		}
-		catch (const std::runtime_error &e)
-		{
-			HWCPIPE_LOG("Failed to get value from PMU: %s.", e.what());
 		}
 	}
 

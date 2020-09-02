@@ -30,6 +30,11 @@
 #include <sys/ioctl.h>
 #include <linux/version.h>
 
+namespace hwcpipe
+{
+extern const char *error_msg;
+}
+
 PmuCounter::PmuCounter() :
     _perf_config()
 {
@@ -69,13 +74,14 @@ void PmuCounter::open(const perf_event_attr &perf_config)
 
 	if (_fd < 0)
 	{
-		throw std::runtime_error("perf_event_open failed. Counter ID: " + config_to_str(_perf_config));
+		hwcpipe::error_msg = "perf_event_open failed.";
+		return;
 	}
 
 	const int result = ioctl(_fd, PERF_EVENT_IOC_ENABLE, 0);
 	if (result == -1)
 	{
-		throw std::runtime_error("Failed to enable PMU counter: " + std::string(strerror(errno)));
+		hwcpipe::error_msg = "Failed to enable PMU counter.";
 	}
 }
 
@@ -91,12 +97,6 @@ void PmuCounter::close()
 bool PmuCounter::reset()
 {
 	const int result = ioctl(_fd, PERF_EVENT_IOC_RESET, 0);
-
-	if (result == -1)
-	{
-		throw std::runtime_error("Failed to reset PMU counter: " + std::string(std::strerror(errno)));
-	}
-
 	return result != -1;
 }
 

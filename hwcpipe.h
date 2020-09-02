@@ -32,6 +32,14 @@
 
 namespace hwcpipe
 {
+const char* get_last_error()
+{
+	extern const char *error_msg;
+	const char *       err = error_msg;
+	error_msg              = nullptr;
+	return err;
+}
+
 struct Measurements
 {
 	const CpuMeasurements *cpu{nullptr};
@@ -71,11 +79,11 @@ class HWCPipe
 	// Stops the active profiling session
 	void stop();
 
-	const CpuProfiler *cpu_profiler()
+	CpuProfiler *cpu_profiler()
 	{
 		return cpu_profiler_.get();
 	}
-	const GpuProfiler *gpu_profiler()
+	GpuProfiler *gpu_profiler()
 	{
 		return gpu_profiler_.get();
 	}
