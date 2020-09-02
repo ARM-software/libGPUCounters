@@ -124,10 +124,5 @@ T PmuCounter::get_value() const
 	long long     value{};
 	const ssize_t result = read(_fd, &value, sizeof(long long));
 
-	if (result == -1)
-	{
-		throw std::runtime_error("Can't get PMU counter value: " + std::string(std::strerror(errno)));
-	}
-
 	return static_cast<T>(value);
 }

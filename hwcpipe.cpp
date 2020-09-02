@@ -39,6 +39,8 @@ using json = nlohmann::json;
 
 namespace hwcpipe
 {
+const char* error_msg = nullptr;
+
 #ifndef HWCPIPE_NO_JSON
 HWCPipe::HWCPipe(const char *json_string)
 {
@@ -172,25 +174,27 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 {
 	// Automated platform detection
 #ifdef __linux__
-	try
+	if (enabled_cpu_counters.size())
 	{
 		cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
-	}
-	catch (const std::runtime_error &e)
-	{
-		HWCPIPE_LOG("PMU profiler initialization failed: %s", e.what());
+		if (hwcpipe::error_msg)
+		{
+			HWCPIPE_LOG("PMU profiler initialization failed: %s", hwcpipe::error_msg);
+			return;
+		}
 	}
 
-	try
+	if (enabled_gpu_counters.size())
 	{
 		gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
-	}
-	catch (const std::runtime_error &e)
-	{
-		HWCPIPE_LOG("Mali profiler initialization failed: %s", e.what());
+		if (hwcpipe::error_msg)	
+		{
+			HWCPIPE_LOG("Mali profiler initialization failed: %s", hwcpipe::error_msg);
+		}
 	}
 #else
-	HWCPIPE_LOG("No counters available for this platform.");
+	hwcpipe::error_msg = "No counters available for this platform.";
+	HWCPIPE_LOG(hwcpipe::error_msg);
 #endif
 }
 
