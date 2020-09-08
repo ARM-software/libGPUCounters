@@ -174,7 +174,10 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 #ifdef __linux__
 	try
 	{
-		cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
+		if (enabled_cpu_counters.size() != 0)
+		{
+			cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
+		}
 	}
 	catch (const std::runtime_error &e)
 	{
@@ -183,7 +186,10 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 
 	try
 	{
-		gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
+		if (enabled_gpu_counters.size() != 0)
+		{
+			gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
+		}
 	}
 	catch (const std::runtime_error &e)
 	{
