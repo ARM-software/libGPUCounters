@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "logger.h"
 #include "value.h"
 
 #include <string>
@@ -117,15 +118,16 @@ const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter
     {CpuCounter::CryptoSpec, {"Speculatively executed cryptographic operations", "operations"}},
 };
 
-typedef std::unordered_set<CpuCounter, CpuCounterHash> CpuCounterSet;
-typedef std::unordered_map<CpuCounter, Value, CpuCounterHash>
-    CpuMeasurements;
+typedef std::unordered_set<CpuCounter, CpuCounterHash>        CpuCounterSet;
+typedef std::unordered_map<CpuCounter, Value, CpuCounterHash> CpuMeasurements;
 
 /** An interface for classes that collect CPU performance data. */
-class CpuProfiler
+class CpuProfiler : public Logger
 {
   public:
 	virtual ~CpuProfiler() = default;
+
+	virtual bool init() = 0;
 
 	// Returns the enabled counters
 	virtual const CpuCounterSet &enabled_counters() const = 0;

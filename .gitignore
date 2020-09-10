@@ -34,3 +34,6 @@
 # Ctags
 .tags
 .tags1
+
+build
+.vscode

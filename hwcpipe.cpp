@@ -23,7 +23,6 @@
  */
 
 #include "hwcpipe.h"
-#include "hwcpipe_log.h"
 
 #ifdef __linux__
 #	include "vendor/arm/pmu/pmu_profiler.h"
@@ -39,8 +38,6 @@ using json = nlohmann::json;
 
 namespace hwcpipe
 {
-const char *error_msg = nullptr;
-
 #ifndef HWCPIPE_NO_JSON
 HWCPipe::HWCPipe(const char *json_string)
 {
@@ -59,7 +56,7 @@ HWCPipe::HWCPipe(const char *json_string)
 			}
 			else
 			{
-				HWCPIPE_LOG("CPU counter \"%s\" not found.", counter_name.value().get<std::string>().c_str());
+				log(hwcpipe::LogSeverity::Warn, "CPU counter \"{}\" not found.", counter_name.value().get<std::string>().c_str());
 			}
 		}
 	}
@@ -77,7 +74,7 @@ HWCPipe::HWCPipe(const char *json_string)
 			}
 			else
 			{
-				HWCPIPE_LOG("GPU counter \"%s\" not found.", counter_name.value().get<std::string>().c_str());
+				log(hwcpipe::LogSeverity::Warn, "GPU counter \"{}\" not found.", counter_name.value().get<std::string>().c_str());
 			}
 		}
 	}
@@ -176,30 +173,28 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 #ifdef __linux__
 	if (enabled_cpu_counters.size())
 	{
-		if (enabled_cpu_counters.size() != 0)
+		cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
+		if (!cpu_profiler_->init())
 		{
-			cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
+			log(hwcpipe::LogSeverity::Fatal, "PMU profiler initialization failed");
+			return;
 		}
-	}
-	catch (const std::runtime_error &e)
-	{
-		HWCPIPE_LOG("PMU profiler initialization failed: %s", e.what());
+
+		cpu_profiler_->set_logger(get_logger());
 	}
 
 	if (enabled_gpu_counters.size())
 	{
-		if (enabled_gpu_counters.size() != 0)
+		gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
+		if (!gpu_profiler_->init())
 		{
-			gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
+			log(hwcpipe::LogSeverity::Fatal, "Mali profiler initialization failed");
 		}
-	}
-	catch (const std::runtime_error &e)
-	{
-		HWCPIPE_LOG("Mali profiler initialization failed: %s", e.what());
+
+		gpu_profiler_->set_logger(get_logger());
 	}
 #else
-	hwcpipe::error_msg = "No counters available for this platform.";
-	HWCPIPE_LOG(hwcpipe::error_msg);
+	log(hwcpipe::LogSeverity::Fatal, "No counters available for this platform.");
 #endif
 }
 

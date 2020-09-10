@@ -33,7 +33,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#include "hwcpipe_log.h"
+#include "logger.h"
 
 enum class PmuImplDefined : uint64_t
 {
@@ -66,7 +66,7 @@ struct PmuEventInfo
 };
 
 /** Class provides access to CPU hardware counters. */
-class PmuCounter
+class PmuCounter : public hwcpipe::Logger
 {
   public:
 	/** Default constructor. */

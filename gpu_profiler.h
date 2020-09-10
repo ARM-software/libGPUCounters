@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "logger.h"
 #include "value.h"
 
 #include <string>
@@ -163,10 +164,12 @@ typedef std::unordered_set<GpuCounter, GpuCounterHash>        GpuCounterSet;
 typedef std::unordered_map<GpuCounter, Value, GpuCounterHash> GpuMeasurements;
 
 /** An interface for classes that collect GPU performance data. */
-class GpuProfiler
+class GpuProfiler : public Logger
 {
   public:
 	virtual ~GpuProfiler() = default;
+
+	virtual bool init() = 0;
 
 	// Returns the enabled counters
 	virtual const GpuCounterSet &enabled_counters() const = 0;

@@ -55,6 +55,7 @@ class MaliProfiler : public GpuProfiler
 		enabled_counters_ = std::move(counters);
 	};
 
+	virtual bool                   init() override;
 	virtual void                   run() override;
 	virtual const GpuMeasurements &sample() override;
 	virtual void                   stop() override;
@@ -113,7 +114,6 @@ class MaliProfiler : public GpuProfiler
 
 	GpuMeasurements measurements_{};
 
-	void            init();
 	void            sample_counters();
 	void            wait_next_event();
 	const uint32_t *get_counters(mali_userspace::MaliCounterBlockName block, int index = 0) const;

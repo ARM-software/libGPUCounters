@@ -24,7 +24,7 @@
 
 #include "pmu_profiler.h"
 
-#include "hwcpipe_log.h"
+#include <fmt/format.h>
 
 namespace hwcpipe
 {
@@ -52,8 +52,12 @@ const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings{
 PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
     enabled_counters_(enabled_counters)
 {
+}
+
+bool PmuProfiler::init()
+{
 	// Set up PMU counters
-	for (const auto &counter : enabled_counters)
+	for (const auto &counter : enabled_counters_)
 	{
 		const auto &pmu_config = pmu_mappings.find(counter);
 		if (pmu_config != pmu_mappings.end())
@@ -66,7 +70,8 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 			if (pmu_counter.get_value<long long>() < 0)
 			{
 				// PMU counter initialization failed
-				HWCPIPE_LOG("Failed to get value from PMU: %s.", std::strerror(errno));
+				log(hwcpipe::LogSeverity::Error, "Failed to get value from PMU: {}.", std::strerror(errno));
+				return false;
 			}
 			else
 			{
@@ -75,6 +80,8 @@ PmuProfiler::PmuProfiler(const CpuCounterSet &enabled_counters) :
 			}
 		}
 	}
+
+	return true;
 }
 
 void PmuProfiler::run()
@@ -99,7 +106,7 @@ const CpuMeasurements &PmuProfiler::sample()
 		auto value = pmu_counter->second.get_value<long long>();
 		if (value < 0)
 		{
-			HWCPIPE_LOG("Failed to get value from PMU: %s.", std::strerror(errno));
+			log(LogSeverity::Warn, "Failed to get value from PMU: {}.", std::strerror(errno));
 			measurements_[pmu_counter->first] = value;
 		}
 		else

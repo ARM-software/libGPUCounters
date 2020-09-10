@@ -23,8 +23,6 @@
  */
 #include "mali_profiler.h"
 
-#include "hwcpipe_log.h"
-
 #include <algorithm>
 #include <stdexcept>
 
@@ -35,9 +33,6 @@ using mali_userspace::MALI_NAME_BLOCK_TILER;
 
 namespace hwcpipe
 {
-
-extern const char *error_msg;
-
 namespace
 {
 struct MaliHWInfo
@@ -50,12 +45,14 @@ struct MaliHWInfo
 	unsigned l2_slices;
 };
 
-MaliHWInfo get_mali_hw_info(const char *path)
+MaliHWInfo get_mali_hw_info(const MaliProfiler *profiler, const char *path)
 {
 	struct ScopedFileHandle
 	{
 		int fd;
-		ScopedFileHandle(int fd) : fd(fd) {}
+		ScopedFileHandle(int fd) :
+		    fd(fd)
+		{}
 		~ScopedFileHandle()
 		{
 			if (fd >= 0)
@@ -68,12 +65,12 @@ MaliHWInfo get_mali_hw_info(const char *path)
 	MaliHWInfo hw_info;        // NOLINT
 	memset(&hw_info, 0, sizeof(hw_info));
 
-	int fd = open(path, O_RDWR);        // NOLINT
+	int              fd = open(path, O_RDWR);        // NOLINT
 	ScopedFileHandle scoped_file_handle(fd);
 
 	if (fd < 0)
 	{
-		error_msg = "Failed to get HW info.";
+		profiler->log(hwcpipe::LogSeverity::Error, "Failed to get HW info.");
 		return hw_info;
 	}
 
@@ -88,7 +85,7 @@ MaliHWInfo get_mali_hw_info(const char *path)
 			mali_userspace::kbase_ioctl_version_check _version_check_args = {0, 0};
 			if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK, &_version_check_args) < 0)
 			{
-				error_msg = "Failed to check version.";
+				profiler->log(hwcpipe::LogSeverity::Error, "Failed to check version.");
 				return hw_info;
 			}
 		}
@@ -105,7 +102,7 @@ MaliHWInfo get_mali_hw_info(const char *path)
 			mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
 			if (ioctl(fd, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
 			{
-				error_msg = "Failed settings flags ioctl.";
+				profiler->log(hwcpipe::LogSeverity::Error, "Failed settings flags ioctl.");
 				return hw_info;
 			}
 		}
@@ -130,7 +127,7 @@ MaliHWInfo get_mali_hw_info(const char *path)
 			int                                      ret;
 			if ((ret = ioctl(fd, KBASE_IOCTL_GET_GPUPROPS, &get_props)) < 0)
 			{
-				error_msg = "Failed getting GPU properties.";
+				profiler->log(hwcpipe::LogSeverity::Error, "Failed getting GPU properties.");
 				return hw_info;
 			}
 
@@ -140,7 +137,7 @@ MaliHWInfo get_mali_hw_info(const char *path)
 			ret                    = ioctl(fd, KBASE_IOCTL_GET_GPUPROPS, &get_props);
 			if (ret < 0)
 			{
-				error_msg = "Failed getting GPU properties.";
+				profiler->log(hwcpipe::LogSeverity::Error, "Failed getting GPU properties.");
 				return hw_info;
 			}
 
@@ -207,7 +204,7 @@ MaliHWInfo get_mali_hw_info(const char *path)
 								*reinterpret_cast<uint64_t *>(p) = value;
 								break;
 							default:
-								error_msg = "Invalid property size.";
+								profiler->log(hwcpipe::LogSeverity::Error, "Invalid property size.");
 								return hw_info;
 						}
 						break;
@@ -234,8 +231,166 @@ typedef std::function<uint64_t(void)> MaliValueGetter;
 MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
     enabled_counters_(enabled_counters)
 {
-	// Throws if setup fails
-	init();
+}
+
+bool MaliProfiler::init()
+{
+	MaliHWInfo hw_info = get_mali_hw_info(this, device_);
+
+	num_cores_     = hw_info.mp_count;
+	num_l2_slices_ = hw_info.l2_slices;
+	gpu_id_        = hw_info.gpu_id;
+
+	fd_ = open(device_, O_RDWR | O_CLOEXEC | O_NONBLOCK);        // NOLINT
+
+	if (fd_ < 0)
+	{
+		log(hwcpipe::LogSeverity::Error, "Failed to open /dev/mali0.");
+		return false;
+	}
+
+	{
+		mali_userspace::kbase_uk_hwcnt_reader_version_check_args check;        // NOLINT
+		memset(&check, 0, sizeof(check));
+
+		if (mali_userspace::mali_ioctl(fd_, check) != 0)
+		{
+			mali_userspace::kbase_ioctl_version_check _check = {0, 0};
+			if (ioctl(fd_, KBASE_IOCTL_VERSION_CHECK, &_check) < 0)
+			{
+				log(hwcpipe::LogSeverity::Error, "Failed to get ABI version.");
+				return false;
+			}
+		}
+		else if (check.major < 10)
+		{
+			log(hwcpipe::LogSeverity::Error, "Unsupported ABI version 10.");
+			return false;
+		}
+	}
+
+	{
+		mali_userspace::kbase_uk_hwcnt_reader_set_flags flags;        // NOLINT
+		memset(&flags, 0, sizeof(flags));
+		flags.header.id    = mali_userspace::KBASE_FUNC_SET_FLAGS;        // NOLINT
+		flags.create_flags = mali_userspace::BASE_CONTEXT_CREATE_KERNEL_FLAGS;
+
+		if (mali_userspace::mali_ioctl(fd_, flags) != 0)
+		{
+			mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
+			if (ioctl(fd_, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
+			{
+				log(hwcpipe::LogSeverity::Error, "Failed settings flags ioctl.");
+				return false;
+			}
+		}
+	}
+
+	{
+		mali_userspace::kbase_uk_hwcnt_reader_setup setup;        // NOLINT
+		memset(&setup, 0, sizeof(setup));
+		setup.header.id    = mali_userspace::KBASE_FUNC_HWCNT_READER_SETUP;        // NOLINT
+		setup.buffer_count = buffer_count_;
+		setup.jm_bm        = -1;
+		setup.shader_bm    = -1;
+		setup.tiler_bm     = -1;
+		setup.mmu_l2_bm    = -1;
+		setup.fd           = -1;
+
+		if (mali_userspace::mali_ioctl(fd_, setup) != 0)
+		{
+			mali_userspace::kbase_ioctl_hwcnt_reader_setup _setup = {};
+			_setup.buffer_count                                   = buffer_count_;
+			_setup.jm_bm                                          = -1;
+			_setup.shader_bm                                      = -1;
+			_setup.tiler_bm                                       = -1;
+			_setup.mmu_l2_bm                                      = -1;
+
+			int ret;
+			if ((ret = ioctl(fd_, KBASE_IOCTL_HWCNT_READER_SETUP, &_setup)) < 0)
+			{
+				log(hwcpipe::LogSeverity::Error, "Failed setting hwcnt reader ioctl.");
+				return false;
+			}
+			hwc_fd_ = ret;
+		}
+		else
+		{
+			hwc_fd_ = setup.fd;
+		}
+	}
+
+	{
+		uint32_t api_version = ~mali_userspace::HWCNT_READER_API;
+
+		if (ioctl(hwc_fd_, mali_userspace::KBASE_HWCNT_READER_GET_API_VERSION, &api_version) != 0)        // NOLINT
+		{
+			log(hwcpipe::LogSeverity::Error, "Could not determine hwcnt reader API.");
+			return false;
+		}
+		else if (api_version != mali_userspace::HWCNT_READER_API)
+		{
+			log(hwcpipe::LogSeverity::Error, "Invalid API version.");
+			return false;
+		}
+	}
+
+	if (ioctl(hwc_fd_, static_cast<int>(mali_userspace::KBASE_HWCNT_READER_GET_BUFFER_SIZE), &buffer_size_) != 0)        // NOLINT
+	{
+		log(hwcpipe::LogSeverity::Error, "Failed to get buffer size.");
+		return false;
+	}
+
+	if (ioctl(hwc_fd_, static_cast<int>(mali_userspace::KBASE_HWCNT_READER_GET_HWVER), &hw_ver_) != 0)        // NOLINT
+	{
+		log(hwcpipe::LogSeverity::Error, "Could not determine HW version.");
+		return false;
+	}
+
+	if (hw_ver_ < 5)
+	{
+		log(hwcpipe::LogSeverity::Error, "Unsupported HW version.");
+		return false;
+	}
+
+	sample_data_ = static_cast<uint8_t *>(mmap(nullptr, buffer_count_ * buffer_size_, PROT_READ, MAP_PRIVATE, hwc_fd_, 0));
+
+	if (sample_data_ == MAP_FAILED)        // NOLINT
+	{
+		log(hwcpipe::LogSeverity::Error, "Failed to map sample data.");
+		return false;
+	}
+
+	{
+		auto product = std::find_if(std::begin(mali_userspace::products), std::end(mali_userspace::products), [&](const mali_userspace::CounterMapping &cm) {
+			return (cm.product_mask & hw_info.gpu_id) == cm.product_id;
+		});
+
+		if (product != std::end(mali_userspace::products))
+		{
+			names_lut_ = product->names_lut;
+		}
+		else
+		{
+			log(hwcpipe::LogSeverity::Error, "Could not identify GPU.");
+			return false;
+		}
+	}
+
+	raw_counter_buffer_.resize(buffer_size_ / sizeof(uint32_t));
+
+	// Build core remap table.
+	core_index_remap_.clear();
+	core_index_remap_.reserve(hw_info.mp_count);
+
+	unsigned int mask = hw_info.core_mask;
+
+	while (mask != 0)
+	{
+		unsigned int bit = __builtin_ctz(mask);
+		core_index_remap_.push_back(bit);
+		mask &= ~(1u << bit);
+	}
 
 	const std::unordered_map<GpuCounter, MaliValueGetter, GpuCounterHash> valhall_mappings = {
 	    {GpuCounter::GpuCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "GPU_ACTIVE"); }},
@@ -334,208 +489,53 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::ExternalMemoryWriteBytes, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE_BEATS") * 16; }},
 	};
 
-	auto product = std::find_if(std::begin(mali_userspace::products), std::end(mali_userspace::products), [&](const mali_userspace::CounterMapping &cm) {
-		return (cm.product_mask & gpu_id_) == cm.product_id;
-	});
-
-	if (product != std::end(mali_userspace::products))
 	{
-		switch (product->product_id)
+		auto product = std::find_if(std::begin(mali_userspace::products), std::end(mali_userspace::products), [&](const mali_userspace::CounterMapping &cm) {
+			return (cm.product_mask & gpu_id_) == cm.product_id;
+		});
+
+		if (product != std::end(mali_userspace::products))
 		{
-			case mali_userspace::PRODUCT_ID_T60X:
-			case mali_userspace::PRODUCT_ID_T62X:
-			case mali_userspace::PRODUCT_ID_T72X:
-				mappings_                     = midgard_mappings;
-				mappings_[GpuCounter::Pixels] = [this]() { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 256; };
-				break;
-			case mali_userspace::PRODUCT_ID_T76X:
-			case mali_userspace::PRODUCT_ID_T82X:
-			case mali_userspace::PRODUCT_ID_T83X:
-			case mali_userspace::PRODUCT_ID_T86X:
-			case mali_userspace::PRODUCT_ID_TFRX:
-				mappings_ = midgard_mappings;
-				break;
-			case mali_userspace::PRODUCT_ID_TMIX:
-			case mali_userspace::PRODUCT_ID_THEX:
-				mappings_                                  = bifrost_mappings;
-				mappings_[GpuCounter::ShaderTextureCycles] = [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_COORD_ISSUE"); };
-				break;
-			case mali_userspace::PRODUCT_ID_TSIX:
-			case mali_userspace::PRODUCT_ID_TNOX:
-			case mali_userspace::PRODUCT_ID_TGOX:
-			case mali_userspace::PRODUCT_ID_TDVX:
-				mappings_ = bifrost_mappings;
-				break;
-			case mali_userspace::PRODUCT_ID_TNAXa:
-			case mali_userspace::PRODUCT_ID_TNAXb:
-			case mali_userspace::PRODUCT_ID_TTRX:
-			default:
-				mappings_ = valhall_mappings;
-				break;
-		}
-	}
-	else
-	{
-		HWCPIPE_LOG("Mali counters initialization failed: Failed to identify GPU");
-	}
-}
-
-void MaliProfiler::init()
-{
-	MaliHWInfo hw_info = get_mali_hw_info(device_);
-
-	num_cores_     = hw_info.mp_count;
-	num_l2_slices_ = hw_info.l2_slices;
-	gpu_id_        = hw_info.gpu_id;
-
-	fd_ = open(device_, O_RDWR | O_CLOEXEC | O_NONBLOCK);        // NOLINT
-
-	if (fd_ < 0)
-	{
-		error_msg = "Failed to open /dev/mali0.";
-		return;
-	}
-
-	{
-		mali_userspace::kbase_uk_hwcnt_reader_version_check_args check;        // NOLINT
-		memset(&check, 0, sizeof(check));
-
-		if (mali_userspace::mali_ioctl(fd_, check) != 0)
-		{
-			mali_userspace::kbase_ioctl_version_check _check = {0, 0};
-			if (ioctl(fd_, KBASE_IOCTL_VERSION_CHECK, &_check) < 0)
+			switch (product->product_id)
 			{
-				error_msg = "Failed to get ABI version.";
-				return;
+				case mali_userspace::PRODUCT_ID_T60X:
+				case mali_userspace::PRODUCT_ID_T62X:
+				case mali_userspace::PRODUCT_ID_T72X:
+					mappings_                     = midgard_mappings;
+					mappings_[GpuCounter::Pixels] = [this]() { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 256; };
+					break;
+				case mali_userspace::PRODUCT_ID_T76X:
+				case mali_userspace::PRODUCT_ID_T82X:
+				case mali_userspace::PRODUCT_ID_T83X:
+				case mali_userspace::PRODUCT_ID_T86X:
+				case mali_userspace::PRODUCT_ID_TFRX:
+					mappings_ = midgard_mappings;
+					break;
+				case mali_userspace::PRODUCT_ID_TMIX:
+				case mali_userspace::PRODUCT_ID_THEX:
+					mappings_                                  = bifrost_mappings;
+					mappings_[GpuCounter::ShaderTextureCycles] = [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_COORD_ISSUE"); };
+				case mali_userspace::PRODUCT_ID_TSIX:
+				case mali_userspace::PRODUCT_ID_TNOX:
+				case mali_userspace::PRODUCT_ID_TGOX:
+				case mali_userspace::PRODUCT_ID_TDVX:
+					mappings_ = bifrost_mappings;
+				case mali_userspace::PRODUCT_ID_TNAXa:
+				case mali_userspace::PRODUCT_ID_TNAXb:
+				case mali_userspace::PRODUCT_ID_TTRX:
+				default:
+					mappings_ = valhall_mappings;
+					break;
 			}
-		}
-		else if (check.major < 10)
-		{
-			error_msg = "Unsupported ABI version 10.";
-			return;
-		}
-	}
-
-	{
-		mali_userspace::kbase_uk_hwcnt_reader_set_flags flags;        // NOLINT
-		memset(&flags, 0, sizeof(flags));
-		flags.header.id    = mali_userspace::KBASE_FUNC_SET_FLAGS;        // NOLINT
-		flags.create_flags = mali_userspace::BASE_CONTEXT_CREATE_KERNEL_FLAGS;
-
-		if (mali_userspace::mali_ioctl(fd_, flags) != 0)
-		{
-			mali_userspace::kbase_ioctl_set_flags _flags = {1u << 1};
-			if (ioctl(fd_, KBASE_IOCTL_SET_FLAGS, &_flags) < 0)
-			{
-				error_msg = "Failed settings flags ioctl.";
-				return;
-			}
-		}
-	}
-
-	{
-		mali_userspace::kbase_uk_hwcnt_reader_setup setup;        // NOLINT
-		memset(&setup, 0, sizeof(setup));
-		setup.header.id    = mali_userspace::KBASE_FUNC_HWCNT_READER_SETUP;        // NOLINT
-		setup.buffer_count = buffer_count_;
-		setup.jm_bm        = -1;
-		setup.shader_bm    = -1;
-		setup.tiler_bm     = -1;
-		setup.mmu_l2_bm    = -1;
-		setup.fd           = -1;
-
-		if (mali_userspace::mali_ioctl(fd_, setup) != 0)
-		{
-			mali_userspace::kbase_ioctl_hwcnt_reader_setup _setup = {};
-			_setup.buffer_count                                   = buffer_count_;
-			_setup.jm_bm                                          = -1;
-			_setup.shader_bm                                      = -1;
-			_setup.tiler_bm                                       = -1;
-			_setup.mmu_l2_bm                                      = -1;
-
-			int ret;
-			if ((ret = ioctl(fd_, KBASE_IOCTL_HWCNT_READER_SETUP, &_setup)) < 0)
-			{
-				error_msg = "Failed setting hwcnt reader ioctl.";
-				return;
-			}
-			hwc_fd_ = ret;
 		}
 		else
 		{
-			hwc_fd_ = setup.fd;
+			log(hwcpipe::LogSeverity::Error, "Mali counters initialization failed: Failed to identify GPU");
+			return false;
 		}
 	}
 
-	{
-		uint32_t api_version = ~mali_userspace::HWCNT_READER_API;
-
-		if (ioctl(hwc_fd_, mali_userspace::KBASE_HWCNT_READER_GET_API_VERSION, &api_version) != 0)        // NOLINT
-		{
-			error_msg = "Could not determine hwcnt reader API.";
-			return;
-		}
-		else if (api_version != mali_userspace::HWCNT_READER_API)
-		{
-			error_msg = "Invalid API version.";
-			return;
-		}
-	}
-
-	if (ioctl(hwc_fd_, static_cast<int>(mali_userspace::KBASE_HWCNT_READER_GET_BUFFER_SIZE), &buffer_size_) != 0)        // NOLINT
-	{
-		error_msg = "Failed to get buffer size.";
-		return;
-	}
-
-	if (ioctl(hwc_fd_, static_cast<int>(mali_userspace::KBASE_HWCNT_READER_GET_HWVER), &hw_ver_) != 0)        // NOLINT
-	{
-		error_msg = "Could not determine HW version.";
-		return;
-	}
-
-	if (hw_ver_ < 5)
-	{
-		error_msg = "Unsupported HW version.";
-		return;
-	}
-
-	sample_data_ = static_cast<uint8_t *>(mmap(nullptr, buffer_count_ * buffer_size_, PROT_READ, MAP_PRIVATE, hwc_fd_, 0));
-
-	if (sample_data_ == MAP_FAILED)        // NOLINT
-	{
-		error_msg = "Failed to map sample data.";
-		return;
-	}
-
-	auto product = std::find_if(std::begin(mali_userspace::products), std::end(mali_userspace::products), [&](const mali_userspace::CounterMapping &cm) {
-		return (cm.product_mask & hw_info.gpu_id) == cm.product_id;
-	});
-
-	if (product != std::end(mali_userspace::products))
-	{
-		names_lut_ = product->names_lut;
-	}
-	else
-	{
-		error_msg = "Could not identify GPU.";
-		return;
-	}
-
-	raw_counter_buffer_.resize(buffer_size_ / sizeof(uint32_t));
-
-	// Build core remap table.
-	core_index_remap_.clear();
-	core_index_remap_.reserve(hw_info.mp_count);
-
-	unsigned int mask = hw_info.core_mask;
-
-	while (mask != 0)
-	{
-		unsigned int bit = __builtin_ctz(mask);
-		core_index_remap_.push_back(bit);
-		mask &= ~(1u << bit);
-	}
+	return true;
 }
 
 void MaliProfiler::run()
@@ -572,7 +572,7 @@ void MaliProfiler::sample_counters()
 {
 	if (ioctl(hwc_fd_, mali_userspace::KBASE_HWCNT_READER_DUMP, 0) != 0)
 	{
-		error_msg = "Could not sample hardware counters.";
+		log(hwcpipe::LogSeverity::Error, "Could not sample hardware counters.");
 	}
 }
 
@@ -586,7 +586,7 @@ void MaliProfiler::wait_next_event()
 
 	if (count < 0)
 	{
-		error_msg = "poll() failed.";
+		log(hwcpipe::LogSeverity::Error, "poll() failed.");
 		return;
 	}
 
@@ -596,7 +596,7 @@ void MaliProfiler::wait_next_event()
 
 		if (ioctl(hwc_fd_, static_cast<int>(mali_userspace::KBASE_HWCNT_READER_GET_BUFFER), &meta) != 0)        // NOLINT
 		{
-			error_msg = "Failed READER_GET_BUFFER.";
+			log(hwcpipe::LogSeverity::Error, "Failed READER_GET_BUFFER.");
 			return;
 		}
 
@@ -605,13 +605,13 @@ void MaliProfiler::wait_next_event()
 
 		if (ioctl(hwc_fd_, mali_userspace::KBASE_HWCNT_READER_PUT_BUFFER, &meta) != 0)        // NOLINT
 		{
-			error_msg = "Failed READER_PUT_BUFFER.";
+			log(hwcpipe::LogSeverity::Error, "Failed READER_PUT_BUFFER.");
 			return;
 		}
 	}
 	else if ((poll_fd.revents & POLLHUP) != 0)
 	{
-		error_msg = "HWC hung up.";
+		log(hwcpipe::LogSeverity::Error, "HWC hung up.");
 		return;
 	}
 }
@@ -649,15 +649,14 @@ uint64_t MaliProfiler::get_counter_value(mali_userspace::MaliCounterBlockName bl
 
 		case mali_userspace::MALI_NAME_BLOCK_JM:
 		case mali_userspace::MALI_NAME_BLOCK_TILER:
-		default:
-			{
+		default: {
 			const uint32_t *counter = get_counters(block);
-				if (!counter)
-				{
-					return -1;
-				}
-			    return static_cast<uint64_t>(counter[find_counter_index_by_name(block, name)]);
+			if (!counter)
+			{
+				return -1;
 			}
+			return static_cast<uint64_t>(counter[find_counter_index_by_name(block, name)]);
+		}
 	}
 }
 
@@ -670,7 +669,7 @@ const uint32_t *MaliProfiler::get_counters(mali_userspace::MaliCounterBlockName 
 		case mali_userspace::MALI_NAME_BLOCK_MMU:
 			if (index < 0 || index >= num_l2_slices_)
 			{
-				error_msg = "Invalid slice number.";
+				log(hwcpipe::LogSeverity::Error, "Invalid slice number.");
 				return nullptr;
 			}
 
@@ -681,7 +680,7 @@ const uint32_t *MaliProfiler::get_counters(mali_userspace::MaliCounterBlockName 
 		default:
 			if (index < 0 || index >= num_cores_)
 			{
-				error_msg = "Invalid core number.";
+				log(hwcpipe::LogSeverity::Error, "Invalid core number.");
 				return nullptr;
 			}
 

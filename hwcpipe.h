@@ -26,20 +26,13 @@
 
 #include "cpu_profiler.h"
 #include "gpu_profiler.h"
+#include "logger.h"
 
 #include <functional>
 #include <memory>
 
 namespace hwcpipe
 {
-const char* get_last_error()
-{
-	extern const char *error_msg;
-	const char *       err = error_msg;
-	error_msg              = nullptr;
-	return err;
-}
-
 struct Measurements
 {
 	const CpuMeasurements *cpu{nullptr};
@@ -47,7 +40,7 @@ struct Measurements
 };
 
 /** A class that collects CPU/GPU performance data. */
-class HWCPipe
+class HWCPipe : public Logger
 {
   public:
 #ifndef HWCPIPE_NO_JSON

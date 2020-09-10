@@ -52,6 +52,7 @@ class PmuProfiler : public CpuProfiler
 		enabled_counters_ = std::move(counters);
 	};
 
+	virtual bool                   init() override;
 	virtual void                   run() override;
 	virtual const CpuMeasurements &sample() override;
 	virtual void                   stop() override;
