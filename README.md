@@ -55,6 +55,10 @@ add_subdirectory(hwcpipe)
 Basic usage for HWCPipe is simple:
 
 ```
+// Create a custom logger if logging to stdout is not desired
+void logger(hwcpipe::LogSeverity severity, const char* log){}
+hwcpipe::HWCPipe::set_logger(&logger);
+
 // HWCPipe performs automated platform detection for CPU/GPU counters
 hwcpipe::HWCPipe h;
 

@@ -127,6 +127,7 @@ class CpuProfiler : public Logger
   public:
 	virtual ~CpuProfiler() = default;
 
+	// Initialize the profiler
 	virtual bool init() = 0;
 
 	// Returns the enabled counters
