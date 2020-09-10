@@ -169,9 +169,12 @@ void HWCPipe::stop()
 
 void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
 {
+
+	log(hwcpipe::LogSeverity::Info, "Creating Profilers");
+
 	// Automated platform detection
 #ifdef __linux__
-	if (enabled_cpu_counters.size())
+	if (enabled_cpu_counters.size() != 0)
 	{
 		cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
 		if (!cpu_profiler_->init())
@@ -179,19 +182,15 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 			log(hwcpipe::LogSeverity::Fatal, "PMU profiler initialization failed");
 			return;
 		}
-
-		cpu_profiler_->set_logger(get_logger());
 	}
 
-	if (enabled_gpu_counters.size())
+	if (enabled_gpu_counters.size() != 0)
 	{
 		gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
 		if (!gpu_profiler_->init())
 		{
 			log(hwcpipe::LogSeverity::Fatal, "Mali profiler initialization failed");
 		}
-
-		gpu_profiler_->set_logger(get_logger());
 	}
 #else
 	log(hwcpipe::LogSeverity::Fatal, "No counters available for this platform.");

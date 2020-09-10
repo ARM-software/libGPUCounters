@@ -64,21 +64,19 @@ void PmuCounter::open(PmuEventInfo config)
 
 void PmuCounter::open(const perf_event_attr &perf_config)
 {
-	auto logger = get_logger();
-
 	// Measure this process/thread (+ children) on any CPU
 	_fd = syscall(__NR_perf_event_open, &perf_config, 0, -1, -1, 0);
 
 	if (_fd < 0)
 	{
-		logger(hwcpipe::LogSeverity::Error, "perf_event_open failed.");
+		log(hwcpipe::LogSeverity::Error, "perf_event_open failed.");
 		return;
 	}
 
 	const int result = ioctl(_fd, PERF_EVENT_IOC_ENABLE, 0);
 	if (result == -1)
 	{
-		logger(hwcpipe::LogSeverity::Error, "Failed to enable PMU counter.");
+		log(hwcpipe::LogSeverity::Error, "Failed to enable PMU counter.");
 	}
 }
 

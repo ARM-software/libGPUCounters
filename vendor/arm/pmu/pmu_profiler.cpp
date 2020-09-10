@@ -24,8 +24,6 @@
 
 #include "pmu_profiler.h"
 
-#include <fmt/format.h>
-
 namespace hwcpipe
 {
 const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings{

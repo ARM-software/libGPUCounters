@@ -30,8 +30,9 @@ set(PROJECT_FILES
     gpu_profiler.h
     value.h
     logger.h
-
-    hwcpipe.cpp)
+    
+    hwcpipe.cpp
+    logger.cpp)
 
 if(UNIX AND NOT APPLE)
     list(APPEND PROJECT_FILES
@@ -56,5 +57,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE fmt::fmt-header-only)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_include_directories(${PROJECT_NAME} PUBLIC third_party)
+
+target_include_directories(${PROJECT_NAME} PUBLIC third_party/fmt/include)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
