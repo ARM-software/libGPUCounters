@@ -543,7 +543,7 @@ bool MaliProfiler::init()
 
 bool MaliProfiler::poll()
 {
-	return sample_counters() && wait_next_event()
+	return sample_counters() && wait_next_event();
 }
 
 const GpuMeasurements &MaliProfiler::sample()
@@ -579,7 +579,7 @@ bool MaliProfiler::wait_next_event()
 	poll_fd.fd     = hwc_fd_;
 	poll_fd.events = POLLIN;
 
-	const int count = poll(&poll_fd, 1, -1);
+	const int count = ::poll(&poll_fd, 1, -1);
 
 	if (count < 0)
 	{

@@ -68,7 +68,13 @@ if (!h.init()) {
 
 while (main_loop) {
     // Call sample() to sample counters with the frequency you need
-    auto measurements = h.sample();
+    auto samples = h.sample();
+    auto valid = samples->second;
+    auto& measurements = samples->first;
+
+    if (!valid) {
+        // Failure getting samples...
+    }
 
     [...]
 }

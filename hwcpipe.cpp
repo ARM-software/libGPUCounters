@@ -134,7 +134,6 @@ void HWCPipe::set_enabled_gpu_counters(GpuCounterSet counters)
 std::pair<Measurements, bool> HWCPipe::sample()
 {
 	std::pair<Measurements, bool> result;
-	result.second = true;
 
 	if (cpu_profiler_)
 	{
@@ -161,6 +160,9 @@ std::pair<Measurements, bool> HWCPipe::sample()
 			result.first.gpu = &gpu_profiler_->sample();
 		}
 	}
+
+	result.second = true;
+
 	return result;
 }
 

@@ -71,11 +71,11 @@ class Value
 		is_int_ = false;
 	}
 
-	const IntType    InvalidInt    = std::numeric_limits<IntType>::max();
-	const DoubleType InvalidDouble = std::numeric_limits<DoubleType>::max();
+	static constexpr IntType    InvalidInt    = std::numeric_limits<IntType>::max();
+	static constexpr DoubleType InvalidDouble = std::numeric_limits<DoubleType>::max();
 
   private:
-	bool        is_int_;
+	bool       is_int_;
 	IntType    int_{0};
 	DoubleType double_{0.0};
 };
