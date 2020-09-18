@@ -61,10 +61,9 @@ hwcpipe::HWCPipe::set_logger(&logger);
 
 // HWCPipe performs automated platform detection for CPU/GPU counters
 hwcpipe::HWCPipe h;
-
-// Start HWCPipe once at the beginning of the profiling session
-if (!h.run()) {
-    // An error occured when attempting to collect samples
+ 
+if (!h.init()) {
+    // Failed to set up HWCPipe
 }
 
 while (main_loop) {
@@ -73,9 +72,6 @@ while (main_loop) {
 
     [...]
 }
-
-// At the end of the profiling session, stop HWCPipe
-h.stop();
 ```
 
 The `sample` function returns a `Measurements` struct, which can be accessed like this:
@@ -88,8 +84,14 @@ if (measurements.cpu)
     const auto &counter = measurements.cpu->find(CpuCounter::Cycles);
     if (counter != measurements.cpu->end())
     {
+        auto& counterValue = counter->second;
+
+        if (!counterValue.valid()) {
+            // This value was not retrieved correctly from the profiler
+        }
+
         // Get the data stored in the counter, casted to the type you need
-        auto value = counter->second.get<float>();
+        auto value = counterValue.get<float>();
     }
 }
 ```
