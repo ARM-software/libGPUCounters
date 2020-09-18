@@ -615,7 +615,7 @@ bool MaliProfiler::wait_next_event()
 	return true;
 }
 
-hwcpipe::DoubleValue MaliProfiler::get_counter_value(mali_userspace::MaliCounterBlockName block, const char *name) const
+hwcpipe::DoubleType MaliProfiler::get_counter_value(mali_userspace::MaliCounterBlockName block, const char *name) const
 {
 	uint64_t sum = 0;
 	switch (block)
@@ -631,7 +631,7 @@ hwcpipe::DoubleValue MaliProfiler::get_counter_value(mali_userspace::MaliCounter
 				}
 				sum += counter[find_counter_index_by_name(block, name)];
 			}
-			return static_cast<hwcpipe::DoubleValue>(sum);
+			return static_cast<hwcpipe::DoubleType>(sum);
 
 		case mali_userspace::MALI_NAME_BLOCK_SHADER:
 			// If a shader core counter is selected, sum the values over shader cores
@@ -644,7 +644,7 @@ hwcpipe::DoubleValue MaliProfiler::get_counter_value(mali_userspace::MaliCounter
 				}
 				sum += counter[find_counter_index_by_name(block, name)];
 			}
-			return static_cast<hwcpipe::DoubleValue>(sum);
+			return static_cast<hwcpipe::DoubleType>(sum);
 
 		case mali_userspace::MALI_NAME_BLOCK_JM:
 		case mali_userspace::MALI_NAME_BLOCK_TILER:
@@ -654,7 +654,7 @@ hwcpipe::DoubleValue MaliProfiler::get_counter_value(mali_userspace::MaliCounter
 			{
 				return hwcpipe::Value::InvalidDouble;
 			}
-			return static_cast<hwcpipe::DoubleValue>(counter[find_counter_index_by_name(block, name)]);
+			return static_cast<hwcpipe::DoubleType>(counter[find_counter_index_by_name(block, name)]);
 		}
 	}
 }

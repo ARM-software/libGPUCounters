@@ -106,7 +106,7 @@ const CpuMeasurements &PmuProfiler::sample()
 			continue;
 		}
 
-		auto value = pmu_counter->second.get_value<hwcpipe::IntValue>();
+		auto value = pmu_counter->second.get_value<hwcpipe::IntType>();
 		if (value < 0)
 		{
 			hwcpipe::log(LogSeverity::Warn, "Failed to get value from PMU: {}.", std::strerror(errno));
@@ -116,7 +116,7 @@ const CpuMeasurements &PmuProfiler::sample()
 		{
 			// Resetting the PMU counter every frame seems to alter the data,
 			// so we make a differential reading.
-			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<hwcpipe::IntValue>();
+			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<hwcpipe::IntType>();
 			prev_measurements_[pmu_counter->first] = value;
 		}
 	}

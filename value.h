@@ -28,8 +28,8 @@
 
 namespace hwcpipe
 {
-typedef long long IntValue;
-typedef double    DoubleValue;
+typedef long long IntType;
+typedef double    DoubleType;
 
 class Value
 {
@@ -39,11 +39,11 @@ class Value
 	    int_(0),
 	    double_(0.0f)
 	{}
-	Value(IntValue value) :
+	Value(IntType value) :
 	    is_int_(true),
 	    int_(value)
 	{}
-	Value(DoubleValue value) :
+	Value(DoubleType value) :
 	    is_int_(false),
 	    double_(value)
 	{}
@@ -59,24 +59,24 @@ class Value
 		return is_int_ ? static_cast<T>(int_) : static_cast<T>(double_);
 	}
 
-	void set(IntValue value)
+	void set(IntType value)
 	{
 		int_    = value;
 		is_int_ = true;
 	}
 
-	void set(DoubleValue value)
+	void set(DoubleType value)
 	{
 		double_ = value;
 		is_int_ = false;
 	}
 
-	const IntValue    InvalidInt    = std::numeric_limits<IntValue>::max();
-	const DoubleValue InvalidDouble = std::numeric_limits<DoubleValue>::max();
+	const IntType    InvalidInt    = std::numeric_limits<IntType>::max();
+	const DoubleType InvalidDouble = std::numeric_limits<DoubleType>::max();
 
   private:
 	bool        is_int_;
-	IntValue    int_{0};
-	DoubleValue double_{0.0};
+	IntType    int_{0};
+	DoubleType double_{0.0};
 };
 }        // namespace hwcpipe
