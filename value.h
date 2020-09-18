@@ -24,8 +24,13 @@
 
 #pragma once
 
+#include <limits>
+
 namespace hwcpipe
 {
+typedef long long IntValue;
+typedef double    DoubleValue;
+
 class Value
 {
   public:
@@ -34,11 +39,11 @@ class Value
 	    int_(0),
 	    double_(0.0f)
 	{}
-	Value(long long value) :
+	Value(IntValue value) :
 	    is_int_(true),
 	    int_(value)
 	{}
-	Value(double value) :
+	Value(DoubleValue value) :
 	    is_int_(false),
 	    double_(value)
 	{}
@@ -49,21 +54,24 @@ class Value
 		return is_int_ ? static_cast<T>(int_) : static_cast<T>(double_);
 	}
 
-	void set(long long value)
+	void set(IntValue value)
 	{
 		int_    = value;
 		is_int_ = true;
 	}
 
-	void set(double value)
+	void set(DoubleValue value)
 	{
 		double_ = value;
 		is_int_ = false;
 	}
 
+	const IntValue    InvalidInt    = std::numeric_limits<IntValue>::max();
+	const DoubleValue InvalidDouble = std::numeric_limits<DoubleValue>::max();
+
   private:
-	bool      is_int_;
-	long long int_{0};
-	double    double_{0.0};
+	bool        is_int_;
+	IntValue    int_{0};
+	DoubleValue double_{0.0};
 };
 }        // namespace hwcpipe

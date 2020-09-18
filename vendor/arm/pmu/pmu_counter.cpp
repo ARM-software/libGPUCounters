@@ -24,6 +24,8 @@
 
 #include "pmu_counter.h"
 
+#include "logging.h"
+
 #include <asm/unistd.h>
 #include <cstring>
 #include <linux/version.h>
@@ -69,14 +71,14 @@ void PmuCounter::open(const perf_event_attr &perf_config)
 
 	if (_fd < 0)
 	{
-		log(hwcpipe::LogSeverity::Error, "perf_event_open failed.");
+		hwcpipe::log(hwcpipe::LogSeverity::Error, "perf_event_open failed.");
 		return;
 	}
 
 	const int result = ioctl(_fd, PERF_EVENT_IOC_ENABLE, 0);
 	if (result == -1)
 	{
-		log(hwcpipe::LogSeverity::Error, "Failed to enable PMU counter.");
+		hwcpipe::log(hwcpipe::LogSeverity::Error, "Failed to enable PMU counter.");
 	}
 }
 

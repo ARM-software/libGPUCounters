@@ -29,10 +29,10 @@ set(PROJECT_FILES
     cpu_profiler.h
     gpu_profiler.h
     value.h
-    logger.h
+    logging.h
     
     hwcpipe.cpp
-    logger.cpp)
+    logging.cpp)
 
 if(UNIX AND NOT APPLE)
     list(APPEND PROJECT_FILES

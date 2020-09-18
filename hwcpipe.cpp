@@ -24,6 +24,8 @@
 
 #include "hwcpipe.h"
 
+#include "logging.h"
+
 #ifdef __linux__
 #	include "vendor/arm/pmu/pmu_profiler.h"
 #	include "vendor/arm/mali/mali_profiler.h"
@@ -56,7 +58,7 @@ HWCPipe::HWCPipe(const char *json_string)
 			}
 			else
 			{
-				log(hwcpipe::LogSeverity::Warn, "CPU counter \"{}\" not found.", counter_name.value().get<std::string>().c_str());
+				hwcpipe::log(hwcpipe::LogSeverity::Warn, "CPU counter \"{}\" not found.", counter_name.value().get<std::string>().c_str());
 			}
 		}
 	}
@@ -74,7 +76,7 @@ HWCPipe::HWCPipe(const char *json_string)
 			}
 			else
 			{
-				log(hwcpipe::LogSeverity::Warn, "GPU counter \"{}\" not found.", counter_name.value().get<std::string>().c_str());
+				hwcpipe::log(hwcpipe::LogSeverity::Warn, "GPU counter \"{}\" not found.", counter_name.value().get<std::string>().c_str());
 			}
 		}
 	}
@@ -129,49 +131,41 @@ void HWCPipe::set_enabled_gpu_counters(GpuCounterSet counters)
 	}
 }
 
-void HWCPipe::run()
+std::pair<Measurements, bool> HWCPipe::sample()
 {
+	std::pair<Measurements, bool> result;
+	result.second = true;
+
 	if (cpu_profiler_)
 	{
-		cpu_profiler_->run();
+		if (!cpu_profiler_->poll())
+		{
+			// Failed to poll new samples
+			result.second = false;
+		}
+		else
+		{
+			result.first.cpu = &cpu_profiler_->sample();
+		}
 	}
+
 	if (gpu_profiler_)
 	{
-		gpu_profiler_->run();
+		if (!gpu_profiler_->poll())
+		{
+			// Failed to poll new samples
+			result.second = false;
+		}
+		else
+		{
+			result.first.gpu = &gpu_profiler_->sample();
+		}
 	}
+	return result;
 }
 
-Measurements HWCPipe::sample()
+bool HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
 {
-	Measurements m;
-	if (cpu_profiler_)
-	{
-		m.cpu = &cpu_profiler_->sample();
-	}
-	if (gpu_profiler_)
-	{
-		m.gpu = &gpu_profiler_->sample();
-	}
-	return m;
-}
-
-void HWCPipe::stop()
-{
-	if (cpu_profiler_)
-	{
-		cpu_profiler_->stop();
-	}
-	if (gpu_profiler_)
-	{
-		gpu_profiler_->stop();
-	}
-}
-
-void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
-{
-
-	log(hwcpipe::LogSeverity::Info, "Creating Profilers");
-
 	// Automated platform detection
 #ifdef __linux__
 	if (enabled_cpu_counters.size() != 0)
@@ -179,8 +173,8 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 		cpu_profiler_ = std::unique_ptr<PmuProfiler>(new PmuProfiler(enabled_cpu_counters));
 		if (!cpu_profiler_->init())
 		{
-			log(hwcpipe::LogSeverity::Fatal, "PMU profiler initialization failed");
-			return;
+			hwcpipe::log(hwcpipe::LogSeverity::Fatal, "PMU profiler initialization failed");
+			return false;
 		}
 	}
 
@@ -189,11 +183,16 @@ void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet
 		gpu_profiler_ = std::unique_ptr<MaliProfiler>(new MaliProfiler(enabled_gpu_counters));
 		if (!gpu_profiler_->init())
 		{
-			log(hwcpipe::LogSeverity::Fatal, "Mali profiler initialization failed");
+			hwcpipe::log(hwcpipe::LogSeverity::Fatal, "Mali profiler initialization failed");
+			return false;
 		}
 	}
+
+	return true;
+
 #else
-	log(hwcpipe::LogSeverity::Fatal, "No counters available for this platform.");
+	hwcpipe::log(hwcpipe::LogSeverity::Fatal, "No counters available for this platform.");
+	return false;
 #endif
 }
 

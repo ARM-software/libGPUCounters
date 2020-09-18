@@ -44,23 +44,17 @@ enum class LogSeverity
 // Using the DebugLogCallback allows a project using HWCPipe to define custom logging behaviour
 typedef void (*DebugLogCallback)(LogSeverity severity, const char *message);
 
-// User to log messages to the desired output
-class Logger
+void set_logger(DebugLogCallback callback);
+
+DebugLogCallback get_logger();
+
+template <typename... Args>
+void log(LogSeverity severity, const std::string &format, Args... args)
 {
-  public:
-	virtual ~Logger() = default;
-
-	// Set a custom log callback
-	static void set_logger(DebugLogCallback callback);
-
-	// Used to log messages
-	template <typename... Args>
-	void log(LogSeverity severity, const std::string &format, Args... args) const
+	auto logger = get_logger();
+	if (logger != nullptr)
 	{
 		logger(severity, fmt::format(format, args...).c_str());
 	}
-
-  private:
-	static DebugLogCallback logger;
-};
+}
 }        // namespace hwcpipe

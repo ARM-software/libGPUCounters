@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include "logger.h"
+#include "logging.h"
 
 #if defined(__ANDROID__)
 #	include <android/log.h>
@@ -91,10 +91,15 @@ void default_logger(LogSeverity severity, const char *message)
 #endif
 }
 
-DebugLogCallback Logger::logger = &default_logger;
+DebugLogCallback logger = &default_logger;
 
-void Logger::set_logger(DebugLogCallback callback)
+void set_logger(DebugLogCallback callback)
 {
 	logger = callback;
+}
+
+DebugLogCallback get_logger()
+{
+	return logger;
 }
 }        // namespace hwcpipe

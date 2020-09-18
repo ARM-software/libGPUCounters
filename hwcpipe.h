@@ -26,10 +26,11 @@
 
 #include "cpu_profiler.h"
 #include "gpu_profiler.h"
-#include "logger.h"
+#include "logging.h"
 
 #include <functional>
 #include <memory>
+#include <utility>
 
 namespace hwcpipe
 {
@@ -40,7 +41,7 @@ struct Measurements
 };
 
 /** A class that collects CPU/GPU performance data. */
-class HWCPipe : public Logger
+class HWCPipe
 {
   public:
 #ifndef HWCPIPE_NO_JSON
@@ -60,17 +61,11 @@ class HWCPipe : public Logger
 	// Sets the enabled counters for the GPU profiler
 	void set_enabled_gpu_counters(GpuCounterSet counters);
 
-	// Starts a profiling session
-	void run();
-
 	// Sample the counters. The function returns pointers to the CPU and GPU
 	// measurements maps, if the corresponding profiler is enabled.
 	// The entries in the maps are the counters that are both available and enabled.
 	// A profiling session must be running when sampling the counters.
-	Measurements sample();
-
-	// Stops the active profiling session
-	void stop();
+	std::pair<Measurements, bool> sample();
 
 	CpuProfiler *cpu_profiler()
 	{
@@ -85,7 +80,7 @@ class HWCPipe : public Logger
 	std::unique_ptr<CpuProfiler> cpu_profiler_{};
 	std::unique_ptr<GpuProfiler> gpu_profiler_{};
 
-	void create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters);
+	bool create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters);
 };
 
 }        // namespace hwcpipe

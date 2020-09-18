@@ -63,7 +63,9 @@ hwcpipe::HWCPipe::set_logger(&logger);
 hwcpipe::HWCPipe h;
 
 // Start HWCPipe once at the beginning of the profiling session
-h.run();
+if (!h.run()) {
+    // An error occured when attempting to collect samples
+}
 
 while (main_loop) {
     // Call sample() to sample counters with the frequency you need

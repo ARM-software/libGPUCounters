@@ -24,6 +24,9 @@
 
 #include "pmu_profiler.h"
 
+#include "logging.h"
+#include "value.h"
+
 namespace hwcpipe
 {
 const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings{
@@ -68,7 +71,7 @@ bool PmuProfiler::init()
 			if (pmu_counter.get_value<long long>() < 0)
 			{
 				// PMU counter initialization failed
-				log(hwcpipe::LogSeverity::Error, "Failed to get value from PMU: {}.", std::strerror(errno));
+				hwcpipe::log(hwcpipe::LogSeverity::Error, "Failed to get value from PMU: {}.", std::strerror(errno));
 				return false;
 			}
 			else
@@ -82,13 +85,15 @@ bool PmuProfiler::init()
 	return true;
 }
 
-void PmuProfiler::run()
+bool PmuProfiler::poll()
 {
 	for (auto &pmu_counter : pmu_counters_)
 	{
 		pmu_counter.second.reset();
 		prev_measurements_[pmu_counter.first] = Value{};
 	}
+
+	return true;
 }
 
 const CpuMeasurements &PmuProfiler::sample()
@@ -101,27 +106,22 @@ const CpuMeasurements &PmuProfiler::sample()
 			continue;
 		}
 
-		auto value = pmu_counter->second.get_value<long long>();
+		auto value = pmu_counter->second.get_value<hwcpipe::IntValue>();
 		if (value < 0)
 		{
-			log(LogSeverity::Warn, "Failed to get value from PMU: {}.", std::strerror(errno));
-			measurements_[pmu_counter->first] = value;
+			hwcpipe::log(LogSeverity::Warn, "Failed to get value from PMU: {}.", std::strerror(errno));
+			measurements_[pmu_counter->first] = hwcpipe::Value::InvalidInt;
 		}
 		else
 		{
 			// Resetting the PMU counter every frame seems to alter the data,
 			// so we make a differential reading.
-			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<long long>();
+			measurements_[pmu_counter->first]      = value - prev_measurements_[pmu_counter->first].get<hwcpipe::IntValue>();
 			prev_measurements_[pmu_counter->first] = value;
 		}
 	}
 
 	return measurements_;
-}
-
-void PmuProfiler::stop()
-{
-	// We don't need to do anything on stop()
 }
 
 }        // namespace hwcpipe
