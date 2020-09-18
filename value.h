@@ -48,6 +48,11 @@ class Value
 	    double_(value)
 	{}
 
+	bool valid() const
+	{
+		return is_int_ ? int_ == InvalidInt : double_ == InvalidDouble;
+	}
+
 	template <typename T>
 	T get() const
 	{
