@@ -81,38 +81,37 @@ HWCPipe::HWCPipe(const char *json_string)
 		}
 	}
 
-	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));
+	enabled_cpu_counters_ = enabled_cpu_counters;
+	enabled_gpu_counters_ = enabled_gpu_counters;
 }
 #endif
 
-HWCPipe::HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
+HWCPipe::HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters) :
+    enabled_cpu_counters_(enabled_cpu_counters), enabled_gpu_counters_(enabled_gpu_counters)
 {
-	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));
 }
 
 HWCPipe::HWCPipe()
 {
-	CpuCounterSet enabled_cpu_counters{CpuCounter::Cycles,
-	                                   CpuCounter::Instructions,
-	                                   CpuCounter::CacheReferences,
-	                                   CpuCounter::CacheMisses,
-	                                   CpuCounter::BranchInstructions,
-	                                   CpuCounter::BranchMisses};
+	enabled_cpu_counters_ = {CpuCounter::Cycles,
+	                         CpuCounter::Instructions,
+	                         CpuCounter::CacheReferences,
+	                         CpuCounter::CacheMisses,
+	                         CpuCounter::BranchInstructions,
+	                         CpuCounter::BranchMisses};
 
-	GpuCounterSet enabled_gpu_counters{GpuCounter::GpuCycles,
-	                                   GpuCounter::VertexComputeCycles,
-	                                   GpuCounter::FragmentCycles,
-	                                   GpuCounter::TilerCycles,
-	                                   GpuCounter::CacheReadLookups,
-	                                   GpuCounter::CacheWriteLookups,
-	                                   GpuCounter::ExternalMemoryReadAccesses,
-	                                   GpuCounter::ExternalMemoryWriteAccesses,
-	                                   GpuCounter::ExternalMemoryReadStalls,
-	                                   GpuCounter::ExternalMemoryWriteStalls,
-	                                   GpuCounter::ExternalMemoryReadBytes,
-	                                   GpuCounter::ExternalMemoryWriteBytes};
-
-	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));
+	enabled_gpu_counters_ = {GpuCounter::GpuCycles,
+	                         GpuCounter::VertexComputeCycles,
+	                         GpuCounter::FragmentCycles,
+	                         GpuCounter::TilerCycles,
+	                         GpuCounter::CacheReadLookups,
+	                         GpuCounter::CacheWriteLookups,
+	                         GpuCounter::ExternalMemoryReadAccesses,
+	                         GpuCounter::ExternalMemoryWriteAccesses,
+	                         GpuCounter::ExternalMemoryReadStalls,
+	                         GpuCounter::ExternalMemoryWriteStalls,
+	                         GpuCounter::ExternalMemoryReadBytes,
+	                         GpuCounter::ExternalMemoryWriteBytes};
 }
 
 void HWCPipe::set_enabled_cpu_counters(CpuCounterSet counters)
@@ -166,7 +165,12 @@ std::pair<Measurements, bool> HWCPipe::sample()
 	return result;
 }
 
-bool HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
+bool HWCPipe::init()
+{
+	return create_profilers(enabled_cpu_counters_, enabled_gpu_counters_);
+}
+
+bool HWCPipe::create_profilers(CpuCounterSet &enabled_cpu_counters, GpuCounterSet &enabled_gpu_counters)
 {
 	// Automated platform detection
 #ifdef __linux__
