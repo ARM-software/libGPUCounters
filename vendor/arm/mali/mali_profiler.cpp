@@ -363,14 +363,6 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	}
 }
 
-MaliProfiler::~MaliProfiler()
-{
-	if (fd_ != -1)
-	{
-		close(fd_);
-	}
-}
-
 void MaliProfiler::init()
 {
 	MaliHWInfo hw_info = get_mali_hw_info(device_);

@@ -38,7 +38,7 @@ class MaliProfiler : public GpuProfiler
 {
   public:
 	explicit MaliProfiler(const GpuCounterSet &enabled_counters);
-	virtual ~MaliProfiler();
+	virtual ~MaliProfiler() = default;
 
 	virtual const GpuCounterSet &enabled_counters() const override
 	{
