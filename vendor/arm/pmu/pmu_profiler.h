@@ -47,9 +47,9 @@ class PmuProfiler : public CpuProfiler
 		return supported_counters_;
 	};
 
-	virtual void set_enabled_counters(CpuCounterSet counters) override
+	virtual void set_enabled_counters(const CpuCounterSet& counters) override
 	{
-		enabled_counters_ = std::move(counters);
+		enabled_counters_ = counters;
 	};
 
 	virtual void                   run() override;

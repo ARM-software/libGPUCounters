@@ -30,6 +30,8 @@
 #include <functional>
 #include <memory>
 
+#define API_CALL __attribute__((visibility("default")))
+
 namespace hwcpipe
 {
 struct Measurements
@@ -39,7 +41,7 @@ struct Measurements
 };
 
 /** A class that collects CPU/GPU performance data. */
-class HWCPipe
+class API_CALL HWCPipe
 {
   public:
 #ifndef HWCPIPE_NO_JSON
@@ -48,16 +50,16 @@ class HWCPipe
 #endif
 
 	// Initializes HWCPipe with the specified counters
-	HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters);
+	HWCPipe(const CpuCounterSet& enabled_cpu_counters, const GpuCounterSet& enabled_gpu_counters);
 
 	// Initializes HWCPipe with a default set of counters
 	HWCPipe();
 
 	// Sets the enabled counters for the CPU profiler
-	void set_enabled_cpu_counters(CpuCounterSet counters);
+	void set_enabled_cpu_counters(const CpuCounterSet& counters);
 
 	// Sets the enabled counters for the GPU profiler
-	void set_enabled_gpu_counters(GpuCounterSet counters);
+	void set_enabled_gpu_counters(const GpuCounterSet& counters);
 
 	// Starts a profiling session
 	void run();
@@ -84,7 +86,7 @@ class HWCPipe
 	std::unique_ptr<CpuProfiler> cpu_profiler_{};
 	std::unique_ptr<GpuProfiler> gpu_profiler_{};
 
-	void create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters);
+	void create_profilers(const CpuCounterSet& enabled_cpu_counters, const GpuCounterSet& enabled_gpu_counters);
 };
 
 }        // namespace hwcpipe

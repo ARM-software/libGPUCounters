@@ -39,6 +39,65 @@ using json = nlohmann::json;
 
 namespace hwcpipe
 {
+
+// Mapping from CPU counter names to enum values. Used for JSON initialization.
+const std::unordered_map<std::string, CpuCounter> cpu_counter_names{
+    {"Cycles", CpuCounter::Cycles},
+    {"Instructions", CpuCounter::Instructions},
+    {"CacheReferences", CpuCounter::CacheReferences},
+    {"CacheMisses", CpuCounter::CacheMisses},
+    {"BranchInstructions", CpuCounter::BranchInstructions},
+    {"BranchMisses", CpuCounter::BranchMisses},
+
+    {"L1Accesses", CpuCounter::L1Accesses},
+    {"InstrRetired", CpuCounter::InstrRetired},
+    {"L2Accesses", CpuCounter::L2Accesses},
+    {"L3Accesses", CpuCounter::L3Accesses},
+    {"BusReads", CpuCounter::BusReads},
+    {"BusWrites", CpuCounter::BusWrites},
+    {"MemReads", CpuCounter::MemReads},
+    {"MemWrites", CpuCounter::MemWrites},
+    {"ASESpec", CpuCounter::ASESpec},
+    {"VFPSpec", CpuCounter::VFPSpec},
+    {"CryptoSpec", CpuCounter::CryptoSpec},
+};
+
+// Mapping from GPU counter names to enum values. Used for JSON initialization.
+const std::unordered_map<std::string, GpuCounter> gpu_counter_names{
+    {"GpuCycles", GpuCounter::GpuCycles},
+    {"VertexComputeCycles", GpuCounter::VertexComputeCycles},
+    {"FragmentCycles", GpuCounter::FragmentCycles},
+    {"TilerCycles", GpuCounter::TilerCycles},
+
+    {"VertexComputeJobs", GpuCounter::VertexComputeJobs},
+    {"Tiles", GpuCounter::Tiles},
+    {"TransactionEliminations", GpuCounter::TransactionEliminations},
+    {"FragmentJobs", GpuCounter::FragmentJobs},
+    {"Pixels", GpuCounter::Pixels},
+
+    {"EarlyZTests", GpuCounter::EarlyZTests},
+    {"EarlyZKilled", GpuCounter::EarlyZKilled},
+    {"LateZTests", GpuCounter::LateZTests},
+    {"LateZKilled", GpuCounter::LateZKilled},
+
+    {"Instructions", GpuCounter::Instructions},
+    {"DivergedInstructions", GpuCounter::DivergedInstructions},
+
+    {"ShaderCycles", GpuCounter::ShaderCycles},
+    {"ShaderArithmeticCycles", GpuCounter::ShaderArithmeticCycles},
+    {"ShaderLoadStoreCycles", GpuCounter::ShaderLoadStoreCycles},
+    {"ShaderTextureCycles", GpuCounter::ShaderTextureCycles},
+
+    {"CacheReadLookups", GpuCounter::CacheReadLookups},
+    {"CacheWriteLookups", GpuCounter::CacheWriteLookups},
+    {"ExternalMemoryReadAccesses", GpuCounter::ExternalMemoryReadAccesses},
+    {"ExternalMemoryWriteAccesses", GpuCounter::ExternalMemoryWriteAccesses},
+    {"ExternalMemoryReadStalls", GpuCounter::ExternalMemoryReadStalls},
+    {"ExternalMemoryWriteStalls", GpuCounter::ExternalMemoryWriteStalls},
+    {"ExternalMemoryReadBytes", GpuCounter::ExternalMemoryReadBytes},
+    {"ExternalMemoryWriteBytes", GpuCounter::ExternalMemoryWriteBytes},
+};
+
 #ifndef HWCPIPE_NO_JSON
 HWCPipe::HWCPipe(const char *json_string)
 {
@@ -84,9 +143,9 @@ HWCPipe::HWCPipe(const char *json_string)
 }
 #endif
 
-HWCPipe::HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
+HWCPipe::HWCPipe(const CpuCounterSet& enabled_cpu_counters, const GpuCounterSet& enabled_gpu_counters)
 {
-	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));
+	create_profilers(enabled_cpu_counters, enabled_gpu_counters);
 }
 
 HWCPipe::HWCPipe()
@@ -111,22 +170,22 @@ HWCPipe::HWCPipe()
 	                                   GpuCounter::ExternalMemoryReadBytes,
 	                                   GpuCounter::ExternalMemoryWriteBytes};
 
-	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));
+	create_profilers(enabled_cpu_counters, enabled_gpu_counters);
 }
 
-void HWCPipe::set_enabled_cpu_counters(CpuCounterSet counters)
+void HWCPipe::set_enabled_cpu_counters(const CpuCounterSet& counters)
 {
 	if (cpu_profiler_)
 	{
-		cpu_profiler_->set_enabled_counters(std::move(counters));
+		cpu_profiler_->set_enabled_counters(counters);
 	}
 }
 
-void HWCPipe::set_enabled_gpu_counters(GpuCounterSet counters)
+void HWCPipe::set_enabled_gpu_counters(const GpuCounterSet& counters)
 {
 	if (gpu_profiler_)
 	{
-		gpu_profiler_->set_enabled_counters(std::move(counters));
+		gpu_profiler_->set_enabled_counters(counters);
 	}
 }
 
@@ -168,7 +227,7 @@ void HWCPipe::stop()
 	}
 }
 
-void HWCPipe::create_profilers(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_counters)
+void HWCPipe::create_profilers(const CpuCounterSet& enabled_cpu_counters, const GpuCounterSet& enabled_gpu_counters)
 {
 	// Automated platform detection
 #ifdef __linux__

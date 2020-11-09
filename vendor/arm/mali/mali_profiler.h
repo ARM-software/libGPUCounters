@@ -50,9 +50,9 @@ class MaliProfiler : public GpuProfiler
 		return supported_counters_;
 	};
 
-	virtual void set_enabled_counters(GpuCounterSet counters) override
+	virtual void set_enabled_counters(const GpuCounterSet& counters) override
 	{
-		enabled_counters_ = std::move(counters);
+		enabled_counters_ = counters;
 	};
 
 	virtual void                   run() override;

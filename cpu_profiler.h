@@ -58,26 +58,7 @@ enum class CpuCounter
 };
 
 // Mapping from CPU counter names to enum values. Used for JSON initialization.
-const std::unordered_map<std::string, CpuCounter> cpu_counter_names{
-    {"Cycles", CpuCounter::Cycles},
-    {"Instructions", CpuCounter::Instructions},
-    {"CacheReferences", CpuCounter::CacheReferences},
-    {"CacheMisses", CpuCounter::CacheMisses},
-    {"BranchInstructions", CpuCounter::BranchInstructions},
-    {"BranchMisses", CpuCounter::BranchMisses},
-
-    {"L1Accesses", CpuCounter::L1Accesses},
-    {"InstrRetired", CpuCounter::InstrRetired},
-    {"L2Accesses", CpuCounter::L2Accesses},
-    {"L3Accesses", CpuCounter::L3Accesses},
-    {"BusReads", CpuCounter::BusReads},
-    {"BusWrites", CpuCounter::BusWrites},
-    {"MemReads", CpuCounter::MemReads},
-    {"MemWrites", CpuCounter::MemWrites},
-    {"ASESpec", CpuCounter::ASESpec},
-    {"VFPSpec", CpuCounter::VFPSpec},
-    {"CryptoSpec", CpuCounter::CryptoSpec},
-};
+extern const std::unordered_map<std::string, CpuCounter> cpu_counter_names;
 
 // A hash function for CpuCounter values
 struct CpuCounterHash
@@ -95,6 +76,7 @@ struct CpuCounterInfo
 	std::string unit;
 };
 
+/*
 // Mapping from each counter to its corresponding information (description and unit)
 const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter_info{
     {CpuCounter::Cycles, {"Number of CPU cycles", "cycles"}},
@@ -116,6 +98,7 @@ const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter
     {CpuCounter::VFPSpec, {"Speculatively executed floating point operations", "operations"}},
     {CpuCounter::CryptoSpec, {"Speculatively executed cryptographic operations", "operations"}},
 };
+*/
 
 typedef std::unordered_set<CpuCounter, CpuCounterHash> CpuCounterSet;
 typedef std::unordered_map<CpuCounter, Value, CpuCounterHash>
@@ -134,7 +117,7 @@ class CpuProfiler
 	virtual const CpuCounterSet &supported_counters() const = 0;
 
 	// Sets the enabled counters after initialization
-	virtual void set_enabled_counters(CpuCounterSet counters) = 0;
+	virtual void set_enabled_counters(const CpuCounterSet& counters) = 0;
 
 	// Starts a profiling session
 	virtual void run() = 0;

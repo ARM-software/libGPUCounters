@@ -72,40 +72,7 @@ enum class GpuCounter
 };
 
 // Mapping from GPU counter names to enum values. Used for JSON initialization.
-const std::unordered_map<std::string, GpuCounter> gpu_counter_names{
-    {"GpuCycles", GpuCounter::GpuCycles},
-    {"VertexComputeCycles", GpuCounter::VertexComputeCycles},
-    {"FragmentCycles", GpuCounter::FragmentCycles},
-    {"TilerCycles", GpuCounter::TilerCycles},
-
-    {"VertexComputeJobs", GpuCounter::VertexComputeJobs},
-    {"Tiles", GpuCounter::Tiles},
-    {"TransactionEliminations", GpuCounter::TransactionEliminations},
-    {"FragmentJobs", GpuCounter::FragmentJobs},
-    {"Pixels", GpuCounter::Pixels},
-
-    {"EarlyZTests", GpuCounter::EarlyZTests},
-    {"EarlyZKilled", GpuCounter::EarlyZKilled},
-    {"LateZTests", GpuCounter::LateZTests},
-    {"LateZKilled", GpuCounter::LateZKilled},
-
-    {"Instructions", GpuCounter::Instructions},
-    {"DivergedInstructions", GpuCounter::DivergedInstructions},
-
-    {"ShaderCycles", GpuCounter::ShaderCycles},
-    {"ShaderArithmeticCycles", GpuCounter::ShaderArithmeticCycles},
-    {"ShaderLoadStoreCycles", GpuCounter::ShaderLoadStoreCycles},
-    {"ShaderTextureCycles", GpuCounter::ShaderTextureCycles},
-
-    {"CacheReadLookups", GpuCounter::CacheReadLookups},
-    {"CacheWriteLookups", GpuCounter::CacheWriteLookups},
-    {"ExternalMemoryReadAccesses", GpuCounter::ExternalMemoryReadAccesses},
-    {"ExternalMemoryWriteAccesses", GpuCounter::ExternalMemoryWriteAccesses},
-    {"ExternalMemoryReadStalls", GpuCounter::ExternalMemoryReadStalls},
-    {"ExternalMemoryWriteStalls", GpuCounter::ExternalMemoryWriteStalls},
-    {"ExternalMemoryReadBytes", GpuCounter::ExternalMemoryReadBytes},
-    {"ExternalMemoryWriteBytes", GpuCounter::ExternalMemoryWriteBytes},
-};
+extern const std::unordered_map<std::string, GpuCounter> gpu_counter_names;
 
 // A hash function for GpuCounter values
 struct GpuCounterHash
@@ -123,6 +90,7 @@ struct GpuCounterInfo
 	std::string unit;
 };
 
+/*
 // Mapping from each counter to its corresponding information (description and unit)
 const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter_info{
     {GpuCounter::GpuCycles, {"Number of GPU cycles", "cycles"}},
@@ -158,6 +126,7 @@ const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter
     {GpuCounter::ExternalMemoryReadBytes, {"Bytes read to external memory", "B"}},
     {GpuCounter::ExternalMemoryWriteBytes, {"Bytes written to external memory", "B"}},
 };
+*/
 
 typedef std::unordered_set<GpuCounter, GpuCounterHash>        GpuCounterSet;
 typedef std::unordered_map<GpuCounter, Value, GpuCounterHash> GpuMeasurements;
@@ -175,7 +144,7 @@ class GpuProfiler
 	virtual const GpuCounterSet &supported_counters() const = 0;
 
 	// Sets the enabled counters after initialization
-	virtual void set_enabled_counters(GpuCounterSet counters) = 0;
+	virtual void set_enabled_counters(const GpuCounterSet& counters) = 0;
 
 	// Starts a profiling session
 	virtual void run() = 0;
