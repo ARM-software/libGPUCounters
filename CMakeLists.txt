@@ -44,12 +44,12 @@ if(UNIX AND NOT APPLE)
         vendor/arm/pmu/pmu_profiler.cpp)
 endif()
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fvisibility=hidden -fvisibility-inlines-hidden")
-set (CMAKE_SHARED_LINKER_FLAGS  "${CMAKE_SHARED_LINKER_FLAGS} -shared")
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 source_group("\\" FILES ${PROJECT_FILES})
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES})
+add_library(${PROJECT_NAME} SHARED ${PROJECT_FILES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
