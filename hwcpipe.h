@@ -30,7 +30,7 @@
 #include <functional>
 #include <memory>
 
-#define API_CALL __attribute__((visibility("default")))
+#include "hwcpipe_export.h"
 
 namespace hwcpipe
 {
@@ -41,7 +41,7 @@ struct Measurements
 };
 
 /** A class that collects CPU/GPU performance data. */
-class API_CALL HWCPipe
+class HWCPIPE_EXPORT HWCPipe
 {
   public:
 #ifndef HWCPIPE_NO_JSON
