@@ -354,6 +354,8 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 			case mali_userspace::PRODUCT_ID_TNAXa:
 			case mali_userspace::PRODUCT_ID_TNAXb:
 			case mali_userspace::PRODUCT_ID_TTRX:
+			case mali_userspace::PRODUCT_ID_TOTX:
+			case mali_userspace::PRODUCT_ID_TBOX:
 			default:
 				mappings_ = valhall_mappings;
 				break;
