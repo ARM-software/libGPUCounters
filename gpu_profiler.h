@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 ARM Limited.
+ * Copyright (c) 2019-2022 ARM Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -36,10 +36,13 @@ namespace hwcpipe
 enum class GpuCounter
 {
 	GpuCycles,
+	VertexCycles,
+	ComputeCycles,
 	VertexComputeCycles,
 	FragmentCycles,
 	TilerCycles,
-
+	VertexJobs,
+	ComputeJobs,
 	VertexComputeJobs,
 	FragmentJobs,
 	Pixels,
