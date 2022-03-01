@@ -28,7 +28,7 @@ namespace hwcpipe
 {
 class Value
 {
-  public:
+public:
 	Value() :
 	    is_int_(true),
 	    int_(0),
@@ -61,9 +61,9 @@ class Value
 		is_int_ = false;
 	}
 
-  private:
+private:
 	bool      is_int_;
-	long long int_{0};
-	double    double_{0.0};
+	long long int_ {0};
+	double    double_ {0.0};
 };
 }        // namespace hwcpipe

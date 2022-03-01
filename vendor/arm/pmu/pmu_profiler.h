@@ -33,7 +33,7 @@ namespace hwcpipe
 /** A CPU profiler that uses PMU counter data. */
 class PmuProfiler : public CpuProfiler
 {
-  public:
+public:
 	explicit PmuProfiler(const CpuCounterSet &enabled_counters);
 	virtual ~PmuProfiler() = default;
 
@@ -56,11 +56,11 @@ class PmuProfiler : public CpuProfiler
 	virtual const CpuMeasurements &sample() override;
 	virtual void                   stop() override;
 
-  private:
-	CpuCounterSet enabled_counters_{};
-	CpuCounterSet available_counters_{};
+private:
+	CpuCounterSet enabled_counters_ {};
+	CpuCounterSet available_counters_ {};
 
-	const CpuCounterSet supported_counters_{
+	const CpuCounterSet supported_counters_ {
 	    CpuCounter::Cycles,
 	    CpuCounter::Instructions,
 	    CpuCounter::CacheReferences,
@@ -81,10 +81,10 @@ class PmuProfiler : public CpuProfiler
 	    CpuCounter::CryptoSpec,
 	};
 
-	CpuMeasurements measurements_{};
-	CpuMeasurements prev_measurements_{};
+	CpuMeasurements measurements_ {};
+	CpuMeasurements prev_measurements_ {};
 
-	std::unordered_map<CpuCounter, PmuCounter, CpuCounterHash> pmu_counters_{};
+	std::unordered_map<CpuCounter, PmuCounter, CpuCounterHash> pmu_counters_ {};
 };
 
 }        // namespace hwcpipe

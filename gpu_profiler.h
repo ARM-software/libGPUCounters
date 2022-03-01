@@ -85,7 +85,7 @@ enum class GpuCounter
 };
 
 // Mapping from GPU counter names to enum values. Used for JSON initialization.
-const std::unordered_map<std::string, GpuCounter> gpu_counter_names{
+const std::unordered_map<std::string, GpuCounter> gpu_counter_names {
     {"GpuCycles", GpuCounter::GpuCycles},
     {"ComputeCycles", GpuCounter::ComputeCycles},
     {"VertexCycles", GpuCounter::VertexCycles},
@@ -150,7 +150,7 @@ struct GpuCounterInfo
 };
 
 // Mapping from each counter to its corresponding information (description and unit)
-const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter_info{
+const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter_info {
     {GpuCounter::GpuCycles, {"Number of GPU cycles", "cycles"}},
     {GpuCounter::ComputeCycles, {"Number of compute cycles", "cycles"}},
     {GpuCounter::VertexCycles, {"Number of vertex cycles", "cycles"}},
@@ -204,7 +204,7 @@ typedef std::unordered_map<GpuCounter, Value, GpuCounterHash> GpuMeasurements;
 /** An interface for classes that collect GPU performance data. */
 class GpuProfiler
 {
-  public:
+public:
 	virtual ~GpuProfiler() = default;
 
 	// Returns the enabled counters

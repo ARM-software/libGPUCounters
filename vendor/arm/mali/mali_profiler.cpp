@@ -267,7 +267,6 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::ExternalMemoryWriteBytes, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE_BEATS") * 16; }},
 	};
 
-
 	const std::unordered_map<GpuCounter, MaliValueGetter, GpuCounterHash> valhall_mappings = {
 	    {GpuCounter::GpuCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "GPU_ACTIVE"); }},
 	    {GpuCounter::VertexComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS1_ACTIVE"); }},

@@ -28,7 +28,7 @@
 
 namespace hwcpipe
 {
-const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings{
+const std::unordered_map<CpuCounter, PmuEventInfo, CpuCounterHash> pmu_mappings {
     {CpuCounter::Cycles, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CPU_CYCLES}},
     {CpuCounter::Instructions, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_INSTRUCTIONS}},
     {CpuCounter::CacheReferences, {PERF_TYPE_HARDWARE, PERF_COUNT_HW_CACHE_REFERENCES}},
@@ -89,7 +89,7 @@ void PmuProfiler::run()
 	for (auto &pmu_counter : pmu_counters_)
 	{
 		pmu_counter.second.reset();
-		prev_measurements_[pmu_counter.first] = Value{};
+		prev_measurements_[pmu_counter.first] = Value {};
 	}
 }
 

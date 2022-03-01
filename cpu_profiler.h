@@ -58,7 +58,7 @@ enum class CpuCounter
 };
 
 // Mapping from CPU counter names to enum values. Used for JSON initialization.
-const std::unordered_map<std::string, CpuCounter> cpu_counter_names{
+const std::unordered_map<std::string, CpuCounter> cpu_counter_names {
     {"Cycles", CpuCounter::Cycles},
     {"Instructions", CpuCounter::Instructions},
     {"CacheReferences", CpuCounter::CacheReferences},
@@ -96,7 +96,7 @@ struct CpuCounterInfo
 };
 
 // Mapping from each counter to its corresponding information (description and unit)
-const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter_info{
+const std::unordered_map<CpuCounter, CpuCounterInfo, CpuCounterHash> cpu_counter_info {
     {CpuCounter::Cycles, {"Number of CPU cycles", "cycles"}},
     {CpuCounter::Instructions, {"Number of CPU instructions", "instructions"}},
     {CpuCounter::CacheReferences, {"Number of cache references", "references"}},
@@ -124,7 +124,7 @@ typedef std::unordered_map<CpuCounter, Value, CpuCounterHash>
 /** An interface for classes that collect CPU performance data. */
 class CpuProfiler
 {
-  public:
+public:
 	virtual ~CpuProfiler() = default;
 
 	// Returns the enabled counters

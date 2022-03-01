@@ -56,50 +56,50 @@ struct PmuEventInfo
 	uint64_t event;
 
 	PmuEventInfo(uint64_t type, uint64_t event) :
-		type(type),
-		event(event)
+	    type(type),
+	    event(event)
 	{}
 
 	PmuEventInfo(uint64_t type, PmuImplDefined event) :
-		PmuEventInfo(type, static_cast<uint64_t>(event))
+	    PmuEventInfo(type, static_cast<uint64_t>(event))
 	{}
 };
 
 /** Class provides access to CPU hardware counters. */
 class PmuCounter
 {
-  public:
+public:
 	/** Default constructor. */
 	PmuCounter();
 
 	/** Create PMU counter with specified config.
-     *
-     * This constructor automatically calls @ref open with the default
-     * configuration.
-     *
-     * @param[in] config Counter info.
-     */
+	 *
+	 * This constructor automatically calls @ref open with the default
+	 * configuration.
+	 *
+	 * @param[in] config Counter info.
+	 */
 	PmuCounter(PmuEventInfo config);
 
 	/** Default destructor. */
 	~PmuCounter();
 
 	/** Get the counter value.
-     *
-     * @return Counter value casted to the specified type. */
+	 *
+	 * @return Counter value casted to the specified type. */
 	template <typename T>
 	T get_value() const;
 
 	/** Open the specified counter based on the given configuration.
-     *
-     * @param[in] config The configuration.
-     */
+	 *
+	 * @param[in] config The configuration.
+	 */
 	void open(PmuEventInfo config);
 
 	/** Open the specified configuration.
-     *
-     * @param[in] perf_config The specified configuration.
-     */
+	 *
+	 * @param[in] perf_config The specified configuration.
+	 */
 	void open(const perf_event_attr &perf_config);
 
 	/** Close the currently open counter. */
@@ -113,15 +113,15 @@ class PmuCounter
 	/** Print counter config ID. */
 	std::string config_to_str(const perf_event_attr &perf_config);
 
-  private:
+private:
 	perf_event_attr _perf_config;
-	long            _fd{-1};
+	long            _fd {-1};
 };
 
 template <typename T>
 T PmuCounter::get_value() const
 {
-	long long     value{};
+	long long     value {};
 	const ssize_t result = read(_fd, &value, sizeof(long long));
 
 	if (result == -1)
