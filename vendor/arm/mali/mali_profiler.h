@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 ARM Limited.
+ * Copyright (c) 2019-2022 ARM Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -64,24 +64,40 @@ class MaliProfiler : public GpuProfiler
 
 	const GpuCounterSet supported_counters_{
 	    GpuCounter::GpuCycles,
+	    GpuCounter::VertexCycles,
+	    GpuCounter::ComputeCycles,
 	    GpuCounter::VertexComputeCycles,
 	    GpuCounter::FragmentCycles,
 	    GpuCounter::TilerCycles,
+	    GpuCounter::VertexJobs,
+	    GpuCounter::ComputeJobs,
 	    GpuCounter::VertexComputeJobs,
-	    GpuCounter::Tiles,
-	    GpuCounter::TransactionEliminations,
 	    GpuCounter::FragmentJobs,
 	    GpuCounter::Pixels,
+
+	    GpuCounter::CulledPrimitives,
+	    GpuCounter::VisiblePrimitives,
+	    GpuCounter::InputPrimitives,
+
+	    GpuCounter::Tiles,
+	    GpuCounter::TransactionEliminations,
+
 	    GpuCounter::EarlyZTests,
 	    GpuCounter::EarlyZKilled,
 	    GpuCounter::LateZTests,
 	    GpuCounter::LateZKilled,
+
 	    GpuCounter::Instructions,
 	    GpuCounter::DivergedInstructions,
+
+	    GpuCounter::ShaderFragmentCycles,
+	    GpuCounter::ShaderComputeCycles,
 	    GpuCounter::ShaderCycles,
 	    GpuCounter::ShaderArithmeticCycles,
+	    GpuCounter::ShaderInterpolatorCycles,
 	    GpuCounter::ShaderLoadStoreCycles,
 	    GpuCounter::ShaderTextureCycles,
+
 	    GpuCounter::CacheReadLookups,
 	    GpuCounter::CacheWriteLookups,
 	    GpuCounter::ExternalMemoryReadAccesses,
@@ -104,8 +120,7 @@ class MaliProfiler : public GpuProfiler
 	size_t             buffer_size_{0};
 	uint8_t *          sample_data_{nullptr};
 	uint64_t           timestamp_{0};
-	const char *const *names_lut_{
-	    nullptr};
+	const char *const *names_lut_{nullptr};
 	std::vector<uint32_t>     raw_counter_buffer_{};
 	std::vector<unsigned int> core_index_remap_{};
 	int                       fd_{-1};

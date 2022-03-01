@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020 ARM Limited.
+ * Copyright (c) 2017-2022 ARM Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -222,15 +222,21 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	// Throws if setup fails
 	init();
 
-	const std::unordered_map<GpuCounter, MaliValueGetter, GpuCounterHash> valhall_mappings = {
+	const std::unordered_map<GpuCounter, MaliValueGetter, GpuCounterHash> valhall_csf_mappings = {
 	    {GpuCounter::GpuCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "GPU_ACTIVE"); }},
-	    {GpuCounter::VertexComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS1_ACTIVE"); }},
-	    {GpuCounter::FragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_ACTIVE"); }},
+	    {GpuCounter::ComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_COMP_ACTIVE"); }},
+	    {GpuCounter::VertexCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_TILER_ACTIVE"); }},
+	    {GpuCounter::FragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_FRAGMENT_ACTIVE"); }},
 	    {GpuCounter::TilerCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TILER_ACTIVE"); }},
 
-	    {GpuCounter::VertexComputeJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS1_JOBS"); }},
-	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_JOBS"); }},
-	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 1024; }},
+	    {GpuCounter::ComputeJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_COMP_JOB_COMPLETED"); }},
+	    {GpuCounter::VertexJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_TILER_JOB_COMPLETED"); }},
+	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_FRAG_JOB_COMPLETED"); }},
+	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "ITER_FRAG_TASK_COMPLETED") * 1024; }},
+
+	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_SAT_CULLED"); }},
+	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
 
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
@@ -242,9 +248,56 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::Instructions, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_FMA") + get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_CVT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_SFU") + get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_MSG"); }},
 	    {GpuCounter::DivergedInstructions, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_DIVERGED"); }},
 
+	    {GpuCounter::ShaderComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "COMPUTE_ACTIVE"); }},
+	    {GpuCounter::ShaderFragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_ACTIVE"); }},
 	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_CORE_ACTIVE"); }},
 	    // The three units run in parallel so we can approximate cycles by taking the largest value. SFU instructions use 4 cycles per warp.
 	    {GpuCounter::ShaderArithmeticCycles, [this] { return std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_FMA"), std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_CVT"), 4 * get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_SFU"))); }},
+	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_32"); }},
+	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_ATOMIC"); }},
+	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_FILT_NUM_OPERATIONS"); }},
+
+	    {GpuCounter::CacheReadLookups, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_READ_LOOKUP"); }},
+	    {GpuCounter::CacheWriteLookups, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_WRITE_LOOKUP"); }},
+	    {GpuCounter::ExternalMemoryReadAccesses, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_READ"); }},
+	    {GpuCounter::ExternalMemoryWriteAccesses, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE"); }},
+	    {GpuCounter::ExternalMemoryReadStalls, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_AR_STALL"); }},
+	    {GpuCounter::ExternalMemoryWriteStalls, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_W_STALL"); }},
+	    {GpuCounter::ExternalMemoryReadBytes, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_READ_BEATS") * 16; }},
+	    {GpuCounter::ExternalMemoryWriteBytes, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_EXT_WRITE_BEATS") * 16; }},
+	};
+
+
+	const std::unordered_map<GpuCounter, MaliValueGetter, GpuCounterHash> valhall_mappings = {
+	    {GpuCounter::GpuCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "GPU_ACTIVE"); }},
+	    {GpuCounter::VertexComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS1_ACTIVE"); }},
+	    {GpuCounter::FragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_ACTIVE"); }},
+	    {GpuCounter::TilerCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TILER_ACTIVE"); }},
+
+	    {GpuCounter::VertexComputeJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS1_JOBS"); }},
+	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_JOBS"); }},
+	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 1024; }},
+
+	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_SAT_CULLED"); }},
+	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
+
+	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
+	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
+	    {GpuCounter::EarlyZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_TEST"); }},
+	    {GpuCounter::EarlyZKilled, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_KILL"); }},
+	    {GpuCounter::LateZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_LZS_TEST"); }},
+	    {GpuCounter::LateZKilled, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_LZS_KILL"); }},
+
+	    {GpuCounter::Instructions, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_FMA") + get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_CVT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_SFU") + get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_MSG"); }},
+	    {GpuCounter::DivergedInstructions, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_DIVERGED"); }},
+
+	    {GpuCounter::ShaderComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "COMPUTE_ACTIVE"); }},
+	    {GpuCounter::ShaderFragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_ACTIVE"); }},
+	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_CORE_ACTIVE"); }},
+	    // The three units run in parallel so we can approximate cycles by taking the largest value. SFU instructions use 4 cycles per warp.
+	    {GpuCounter::ShaderArithmeticCycles, [this] { return std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_FMA"), std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_CVT"), 4 * get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_SFU"))); }},
+	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_32"); }},
 	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_ATOMIC"); }},
 	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_FILT_NUM_OPERATIONS"); }},
 
@@ -268,6 +321,10 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_JOBS"); }},
 	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 1024; }},
 
+	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_SAT_CULLED"); }},
+	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
+
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
 	    {GpuCounter::EarlyZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_TEST"); }},
@@ -278,8 +335,11 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::Instructions, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_COUNT"); }},
 	    {GpuCounter::DivergedInstructions, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_DIVERGED"); }},
 
+	    {GpuCounter::ShaderComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "COMPUTE_ACTIVE"); }},
+	    {GpuCounter::ShaderFragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_ACTIVE"); }},
 	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_CORE_ACTIVE"); }},
 	    {GpuCounter::ShaderArithmeticCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_COUNT"); }},
+	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_32"); }},
 	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_ATOMIC"); }},
 	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_FILT_NUM_OPERATIONS"); }},
 
@@ -302,12 +362,23 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::FragmentJobs, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_JOBS"); }},
 	    {GpuCounter::Pixels, [this] { return get_counter_value(MALI_NAME_BLOCK_JM, "JS0_TASKS") * 1024; }},
 
+	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED"); }},
+	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
+
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
 	    {GpuCounter::EarlyZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_TEST"); }},
 	    {GpuCounter::EarlyZKilled, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_QUADS_EZS_KILLED"); }},
 	    {GpuCounter::LateZTests, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_THREADS_LZS_TEST"); }},
 	    {GpuCounter::LateZKilled, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_THREADS_LZS_KILLED"); }},
+
+	    {GpuCounter::ShaderComputeCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "COMPUTE_ACTIVE"); }},
+	    {GpuCounter::ShaderFragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_ACTIVE"); }},
+	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TRIPIPE_ACTIVE"); }},
+	    {GpuCounter::ShaderArithmeticCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "ARITH_WORDS"); }},
+	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_ISSUES"); }},
+	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_ISSUES"); }},
 
 	    {GpuCounter::CacheReadLookups, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_READ_LOOKUP"); }},
 	    {GpuCounter::CacheWriteLookups, [this] { return get_counter_value(MALI_NAME_BLOCK_MMU, "L2_WRITE_LOOKUP"); }},
@@ -356,8 +427,15 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 			case mali_userspace::PRODUCT_ID_TTRX:
 			case mali_userspace::PRODUCT_ID_TOTX:
 			case mali_userspace::PRODUCT_ID_TBOX:
-			default:
+			case mali_userspace::PRODUCT_ID_TBOXAE:
 				mappings_ = valhall_mappings;
+				break;
+			case mali_userspace::PRODUCT_ID_TODX:
+			case mali_userspace::PRODUCT_ID_TVIX:
+			case mali_userspace::PRODUCT_ID_TGRX:
+			case mali_userspace::PRODUCT_ID_TVAX:
+			default:
+				mappings_ = valhall_csf_mappings;
 				break;
 		}
 	}
