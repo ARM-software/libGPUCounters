@@ -61,24 +61,24 @@ private:
 	CpuCounterSet available_counters_ {};
 
 	const CpuCounterSet supported_counters_ {
-	    CpuCounter::Cycles,
-	    CpuCounter::Instructions,
-	    CpuCounter::CacheReferences,
-	    CpuCounter::CacheMisses,
-	    CpuCounter::BranchInstructions,
-	    CpuCounter::BranchMisses,
+		CpuCounter::Cycles,
+		CpuCounter::Instructions,
+		CpuCounter::CacheReferences,
+		CpuCounter::CacheMisses,
+		CpuCounter::BranchInstructions,
+		CpuCounter::BranchMisses,
 
-	    CpuCounter::L1Accesses,
-	    CpuCounter::InstrRetired,
-	    CpuCounter::L2Accesses,
-	    CpuCounter::L3Accesses,
-	    CpuCounter::BusReads,
-	    CpuCounter::BusWrites,
-	    CpuCounter::MemReads,
-	    CpuCounter::MemWrites,
-	    CpuCounter::ASESpec,
-	    CpuCounter::VFPSpec,
-	    CpuCounter::CryptoSpec,
+		CpuCounter::L1Accesses,
+		CpuCounter::InstrRetired,
+		CpuCounter::L2Accesses,
+		CpuCounter::L3Accesses,
+		CpuCounter::BusReads,
+		CpuCounter::BusWrites,
+		CpuCounter::MemReads,
+		CpuCounter::MemWrites,
+		CpuCounter::ASESpec,
+		CpuCounter::VFPSpec,
+		CpuCounter::CryptoSpec,
 	};
 
 	CpuMeasurements measurements_ {};

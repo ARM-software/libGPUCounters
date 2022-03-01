@@ -38,7 +38,7 @@
 #include "hwc_names.hpp"
 
 #if defined(ANDROID) || defined(__ANDROID__)
-    /* We use _IOR_BAD/_IOW_BAD rather than _IOR/_IOW otherwise fails to compile with NDK-BUILD because of _IOC_TYPECHECK is defined, not because the paramter is invalid */
+	/* We use _IOR_BAD/_IOW_BAD rather than _IOR/_IOW otherwise fails to compile with NDK-BUILD because of _IOC_TYPECHECK is defined, not because the paramter is invalid */
 	#define MALI_IOR(a, b, c) _IOR_BAD(a, b, c)
 	#define MALI_IOW(a, b, c) _IOW_BAD(a, b, c)
 #else
@@ -213,33 +213,33 @@ static const struct
 #define PROP(name, member)                                        \
 	{                                                             \
 		KBASE_GPUPROP_##name, offsetof(struct gpu_props, member), \
-		    sizeof(((struct gpu_props *) 0)->member)              \
+			sizeof(((struct gpu_props *) 0)->member)              \
 	}
-    PROP(PRODUCT_ID, product_id),
-    PROP(MINOR_REVISION, minor_revision),
-    PROP(MAJOR_REVISION, major_revision),
-    PROP(COHERENCY_NUM_GROUPS, num_groups),
-    PROP(COHERENCY_NUM_CORE_GROUPS, num_core_groups),
-    PROP(COHERENCY_GROUP_0, core_mask[0]),
-    PROP(COHERENCY_GROUP_1, core_mask[1]),
-    PROP(COHERENCY_GROUP_2, core_mask[2]),
-    PROP(COHERENCY_GROUP_3, core_mask[3]),
-    PROP(COHERENCY_GROUP_4, core_mask[4]),
-    PROP(COHERENCY_GROUP_5, core_mask[5]),
-    PROP(COHERENCY_GROUP_6, core_mask[6]),
-    PROP(COHERENCY_GROUP_7, core_mask[7]),
-    PROP(COHERENCY_GROUP_8, core_mask[8]),
-    PROP(COHERENCY_GROUP_9, core_mask[9]),
-    PROP(COHERENCY_GROUP_10, core_mask[10]),
-    PROP(COHERENCY_GROUP_11, core_mask[11]),
-    PROP(COHERENCY_GROUP_12, core_mask[12]),
-    PROP(COHERENCY_GROUP_13, core_mask[13]),
-    PROP(COHERENCY_GROUP_14, core_mask[14]),
-    PROP(COHERENCY_GROUP_15, core_mask[15]),
+	PROP(PRODUCT_ID, product_id),
+	PROP(MINOR_REVISION, minor_revision),
+	PROP(MAJOR_REVISION, major_revision),
+	PROP(COHERENCY_NUM_GROUPS, num_groups),
+	PROP(COHERENCY_NUM_CORE_GROUPS, num_core_groups),
+	PROP(COHERENCY_GROUP_0, core_mask[0]),
+	PROP(COHERENCY_GROUP_1, core_mask[1]),
+	PROP(COHERENCY_GROUP_2, core_mask[2]),
+	PROP(COHERENCY_GROUP_3, core_mask[3]),
+	PROP(COHERENCY_GROUP_4, core_mask[4]),
+	PROP(COHERENCY_GROUP_5, core_mask[5]),
+	PROP(COHERENCY_GROUP_6, core_mask[6]),
+	PROP(COHERENCY_GROUP_7, core_mask[7]),
+	PROP(COHERENCY_GROUP_8, core_mask[8]),
+	PROP(COHERENCY_GROUP_9, core_mask[9]),
+	PROP(COHERENCY_GROUP_10, core_mask[10]),
+	PROP(COHERENCY_GROUP_11, core_mask[11]),
+	PROP(COHERENCY_GROUP_12, core_mask[12]),
+	PROP(COHERENCY_GROUP_13, core_mask[13]),
+	PROP(COHERENCY_GROUP_14, core_mask[14]),
+	PROP(COHERENCY_GROUP_15, core_mask[15]),
 
-    PROP(L2_NUM_L2_SLICES, l2_slices),
+	PROP(L2_NUM_L2_SLICES, l2_slices),
 #undef PROP
-    {0, 0, 0}};
+	{0, 0, 0}};
 
 struct kbase_hwcnt_reader_metadata
 {

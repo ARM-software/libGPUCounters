@@ -92,27 +92,27 @@ HWCPipe::HWCPipe(CpuCounterSet enabled_cpu_counters, GpuCounterSet enabled_gpu_c
 HWCPipe::HWCPipe()
 {
 	CpuCounterSet enabled_cpu_counters {
-	    CpuCounter::Cycles,
-	    CpuCounter::Instructions,
-	    CpuCounter::CacheReferences,
-	    CpuCounter::CacheMisses,
-	    CpuCounter::BranchInstructions,
-	    CpuCounter::BranchMisses,
+		CpuCounter::Cycles,
+		CpuCounter::Instructions,
+		CpuCounter::CacheReferences,
+		CpuCounter::CacheMisses,
+		CpuCounter::BranchInstructions,
+		CpuCounter::BranchMisses,
 	};
 
 	GpuCounterSet enabled_gpu_counters {
-	    GpuCounter::GpuCycles,
-	    GpuCounter::VertexComputeCycles,
-	    GpuCounter::FragmentCycles,
-	    GpuCounter::TilerCycles,
-	    GpuCounter::CacheReadLookups,
-	    GpuCounter::CacheWriteLookups,
-	    GpuCounter::ExternalMemoryReadAccesses,
-	    GpuCounter::ExternalMemoryWriteAccesses,
-	    GpuCounter::ExternalMemoryReadStalls,
-	    GpuCounter::ExternalMemoryWriteStalls,
-	    GpuCounter::ExternalMemoryReadBytes,
-	    GpuCounter::ExternalMemoryWriteBytes,
+		GpuCounter::GpuCycles,
+		GpuCounter::VertexComputeCycles,
+		GpuCounter::FragmentCycles,
+		GpuCounter::TilerCycles,
+		GpuCounter::CacheReadLookups,
+		GpuCounter::CacheWriteLookups,
+		GpuCounter::ExternalMemoryReadAccesses,
+		GpuCounter::ExternalMemoryWriteAccesses,
+		GpuCounter::ExternalMemoryReadStalls,
+		GpuCounter::ExternalMemoryWriteStalls,
+		GpuCounter::ExternalMemoryReadBytes,
+		GpuCounter::ExternalMemoryWriteBytes,
 	};
 
 	create_profilers(std::move(enabled_cpu_counters), std::move(enabled_gpu_counters));

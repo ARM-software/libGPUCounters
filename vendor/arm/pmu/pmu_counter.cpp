@@ -31,7 +31,7 @@
 #include <sys/ioctl.h>
 
 PmuCounter::PmuCounter() :
-    _perf_config()
+	_perf_config()
 {
 	_perf_config.size = sizeof(perf_event_attr);
 
@@ -45,7 +45,7 @@ PmuCounter::PmuCounter() :
 }
 
 PmuCounter::PmuCounter(PmuEventInfo config) :
-    PmuCounter()
+	PmuCounter()
 {
 	open(config);
 }

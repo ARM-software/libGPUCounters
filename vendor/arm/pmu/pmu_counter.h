@@ -56,12 +56,12 @@ struct PmuEventInfo
 	uint64_t event;
 
 	PmuEventInfo(uint64_t type, uint64_t event) :
-	    type(type),
-	    event(event)
+		type(type),
+		event(event)
 	{}
 
 	PmuEventInfo(uint64_t type, PmuImplDefined event) :
-	    PmuEventInfo(type, static_cast<uint64_t>(event))
+		PmuEventInfo(type, static_cast<uint64_t>(event))
 	{}
 };
 
