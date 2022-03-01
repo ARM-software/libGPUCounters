@@ -171,10 +171,10 @@ const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter
     {GpuCounter::Tiles, {"Number of physical tiles written", "tiles"}},
     {GpuCounter::TransactionEliminations, {"Number of transaction eliminations", "tiles"}},
 
-    {GpuCounter::EarlyZTests, {"Early-Z tests performed", "tests"}},
-    {GpuCounter::EarlyZKilled, {"Early-Z tests resulting in a kill", "tests"}},
-    {GpuCounter::LateZTests, {"Late-Z tests performed", "tests"}},
-    {GpuCounter::LateZKilled, {"Late-Z tests resulting in a kill", "tests"}},
+    {GpuCounter::EarlyZTests, {"Number of early-Z tests performed", "tests"}},
+    {GpuCounter::EarlyZKilled, {"Number of early-Z tests resulting in a kill", "tests"}},
+    {GpuCounter::LateZTests, {"Number of late-Z tests performed", "tests"}},
+    {GpuCounter::LateZKilled, {"Number of late-Z tests resulting in a kill", "tests"}},
 
     {GpuCounter::Instructions, {"Number of shader instructions", "instructions"}},
     {GpuCounter::DivergedInstructions, {"Number of diverged shader instructions", "instructions"}},
