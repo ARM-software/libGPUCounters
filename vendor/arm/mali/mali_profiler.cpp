@@ -236,7 +236,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 
 	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_SAT_CULLED"); }},
 	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
-	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
 
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
@@ -280,7 +280,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 
 	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_SAT_CULLED"); }},
 	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
-	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
 
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
@@ -323,7 +323,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 
 	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_SAT_CULLED"); }},
 	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
-	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
 
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
@@ -364,7 +364,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 
 	    {GpuCounter::CulledPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CULLED") + get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_CLIPPED"); }},
 	    {GpuCounter::VisiblePrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "PRIM_VISIBLE"); }},
-	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES"); }},
+	    {GpuCounter::InputPrimitives, [this] { return get_counter_value(MALI_NAME_BLOCK_TILER, "TRIANGLES") + get_counter_value(MALI_NAME_BLOCK_TILER, "LINES") + get_counter_value(MALI_NAME_BLOCK_TILER, "POINTS"); }},
 
 	    {GpuCounter::Tiles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_PTILES"); }},
 	    {GpuCounter::TransactionEliminations, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_TRANS_ELIM"); }},
