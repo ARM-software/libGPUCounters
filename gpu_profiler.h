@@ -158,8 +158,8 @@ const std::unordered_map<GpuCounter, GpuCounterInfo, GpuCounterHash> gpu_counter
     {GpuCounter::FragmentCycles, {"Number of fragment cycles", "cycles"}},
     {GpuCounter::TilerCycles, {"Number of tiler cycles", "cycles"}},
 
-    {GpuCounter::ComputeJobs, {"Number of vertex jobs", "jobs"}},
-    {GpuCounter::VertexJobs, {"Number of compute jobs", "jobs"}},
+    {GpuCounter::ComputeJobs, {"Number of compute jobs", "jobs"}},
+    {GpuCounter::VertexJobs, {"Number of vertex jobs", "jobs"}},
     {GpuCounter::VertexComputeJobs, {"Number of vertex/compute jobs", "jobs"}},
     {GpuCounter::FragmentJobs, {"Number of fragment jobs", "jobs"}},
     {GpuCounter::Pixels, {"Number of pixels shaded", "cycles"}},

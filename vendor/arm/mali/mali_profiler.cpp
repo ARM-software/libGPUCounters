@@ -253,7 +253,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_CORE_ACTIVE"); }},
 	    // The three units run in parallel so we can approximate cycles by taking the largest value. SFU instructions use 4 cycles per warp.
 	    {GpuCounter::ShaderArithmeticCycles, [this] { return std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_FMA"), std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_CVT"), 4 * get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_SFU"))); }},
-	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16"); }},
+	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_32"); }},
 	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_ATOMIC"); }},
 	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_FILT_NUM_OPERATIONS"); }},
 
@@ -297,7 +297,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_CORE_ACTIVE"); }},
 	    // The three units run in parallel so we can approximate cycles by taking the largest value. SFU instructions use 4 cycles per warp.
 	    {GpuCounter::ShaderArithmeticCycles, [this] { return std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_FMA"), std::max(get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_CVT"), 4 * get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_SFU"))); }},
-	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16"); }},
+	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_32"); }},
 	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_ATOMIC"); }},
 	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_FILT_NUM_OPERATIONS"); }},
 
@@ -339,7 +339,7 @@ MaliProfiler::MaliProfiler(const GpuCounterSet &enabled_counters) :
 	    {GpuCounter::ShaderFragmentCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "FRAG_ACTIVE"); }},
 	    {GpuCounter::ShaderCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_CORE_ACTIVE"); }},
 	    {GpuCounter::ShaderArithmeticCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "EXEC_INSTR_COUNT"); }},
-	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16"); }},
+	    {GpuCounter::ShaderInterpolatorCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_16") + get_counter_value(MALI_NAME_BLOCK_SHADER, "VARY_SLOT_32"); }},
 	    {GpuCounter::ShaderLoadStoreCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_FULL") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_READ_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_WRITE_SHORT") + get_counter_value(MALI_NAME_BLOCK_SHADER, "LS_MEM_ATOMIC"); }},
 	    {GpuCounter::ShaderTextureCycles, [this] { return get_counter_value(MALI_NAME_BLOCK_SHADER, "TEX_FILT_NUM_OPERATIONS"); }},
 
