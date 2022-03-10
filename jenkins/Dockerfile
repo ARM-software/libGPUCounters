@@ -7,10 +7,9 @@ LABEL build.environment.version="1.0.0"
 RUN useradd -u 1000 -U -m -c Jenkins jenkins
 
 RUN apt update && apt -y upgrade \
-  && apt install -y \
+  && DEBIAN_FRONTEND=noninteractive apt install -y \
     ca-certificates \
     clang \
-    clang++-9 \
     g++ \
     gcc \
     git \
@@ -28,7 +27,7 @@ RUN apt update && apt -y upgrade \
 # Install up-to-date CMake, as standard Ubuntu 18.04 package is too old
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - > /etc/apt/trusted.gpg.d/kitware.gpg
-RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ bionic main'
+RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
 RUN apt-get update
 RUN apt-get install -y cmake \
   && rm -rf /var/lib/apt/lists/*
