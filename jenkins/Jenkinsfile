@@ -189,7 +189,7 @@ pipeline {
     stage('Artifactory') {
       agent {
         kubernetes {
-          yaml yaml getPodTemplate(K8S_CONFIG, 'hwcpipe-af')
+          yaml getPodTemplate(K8S_CONFIG, 'hwcpipe-af')
           defaultContainer 'hwcpipe-af'
         }
       }
