@@ -1,4 +1,5 @@
-FROM mirrors--dockerhub.eu-west-1.artifactory.aws.arm.com/ubuntu:20.04
+ARG DOCKERHUB_MIRROR
+FROM ${DOCKERHUB_MIRROR}/ubuntu:20.04
 
 # Jenkins image build job uses this label to tag version of image
 # Update when you make a change
