@@ -206,7 +206,7 @@ pipeline {
         }
         stage('Upload') {
           steps {
-            echo "Uploading to AF'
+            echo 'Uploading to AF'
             // zip zipFile: 'hwcpipe.zip', dir: 'upload', archive: false
             // cepeArtifactoryUpload(sourcePattern: 'hwcpipe.zip')
           }

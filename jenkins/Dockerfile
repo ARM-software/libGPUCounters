@@ -25,7 +25,7 @@ RUN apt update && apt -y upgrade \
     software-properties-common \
     wget
 
-# Install up-to-date CMake, as standard Ubuntu 18.04 package is too old
+# Install up-to-date CMake, as standard Ubuntu package is too old
 RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
     | gpg --dearmor - > /etc/apt/trusted.gpg.d/kitware.gpg
 RUN apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
