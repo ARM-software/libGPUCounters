@@ -5939,115 +5939,149 @@ struct CounterMapping
 
 static const CounterMapping products[] = {
 	{
+		// Mali-T600
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T60X,
 		hardware_counters_mali_t60x,
 	},
 	{
+		// Mali-T620
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T62X,
 		hardware_counters_mali_t62x,
 	},
 	{
+		// Mali-T720
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T72X,
 		hardware_counters_mali_t72x,
 	},
 	{
+		// Mali-T760
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T76X,
 		hardware_counters_mali_t76x,
 	},
 	{
+		// Mali-T820
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T82X,
 		hardware_counters_mali_t82x,
 	},
 	{
+		// Mali-T830
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T83X,
 		hardware_counters_mali_t83x,
 	},
 	{
+		// Mali-T860
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_T86X,
 		hardware_counters_mali_t86x,
 	},
 	{
+		// Mali-T880
 		PRODUCT_ID_MASK_OLD,
 		PRODUCT_ID_TFRX,
 		hardware_counters_mali_t88x,
 	},
 	{
+		// Mali-G71
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TMIX,
 		hardware_counters_mali_tMIx,
 	},
 	{
+		// Mali-G72
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_THEX,
 		hardware_counters_mali_tHEx,
 	},
 	{
+		// Mali-G31
+		PRODUCT_ID_MASK_NEW,
+		PRODUCT_ID_TDVX,
+		hardware_counters_mali_tDVx,
+	},
+	{
+		// Mali-G51
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TSIX,
 		hardware_counters_mali_tSIx,
 	},
 	{
+		// Mali-G52
+		PRODUCT_ID_MASK_NEW,
+		PRODUCT_ID_TGOX,
+		hardware_counters_mali_tGOx,
+	},
+	{
+		// Mali-G76
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TNOX,
 		hardware_counters_mali_tNOx,
 	},
 	{
+		// Mali-G57
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TNAXa,
 		hardware_counters_mali_tNAx,
 	},
 	{
+		// Mali-G57 variant
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TNAXb,
 		hardware_counters_mali_tNAx,
 	},
 	{
+		// Mali-G77
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TTRX,
 		hardware_counters_mali_tTRx,
 	},
 	{
+		// Mali-G68
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TOTX,
 		hardware_counters_mali_tOTx,
 	},
 	{
+		// Mali-G78
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TBOX,
 		hardware_counters_mali_tBOx,
 	},
 	{
+		// Mali-G78AE
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TBOXAE,
 		hardware_counters_mali_tBOx,
 	},
 	{
+		// Mali-G310
 		PRODUCT_ID_MASK_NEW,
-		PRODUCT_ID_TODX,
-		hardware_counters_mali_tODx,
+		PRODUCT_ID_TVAX,
+		hardware_counters_mali_tVAx,
 	},
 	{
-		PRODUCT_ID_MASK_NEW,
-		PRODUCT_ID_TVIX,
-		hardware_counters_mali_tVIx,
-	},
-	{
+		// Mali-G510
 		PRODUCT_ID_MASK_NEW,
 		PRODUCT_ID_TGRX,
 		hardware_counters_mali_tGRx,
 	},
 	{
+		// Mali-G610
 		PRODUCT_ID_MASK_NEW,
-		PRODUCT_ID_TVAX,
-		hardware_counters_mali_tVAx,
+		PRODUCT_ID_TVIX,
+		hardware_counters_mali_tVIx,
 	},
+	{
+		// Mali-G710
+		PRODUCT_ID_MASK_NEW,
+		PRODUCT_ID_TODX,
+		hardware_counters_mali_tODx,
+	}
 };
 
 enum
