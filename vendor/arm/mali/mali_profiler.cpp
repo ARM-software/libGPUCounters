@@ -480,24 +480,6 @@ void MaliProfiler::init()
 	}
 
 	{
-		mali_userspace::kbase_uk_hwcnt_reader_version_check_args check;        // NOLINT
-		memset(&check, 0, sizeof(check));
-
-		if (mali_userspace::mali_ioctl(fd_, check) != 0)
-		{
-			mali_userspace::kbase_ioctl_version_check _check = {0, 0};
-			if (ioctl(fd_, KBASE_IOCTL_VERSION_CHECK, &_check) < 0)
-			{
-				throw std::runtime_error("Failed to get ABI version.");
-			}
-		}
-		else if (check.major < 10)
-		{
-			throw std::runtime_error("Unsupported ABI version 10.");
-		}
-	}
-
-	{
 		mali_userspace::kbase_uk_hwcnt_reader_set_flags flags;        // NOLINT
 		memset(&flags, 0, sizeof(flags));
 		flags.header.id    = mali_userspace::KBASE_FUNC_SET_FLAGS;        // NOLINT
