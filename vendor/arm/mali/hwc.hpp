@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 ARM Limited.
+ * Copyright (c) 2017-2022 ARM Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -307,7 +307,8 @@ struct kbase_ioctl_hwcnt_reader_setup
 
 #define KBASE_IOCTL_TYPE 0x80
 #define KBASE_IOCTL_GET_GPUPROPS MALI_IOW(KBASE_IOCTL_TYPE, 3, struct mali_userspace::kbase_ioctl_get_gpuprops)
-#define KBASE_IOCTL_VERSION_CHECK _IOWR(KBASE_IOCTL_TYPE, 0, struct mali_userspace::kbase_ioctl_version_check)
+#define KBASE_IOCTL_VERSION_CHECK_JM _IOWR(KBASE_IOCTL_TYPE, 0, struct mali_userspace::kbase_ioctl_version_check)
+#define KBASE_IOCTL_VERSION_CHECK_CSF _IOWR(KBASE_IOCTL_TYPE, 52, struct mali_userspace::kbase_ioctl_version_check)
 #define KBASE_IOCTL_SET_FLAGS _IOW(KBASE_IOCTL_TYPE, 1, struct mali_userspace::kbase_ioctl_set_flags)
 #define KBASE_IOCTL_HWCNT_READER_SETUP _IOW(KBASE_IOCTL_TYPE, 8, struct mali_userspace::kbase_ioctl_hwcnt_reader_setup)
 
@@ -348,7 +349,9 @@ struct uku_version_check_args
 
 enum
 {
-	UKP_FUNC_ID_CHECK_VERSION = 0,
+	UKP_FUNC_ID_CHECK_VERSION_JM = 0,
+	UKP_FUNC_ID_CHECK_VERSION_CSF = 52,
+
 	/* Related to mali0 ioctl interface */
 	LINUX_UK_BASE_MAGIC              = 0x80,
 	BASE_CONTEXT_CREATE_KERNEL_FLAGS = 0x2,

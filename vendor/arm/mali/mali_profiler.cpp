@@ -57,18 +57,38 @@ MaliHWInfo get_mali_hw_info(const char *path)
 	}
 
 	{
+		// Try matching Job Manager version IOCTL
+		bool checked_version = true;
 		mali_userspace::kbase_uk_hwcnt_reader_version_check_args version_check_args;
-		version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION;        // NOLINT
+		version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION_JM;
 		version_check_args.major     = 10;
 		version_check_args.minor     = 2;
 
 		if (mali_userspace::mali_ioctl(fd, version_check_args) != 0)
 		{
 			mali_userspace::kbase_ioctl_version_check _version_check_args = {0, 0};
-			if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK, &_version_check_args) < 0)
+			if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK_JM, &_version_check_args) < 0)
 			{
-				close(fd);
-				throw std::runtime_error("Failed to check version.");
+				checked_version = false;
+			}
+		}
+
+		// Try matching CSF version IOCTL
+		if (!checked_version)
+		{
+			mali_userspace::kbase_uk_hwcnt_reader_version_check_args version_check_args;
+			version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION_CSF;
+			version_check_args.major     = 1;
+			version_check_args.minor     = 4;
+
+			if (mali_userspace::mali_ioctl(fd, version_check_args) != 0)
+			{
+				mali_userspace::kbase_ioctl_version_check _version_check_args = {0, 0};
+				if (ioctl(fd, KBASE_IOCTL_VERSION_CHECK_CSF, &_version_check_args) < 0)
+				{
+					close(fd);
+					throw std::runtime_error("Failed to check version.");
+				}
 			}
 		}
 	}
@@ -457,24 +477,6 @@ void MaliProfiler::init()
 	if (fd_ < 0)
 	{
 		throw std::runtime_error("Failed to open /dev/mali0.");
-	}
-
-	{
-		mali_userspace::kbase_uk_hwcnt_reader_version_check_args check;        // NOLINT
-		memset(&check, 0, sizeof(check));
-
-		if (mali_userspace::mali_ioctl(fd_, check) != 0)
-		{
-			mali_userspace::kbase_ioctl_version_check _check = {0, 0};
-			if (ioctl(fd_, KBASE_IOCTL_VERSION_CHECK, &_check) < 0)
-			{
-				throw std::runtime_error("Failed to get ABI version.");
-			}
-		}
-		else if (check.major < 10)
-		{
-			throw std::runtime_error("Unsupported ABI version 10.");
-		}
 	}
 
 	{
