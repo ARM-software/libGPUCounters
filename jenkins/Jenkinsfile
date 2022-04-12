@@ -1,0 +1,217 @@
+/* HWCPipe basic pipeline framework
+ */
+
+final Map K8S_CONFIG = [
+    registry:               'mobile-studio--docker.eu-west-1.artifactory.aws.arm.com',
+    registryCredentials:    'artifactory-ms-docker',
+    imageName:              'hwcpipe',
+    imageTag:               '1.0.0'
+]
+
+/**
+ @brief Return Kubernetes pod definition
+ */
+@NonCPS
+def getPodTemplate(Map K8S_CONFIG, String containerName) {
+    return """
+apiVersion: v1
+kind: Pod
+spec:
+    imagePullSecrets:
+      - name: ${K8S_CONFIG.registryCredentials}
+    securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+    containers:
+      - name: ${containerName}
+        image: ${K8S_CONFIG.registry}/${K8S_CONFIG.imageName}:${K8S_CONFIG.imageTag}
+        command:
+          - sleep
+        args:
+          - infinity
+        resources:
+            requests:
+                cpu: 4
+                memory: 8Gi
+            limits:
+                cpu: 8
+                memory: 16Gi
+"""
+}
+
+pipeline {
+  agent none
+
+  options {
+    ansiColor('xterm')
+    timestamps()
+  }
+
+  stages {
+    stage('Build All') {
+      parallel {
+        /* Build for Linux on Ubuntu 20.04 x86-64 */
+        stage('Linux') {
+          agent {
+            kubernetes {
+              yaml getPodTemplate(K8S_CONFIG, 'hwcpipe-build')
+              defaultContainer 'hwcpipe-build'
+            }
+          }
+          stages {
+            stage('Build') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm building on Ubuntu 20.04!"
+                '''
+              }
+            }
+            stage('Stash') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm stashing artefacts on Ubuntu 20.04!"
+                '''
+              }
+            }
+            stage('Test') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm testing on Ubuntu 20.04!"
+                '''
+              }
+            }
+          }
+        }
+        /* Build for Windows on x86-64 */
+        stage('Windows') {
+          agent {
+            label 'Windows'
+          }
+          stages {
+            stage('Clean') {
+              steps {
+                bat 'git clean -ffdx'
+              }
+            }
+            stage('Build') {
+              steps {
+                bat '''
+                  echo "Look at me Ma! I'm building on Windows!"
+                '''
+              }
+            }
+            stage('Stash') {
+              steps {
+                bat '''
+                  echo "Look at me Ma! I'm stashing artefacts on Windows"
+                '''
+              }
+            }
+            stage('Test') {
+              steps {
+                bat '''
+                  echo "Look at me Ma! I'm testing on Windows!"
+                '''
+              }
+            }
+          }
+        }
+        /* Build for macOS on x86-64 */
+        stage('macOS x86') {
+          agent {
+            label 'mac'
+          }
+          stages {
+            stage('Clean') {
+              steps {
+                sh 'git clean -ffdx'
+              }
+            }
+            stage('Build') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm building on Mac x86"
+                '''
+              }
+            }
+            stage('Stash') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm stashing artefacts on Mac x86"
+                '''
+              }
+            }
+            stage('Test') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm testing on Mac x86"
+                '''
+              }
+            }
+          }
+        }
+        /* Build for macOS on Apple M1 */
+        stage('macOS M1') {
+          agent {
+            label 'macm1'
+          }
+          stages {
+            stage('Clean') {
+              steps {
+                sh 'git clean -ffdx'
+              }
+            }
+            stage('Build') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm building on Mac M1"
+                '''
+              }
+            }
+            stage('Stash') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm stashing artefacts on Mac M1"
+                '''
+              }
+            }
+            stage('Test') {
+              steps {
+                sh '''
+                  echo "Look at me Ma! I'm testing on Mac M1"
+                '''
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Artifactory') {
+      agent {
+        kubernetes {
+          yaml getPodTemplate(K8S_CONFIG, 'hwcpipe-af')
+          defaultContainer 'hwcpipe-af'
+        }
+      }
+      options {
+        skipDefaultCheckout true
+      }
+      stages {
+        stage('Unstash') {
+          steps {
+            sh '''
+              echo "Unstashing"
+            '''
+          }
+        }
+        stage('Upload') {
+          steps {
+            echo 'Uploading to AF'
+            // zip zipFile: 'hwcpipe.zip', dir: 'upload', archive: false
+            // cepeArtifactoryUpload(sourcePattern: 'hwcpipe.zip')
+          }
+        }
+      }
+    }
+  }
+}
