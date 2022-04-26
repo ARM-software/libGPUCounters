@@ -478,6 +478,43 @@ void MaliProfiler::init()
 	{
 		throw std::runtime_error("Failed to open /dev/mali0.");
 	}
+	
+	{
+		// Try matching Job Manager version IOCTL
+		bool checked_version = true;
+		mali_userspace::kbase_uk_hwcnt_reader_version_check_args version_check_args;
+		version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION_JM;
+		version_check_args.major     = 10;
+		version_check_args.minor     = 2;
+
+		if (mali_userspace::mali_ioctl(fd_, version_check_args) != 0)
+		{
+			mali_userspace::kbase_ioctl_version_check _version_check_args = {0, 0};
+			if (ioctl(fd_, KBASE_IOCTL_VERSION_CHECK_JM, &_version_check_args) < 0)
+			{
+				checked_version = false;
+			}
+		}
+
+		// Try matching CSF version IOCTL
+		if (!checked_version)
+		{
+			mali_userspace::kbase_uk_hwcnt_reader_version_check_args version_check_args;
+			version_check_args.header.id = mali_userspace::UKP_FUNC_ID_CHECK_VERSION_CSF;
+			version_check_args.major     = 1;
+			version_check_args.minor     = 4;
+
+			if (mali_userspace::mali_ioctl(fd_, version_check_args) != 0)
+			{
+				mali_userspace::kbase_ioctl_version_check _version_check_args = {0, 0};
+				if (ioctl(fd_, KBASE_IOCTL_VERSION_CHECK_CSF, &_version_check_args) < 0)
+				{
+					close(fd_);
+					throw std::runtime_error("Failed to check version.");
+				}
+			}
+		}
+	}
 
 	{
 		mali_userspace::kbase_uk_hwcnt_reader_set_flags flags;        // NOLINT
