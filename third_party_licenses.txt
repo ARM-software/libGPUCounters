@@ -1,0 +1,14 @@
+
+# License
+
+This project contains code from other projects listed below. The original license
+text is included in those source files.
+
+* CMake files aiding the use of the Catch2 testing library, licensed under
+  the BSD-3-Clause license.  See
+    * cmake/Catch.cmake
+    * cmake/CatchAddTests.cmake
+* The Catch2 header 'catch2/catch.hpp' used by tests, licensed under the
+  Boost Software License, Version 1.0.  See
+    * third_party/catch2/vendor/catch2/catch.hpp
+

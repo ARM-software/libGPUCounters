@@ -1,55 +1,120 @@
-# Copyright (c) 2019, Arm Limited and Contributors
+#
+# Copyright (c) 2021-2023 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
-# Permission is hereby granted, free of charge,
-# to any person obtaining a copy of this software and associated documentation files (the "Software"),
-# to deal in the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
 
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.13.5)
 
-project(hwcpipe LANGUAGES C CXX)
+project(hwcpipe VERSION 2.0)
 
-set(PROJECT_FILES
-    hwcpipe.h
-    cpu_profiler.h
-    gpu_profiler.h
-    value.h
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-    hwcpipe.cpp)
+option(
+    HWCPIPE_WALL
+    "Enable all warnings."
+    ON
+)
+option(
+    HWCPIPE_WERROR
+    "Treat compile and link warning as error."
+    ON
+)
+option(
+    HWCPIPE_PIC
+    "Generate position independent code."
+    ON
+)
+# Hwcpipe is designed for integration into game engines so RTTI and exceptions should not be used in this library.
+# They are, however, useful for unit tests so the compiler flags may be conditionally enabled for that purpose.
+option(
+    HWCPIPE_ENABLE_RTTI
+    "If set, C++ RTTI is enabled. Note that exceptions are required for Catch2."
+    OFF
+)
+option(
+    HWCPIPE_ENABLE_EXCEPTIONS
+    "If set, C++ exceptions are enabled."
+    OFF
+)
+option(
+    HWCPIPE_FRONTEND_ENABLE_TESTS
+    "Build the hwcpipe unit & integration tests. Note that RTTI and exceptions are required to build the tests."
+    OFF
+)
+option(
+    HWCPIPE_BUILD_EXAMPLES
+    "Build the example programs."
+    OFF
+)
 
-if(UNIX AND NOT APPLE)
-    list(APPEND PROJECT_FILES
-        vendor/arm/mali/hwc.hpp
-        vendor/arm/mali/hwc_names.hpp
-        vendor/arm/mali/mali_profiler.h
-        vendor/arm/mali/mali_profiler.cpp)
-
-    list(APPEND PROJECT_FILES
-        vendor/arm/pmu/pmu_counter.h
-        vendor/arm/pmu/pmu_profiler.h
-        vendor/arm/pmu/pmu_counter.cpp
-        vendor/arm/pmu/pmu_profiler.cpp)
+if(CMAKE_BUILD_TYPE
+    AND (NOT
+        CMAKE_BUILD_TYPE
+        STREQUAL
+        "Debug"
+        )
+    )
+    set(IS_RELEASE_BUILD YES)
 endif()
 
-source_group("\\" FILES ${PROJECT_FILES})
+option(
+    HWCPIPE_ENABLE_LTO
+    "Enable link time optimization. Enabled by default for release builds."
+    ${IS_RELEASE_BUILD}
+)
 
-add_library(${PROJECT_NAME} STATIC ${PROJECT_FILES})
+if (HWCPIPE_ENABLE_EXCEPTIONS)
+    add_compile_options(-fexceptions)
+else()
+    add_compile_options(-fno-exceptions)
+endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+if (HWCPIPE_ENABLE_RTTI)
+    add_compile_options(-frtti)
+else()
+    add_compile_options(-fno-rtti)
+endif()
 
-target_include_directories(${PROJECT_NAME} PUBLIC third_party)
+if(HWCPIPE_WERROR)
+    add_compile_options(
+        -Werror
+        -pedantic-errors
+        -Wno-abi # Silence GCC 7.1 ABI compatibility warning
+    )
+    add_link_options(-Werror)
+endif()
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
+add_subdirectory(backend/device)
+
+if(HWCPIPE_PIC)
+    set_target_properties(device PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
+add_subdirectory(hwcpipe)
+
+if(HWCPIPE_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+if(HWCPIPE_FRONTEND_ENABLE_TESTS)
+    if (NOT HWCPIPE_ENABLE_EXCEPTIONS)
+        message(FATAL_ERROR "HWCPIPE_FRONTEND_ENABLE_TESTS=ON requires HWCPIPE_ENABLE_EXCEPTIONS=ON.")
+    endif()
+    if (NOT HWCPIPE_ENABLE_RTTI)
+        message(FATAL_ERROR "HWCPIPE_FRONTEND_ENABLE_TESTS=ON requires HWCPIPE_ENABLE_RTTI=ON.")
+    endif()
+
+    enable_testing()
+    include(CTest)
+    include(cmake/Catch.cmake)
+
+    add_compile_definitions(HWCPIPE_TEST=1)
+
+    add_subdirectory(test)
+    add_subdirectory(third_party/catch2)
+endif()
+
