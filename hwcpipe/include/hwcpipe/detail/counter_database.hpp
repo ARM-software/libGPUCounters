@@ -15,7 +15,7 @@
 namespace hwcpipe {
 namespace detail {
 
-using backing_map_type = std::unordered_map<hwcpipe_counter, block_offset>;
+using backing_map_type = std::unordered_map<hwcpipe_counter, detail::counter_definition>;
 
 /**
  * @brief An type that provides an enumerable view over the counters for a
@@ -138,7 +138,7 @@ class counter_database {
      * @brief Queries the database to find the block/offset address of a counter
      * for the specified GPU.
      */
-    HWCP_NODISCARD block_offset get_counter_address(gpu_id_type id, hwcpipe_counter counter, std::error_code &ec);
+    HWCP_NODISCARD counter_definition get_counter_def(gpu_id_type id, hwcpipe_counter counter, std::error_code &ec);
 };
 
 } // namespace detail

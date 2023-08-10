@@ -39,3 +39,7 @@ add_test_target(TARGET gpu-instance-test
     SOURCES hwcpipe/gpu_instance.cpp
 )
 
+add_test_target(TARGET hwcpipe-double-test
+    SOURCES hwcpipe/hwcpipe_double.cpp
+)
+

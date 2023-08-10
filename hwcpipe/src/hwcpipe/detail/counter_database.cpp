@@ -40,7 +40,7 @@ std::error_code counter_database::describe_counter(hwcpipe_counter counter, coun
     return {};
 }
 
-block_offset counter_database::get_counter_address(gpu_id_type id, hwcpipe_counter counter, std::error_code &ec) {
+counter_definition counter_database::get_counter_def(gpu_id_type id, hwcpipe_counter counter, std::error_code &ec) {
     namespace db = hwcpipe::database;
     auto it = db::all_gpu_counters.find(id);
     if (it == db::all_gpu_counters.end()) {
