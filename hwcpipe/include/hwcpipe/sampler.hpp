@@ -6,11 +6,13 @@
 
 #pragma once
 
+#include "device/constants.hpp"
 #include "device/hwcnt/prfcnt_set.hpp"
 #include "hwcpipe/detail/counter_database.hpp"
 #include "hwcpipe/detail/internal_types.hpp"
 #include "hwcpipe/error.hpp"
 #include "hwcpipe/gpu.hpp"
+#include "hwcpipe/hwcpipe_counter.h"
 #include "hwcpipe/types.hpp"
 
 #include <device/handle.hpp>
@@ -18,16 +20,60 @@
 #include <device/hwcnt/sampler/configuration.hpp>
 #include <device/hwcnt/sampler/manual.hpp>
 
+#include <cassert>
+#include <cstdint>
 #include <memory>
 #include <set>
+#include <system_error>
+#include <unordered_map>
 #include <vector>
 
 namespace hwcpipe {
 
+/**
+ * @brief a counter_sample object holds the sampled information from a counter at
+ * a specific timestamp.
+ */
 struct counter_sample {
+    /** @brief Type of the sampled data. */
+    enum class type { uint64, float64 };
+
+    /** @brief Value of the sample. */
+    union value {
+        uint64_t uint64;
+        double float64;
+
+        explicit value(uint64_t int_v)
+            : uint64(int_v) {}
+
+        explicit value(double double_v)
+            : float64(double_v) {}
+    };
+
+    /** The counter id. */
     hwcpipe_counter counter;
+    /** The timestamp of the sample. */
     uint64_t timestamp;
-    uint64_t value;
+    /** The sample value (variant is defined by the type field). */
+    value value;
+    /** The data type of the sampled value. */
+    type type;
+
+    counter_sample(hwcpipe_counter counter, uint64_t timestamp, uint64_t value)
+        : counter(counter)
+        , timestamp(timestamp)
+        , value(value)
+        , type(type::uint64) {}
+
+    counter_sample(hwcpipe_counter counter, uint64_t timestamp, double value)
+        : counter(counter)
+        , timestamp(timestamp)
+        , value(value)
+        , type(type::float64) {}
+
+    /** Default constructor */
+    counter_sample()
+        : counter_sample(hwcpipe_counter(), 0, 0UL) {}
 };
 
 /**
@@ -39,15 +85,18 @@ class sampler_config {
   public:
     using backend_cfg_type = device::hwcnt::sampler::configuration;
 
-    // structure to tie together the counter ID and its block address, once
-    // they've been retrieved from the database
+    // structure to tie together the counter ID and its block address or
+    // evaluator function, once they've been retrieved from the database
     struct registered_counter {
         hwcpipe_counter counter;
-        detail::block_offset address;
+        detail::counter_definition definition;
 
-        registered_counter(hwcpipe_counter counter, detail::block_offset address)
+        registered_counter(hwcpipe_counter counter, detail::counter_definition definition)
             : counter(counter)
-            , address(address) {}
+            , definition(definition) {}
+
+        registered_counter(hwcpipe_counter counter)
+            : counter(counter) {}
 
         friend bool operator==(const registered_counter &lhs, const registered_counter &rhs) {
             return lhs.counter == rhs.counter;
@@ -93,15 +142,37 @@ class sampler_config {
      *                 is not supported by the current GPU.
      */
     HWCP_NODISCARD std::error_code add_counter(hwcpipe_counter counter) {
+        if (counters_.find(counter) != counters_.end()) {
+            return {};
+        }
+
         std::error_code ec;
         // validate that the GPU actually has the counter
-        auto address = db_.get_counter_address(gpu_id_, counter, ec);
+        auto definition = db_.get_counter_def(gpu_id_, counter, ec);
         if (ec) {
             return ec;
         }
 
-        counters_.emplace(counter, address);
-        backend_config_[address.block_type].enable_map[address.offset] = 1;
+        switch (definition.tag) {
+        case detail::counter_definition::type::hardware: {
+            const auto &address = definition.u.address;
+            counters_.emplace(counter, definition);
+
+            backend_config_[address.block_type].enable_map[address.offset] = 1;
+            break;
+        }
+        case detail::counter_definition::type::expression: {
+            counters_.emplace(counter, definition);
+            ec = add_expression_depedencies(definition.u.expression);
+            if (ec) {
+                return ec;
+            }
+            break;
+        }
+        case detail::counter_definition::type::invalid:
+            return hwcpipe::make_error_code(hwcpipe::errc::invalid_counter_for_device);
+        }
+
         return {};
     }
 
@@ -141,6 +212,18 @@ class sampler_config {
     detail::counter_database db_{};
     std::set<registered_counter> counters_{};
     std::unordered_map<block_type, backend_cfg_type> backend_config_{};
+
+    HWCP_NODISCARD std::error_code
+    add_expression_depedencies(const detail::expression::expression_definition &expression) {
+        std::error_code ec;
+        for (auto dependency : expression.dependencies) {
+            ec = add_counter(dependency);
+            if (ec) {
+                return ec;
+            }
+        }
+        return {};
+    }
 };
 
 /**
@@ -148,7 +231,7 @@ class sampler_config {
  * and presenting them in a more user-friendly manner.
  */
 template <typename backend_policy_t = hwcpipe::detail::hwcpipe_backend_policy>
-class sampler {
+class sampler : private detail::expression::context {
     using handle_type = typename backend_policy_t::handle_type;
     using instance_type = typename backend_policy_t::instance_type;
     using sampler_type = typename backend_policy_t::sampler_type;
@@ -168,7 +251,7 @@ class sampler {
             : sampler_(sampler)
             , it_(std::move(begin))
             , end_(std::move(end))
-            , sample_{} {
+            , sample_() {
             if (it_ != end_) {
                 set_sample_value();
             }
@@ -222,7 +305,7 @@ class sampler {
         auto end() { return sample_iterator<iterator_t>(sampler_, end_, end_); }
 
       private:
-        sampler &sampler_ {};
+        sampler &sampler_{};
         iterator_t begin_;
         iterator_t end_;
     };
@@ -257,6 +340,8 @@ class sampler {
             ec_ = make_error_code(errc::backend_creation_failed);
             return;
         }
+
+        constants_ = instance_->get_constants();
 
         // if we're dealing with a GPU >= G715/G615 then counters are 64bit
         values_are_64bit_ =
@@ -360,6 +445,7 @@ class sampler {
         // buffer.
         const auto &metadata = backend_sample.get_metadata();
         if (metadata.flags.error || metadata.flags.stretched) {
+            valid_sample_buffer_ = false;
             return make_error_code(errc::sample_collection_failure);
         }
 
@@ -367,8 +453,7 @@ class sampler {
 
         // clear out any samples from the previous poll
         for (auto &sample : sample_buffer_) {
-            sample.value = 0;
-            sample.valid = false;
+            sample = 0;
         }
 
         // loop over the counter blocks returned by the reader and fetch any
@@ -379,6 +464,7 @@ class sampler {
             fill_sample_buffer<uint32_t>(backend_sample);
         }
 
+        valid_sample_buffer_ = true;
         return {};
     }
 
@@ -391,21 +477,23 @@ class sampler {
      * configured for sampling, otherwise an empty error_code.
      */
     HWCP_NODISCARD std::error_code get_counter_value(hwcpipe_counter counter, counter_sample &sample) const {
+        // if the data wasn't captured during the last poll flag an error for
+        // the caller
+        if (!valid_sample_buffer_) {
+            return make_error_code(errc::sample_collection_failure);
+        }
+
+        auto expression_eval = counter_to_evaluator_.find(counter);
+        if (expression_eval != counter_to_evaluator_.end()) {
+            return get_expression_counter_value(counter, sample, expression_eval->second);
+        }
+
         auto it = counter_to_buffer_pos_.find(counter);
         if (it == counter_to_buffer_pos_.end()) {
             return make_error_code(errc::unknown_counter);
         }
 
-        // if the data wasn't captured during the last poll flag an error for
-        // the caller
-        const auto &data = sample_buffer_[it->second];
-        if (!data.valid) {
-            return make_error_code(errc::sample_collection_failure);
-        }
-
-        sample.counter = counter;
-        sample.timestamp = last_collection_timestamp_;
-        sample.value = data.value;
+        sample = counter_sample(counter, last_collection_timestamp_, get_hardware_counter_value(it));
         return {};
     }
 
@@ -426,7 +514,7 @@ class sampler {
      *     }
      * }
      * @endcode
-     * 
+     *
      * @return An iterable object (provides begin()/end()) of counter_samples.
      */
     HWCP_NODISCARD auto sample_view() {
@@ -439,20 +527,12 @@ class sampler {
     struct offset_to_buffer_pos {
         size_t block_offset;
         size_t buffer_pos;
+        size_t shift;
 
-        offset_to_buffer_pos(size_t block_offset, size_t buffer_pos)
+        offset_to_buffer_pos(size_t block_offset, size_t buffer_pos, size_t shift)
             : block_offset(block_offset)
-            , buffer_pos(buffer_pos) {}
-    };
-
-    /* sample buffer entry struct */
-    struct sample_data {
-        uint64_t value;
-        bool valid;
-
-        sample_data()
-            : value(0)
-            , valid(false) {}
+            , buffer_pos(buffer_pos)
+            , shift(shift) {}
     };
 
     // backend type aliases
@@ -463,6 +543,7 @@ class sampler {
     // mapping types for counters & buffer positions
     using counter_to_buffer_pos_map_type = std::unordered_map<hwcpipe_counter, size_t>;
     using counters_by_block_map_type = std::unordered_map<block_type, std::vector<offset_to_buffer_pos>>;
+    using counter_to_evaluator_type = std::unordered_map<hwcpipe_counter, detail::expression::evaluator>;
 
     std::error_code ec_;
 
@@ -470,16 +551,47 @@ class sampler {
     handle_ptr_type handle_;
     instance_ptr_type instance_;
     sampler_ptr_type sampler_;
+    device::constants constants_;
 
     // sample buffer and index mappings
     counter_to_buffer_pos_map_type counter_to_buffer_pos_{};
     counters_by_block_map_type counters_by_block_map_{};
-    std::vector<sample_data> sample_buffer_{};
+    std::vector<uint64_t> sample_buffer_{};
+    bool valid_sample_buffer_ = false;
+    counter_to_evaluator_type counter_to_evaluator_{};
 
     // sampler state
     bool values_are_64bit_{};
     uint64_t last_collection_timestamp_{};
     bool sampling_in_progress_{};
+
+    HWCP_NODISCARD uint64_t get_hardware_counter_value(counter_to_buffer_pos_map_type::const_iterator it) const {
+        return static_cast<double>(sample_buffer_[it->second]);
+    }
+
+    HWCP_NODISCARD std::error_code get_expression_counter_value(hwcpipe_counter counter, counter_sample &sample,
+                                                                detail::expression::evaluator eval) const {
+        sample = counter_sample(counter, last_collection_timestamp_, eval(*this));
+        return {};
+    }
+
+    HWCP_NODISCARD double get_counter_value(hwcpipe_counter counter) const override {
+        auto it = counter_to_buffer_pos_.find(counter);
+        assert(it != counter_to_buffer_pos_.end());
+        return static_cast<double>(get_hardware_counter_value(it));
+    }
+
+    HWCP_NODISCARD double get_mali_config_ext_bus_byte_size() const override {
+        return static_cast<double>(constants_.axi_bus_width) / static_cast<double>(sizeof(char));
+    }
+
+    HWCP_NODISCARD double get_mali_config_shader_core_count() const override {
+        return static_cast<double>(constants_.num_shader_cores);
+    }
+
+    HWCP_NODISCARD double get_mali_config_l2_cache_count() const override {
+        return static_cast<double>(constants_.l2_slice_size) * static_cast<double>(constants_.num_l2_slices);
+    }
 
     /**
      * Reserves memory for the samples and sets up the various mappings that are
@@ -500,13 +612,26 @@ class sampler {
         for (const auto &counter : counters) {
             auto buffer_pos = sample_buffer_.size();
 
-            // build the index needed when the caller reads a counter by name
-            counter_to_buffer_pos_[counter.counter] = buffer_pos;
+            switch (counter.definition.tag) {
+            case detail::counter_definition::type::hardware: {
+                // build the index needed when the caller reads a counter by name
+                counter_to_buffer_pos_[counter.counter] = buffer_pos;
+                sample_buffer_.push_back({});
 
-            auto &block_pos_list = counters_by_block_map_[counter.address.block_type];
-            block_pos_list.emplace_back(counter.address.offset, buffer_pos);
-
-            sample_buffer_.push_back({});
+                auto &block_pos_list = counters_by_block_map_[counter.definition.u.address.block_type];
+                block_pos_list.emplace_back(counter.definition.u.address.offset, buffer_pos,
+                                            counter.definition.u.address.shift);
+                break;
+            }
+            case detail::counter_definition::type::expression: {
+                // store the function pointer to run this expression in get_counter_value()
+                counter_to_evaluator_.emplace(counter.counter, counter.definition.u.expression.eval);
+                break;
+            }
+            case detail::counter_definition::type::invalid:
+                // ignore (unreachable)
+                break;
+            }
         }
     }
 
@@ -527,8 +652,7 @@ class sampler {
             // collect any counters that the user requested from this block
             for (const auto &mapping : counters_in_block) {
                 auto &sample = sample_buffer_[mapping.buffer_pos];
-                sample.value += block_buffer[mapping.block_offset];
-                sample.valid = true;
+                sample += block_buffer[mapping.block_offset] << mapping.shift;
             }
         }
     }

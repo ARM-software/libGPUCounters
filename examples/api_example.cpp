@@ -29,6 +29,17 @@ const char *get_product_family_name(hwcpipe::device::product_id::gpu_family f) {
     }
 }
 
+void print_sample_value(const hwcpipe::counter_sample &sample) {
+    switch (sample.type) {
+    case hwcpipe::counter_sample::type::uint64:
+        std::cout << sample.value.uint64;
+        return;
+    case hwcpipe::counter_sample::type::float64:
+        std::cout << sample.value.float64;
+        return;
+    }
+}
+
 int main() {
     // Detect all GPUs & print some info
     for (const auto &gpu : hwcpipe::find_gpus()) {
@@ -84,6 +95,11 @@ int main() {
         std::cout << "Fragment Active Cycles counter not supported by this GPU." << std::endl;
         return -1;
     }
+    ec = config.add_counter(MaliGeomSampleCullRate);
+    if (ec) {
+        std::cout << "Geometry Sample Cull Rate counter not supported by this GPU." << std::endl;
+        return -1;
+    }
 
     auto sampler = hwcpipe::sampler<>(config);
 
@@ -109,7 +125,10 @@ int main() {
             std::cout << ec.message() << std::endl;
             continue;
         }
-        uint64_t active_cycles = sample.value;
+
+        std::cout << "GPU Active cycles [";
+        print_sample_value(sample);
+        std::cout << "] ; ";
 
         // Fetch the Fragment Active Cycles counter
         ec = sampler.get_counter_value(MaliFragActiveCy, sample);
@@ -117,11 +136,21 @@ int main() {
             std::cout << ec.message() << std::endl;
             continue;
         }
-        uint64_t fragment_cycles = sample.value;
 
-        std::cout << "    " << std::setw(3) << i << ": "
-                  << "GPU Active Cycles [" << active_cycles << "] ; "
-                  << "Fragment Active Cycles [" << fragment_cycles << "]" << std::endl;
+        std::cout << "Fragment Active Cycles [";
+        print_sample_value(sample);
+        std::cout << "] ; ";
+
+        // Fetch the Geometry Sample Cull Rate counter
+        ec = sampler.get_counter_value(MaliGeomSampleCullRate, sample);
+        if (ec) {
+            std::cout << ec.message() << std::endl;
+            continue;
+        }
+
+        std::cout << "Geometry Sample Cull Rate [";
+        print_sample_value(sample);
+        std::cout << "]" << std::endl;
     }
 
     ec = sampler.stop_sampling();

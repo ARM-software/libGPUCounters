@@ -11,6 +11,7 @@ add_library(hwcpipe
     src/hwcpipe/detail/counter_database.cpp
     src/hwcpipe/all_gpu_counters.cpp
     src/hwcpipe/counter_metadata.cpp
+    src/hwcpipe/derived_functions.cpp
 )
 
 if(HWCPIPE_PIC)
