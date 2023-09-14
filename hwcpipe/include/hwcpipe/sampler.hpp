@@ -582,7 +582,7 @@ class sampler : private detail::expression::context {
     }
 
     HWCP_NODISCARD double get_mali_config_ext_bus_byte_size() const override {
-        return static_cast<double>(constants_.axi_bus_width) / static_cast<double>(sizeof(char));
+        return static_cast<double>(constants_.axi_bus_width) / 8.0;
     }
 
     HWCP_NODISCARD double get_mali_config_shader_core_count() const override {
