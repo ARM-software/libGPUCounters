@@ -383,9 +383,7 @@ double MaliALUUtil_v3(const context &ctx) {
     hwcpipe_double v2 = ctx.get_counter_value(MaliEngFMAInstr);
     hwcpipe_double v3 = ctx.get_counter_value(MaliCoreActiveCy);
     hwcpipe_double result =
-        (std::max<hwcpipe_double>({v0 + v1 + ((v2 - std::min<hwcpipe_double>({v2 - (v0 + v1), 0.0})) / 2), v1 * 4}) /
-         v3) *
-        100;
+        (std::max<hwcpipe_double>({v0 + v1 + ((v2 - std::min<hwcpipe_double>({v2, v0 + v1})) / 2), v1 * 4}) / v3) * 100;
     return result;
 }
 double MaliTexSample_v0(const context &ctx) {

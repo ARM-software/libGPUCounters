@@ -209,4 +209,5 @@ double MaliBinPhaseIterUtil_v0(const context &ctx);
 double MaliGeomScissorCullRate_v0(const context &ctx);
 
 } // namespace database
+
 } // namespace hwcpipe
