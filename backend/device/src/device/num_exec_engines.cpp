@@ -32,6 +32,9 @@
 namespace hwcpipe {
 namespace device {
 
+static constexpr product_id product_t830{0x0830};
+static constexpr product_id product_t860{0x0860};
+static constexpr product_id product_t880{0x0880};
 static constexpr product_id product_g31{7, 3};
 static constexpr product_id product_g51{7, 0};
 static constexpr product_id product_g52{7, 2};
@@ -72,6 +75,11 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
     uint8_t ee_count{};
 
     switch (id) {
+    case product_t830:
+    case product_t860:
+        return 2;
+    case product_t880:
+        return 3;
     case product_g31: {
         if (core_count == 1 &&
             max_registers<(uint32_t)product_g31>(thread_features) == g31_g51_max_registers_small_core)
@@ -152,6 +160,7 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         return 0;
     }
 
+    // Any Midgard GPUs not in the list above have 1 arithmetic pipe.
     if (id.get_gpu_family() == product_id::gpu_family::midgard)
         return 1;
 

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-/** @file define_enum_operators.hpp */
+/** @file enum_operators.hpp */
 
 #pragma once
 

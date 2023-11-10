@@ -23,7 +23,7 @@
  */
 
 /**
- * @file Syscall interface header.
+ * @file iface.hpp Syscall interface header.
  */
 
 #pragma once
@@ -95,8 +95,8 @@ class iface {
     /**
      * open wrapper function.
      *
-     * @param name[in]      File name to open.
-     * @param oflags[in]    File open flags.
+     * @param[in] name      File name to open.
+     * @param[in] oflags    File open flags.
      * @return A pair of std::error_code and the file descriptor.
      */
     static std::pair<std::error_code, int> open(const char *name, int oflags) {
@@ -112,7 +112,7 @@ class iface {
     /**
      * Check if a file descriptor corresponds to a char device.
      *
-     * @param fd[in]    File descriptor to check.
+     * @param[in] fd    File descriptor to check.
      * @return A pair of std::error_code and bool which is true if @p fd is a char device.
      */
     static std::pair<std::error_code, bool> is_char_device(int fd) {
@@ -128,7 +128,7 @@ class iface {
     /**
      * close wrapper function.
      *
-     * @param fd[in]    File descriptor to close.
+     * @param[in] fd    File descriptor to close.
      * @return std::error_code instance.
      */
     static std::error_code close(int fd) {
@@ -145,12 +145,12 @@ class iface {
     /**
      * mmap wrapper function.
      *
-     * @param addr[in]      Hint address where to map the memory.
-     * @param len[in]       Mapping length.
-     * @param prot[in]      Protection flags.
-     * @param flags[in]     Mapping flags.
-     * @param fd[in]        File descriptor.
-     * @param off[in]       File offset.
+     * @param[in] addr      Hint address where to map the memory.
+     * @param[in] len       Mapping length.
+     * @param[in] prot      Protection flags.
+     * @param[in] flags     Mapping flags.
+     * @param[in] fd        File descriptor.
+     * @param[in] off       File offset.
      * @return A pair of std::error_code and the address mapped.
      */
     static std::pair<std::error_code, void *> mmap(void *addr, size_t len, int prot, int flags, int fd, off_t off) {
@@ -168,8 +168,8 @@ class iface {
     /**
      * munmap wrapper function.
      *
-     * @param addr[in]    Address to unmap.
-     * @param len[in]     Memory region length to unmap.
+     * @param[in] addr    Address to unmap.
+     * @param[in] len     Memory region length to unmap.
      * @return std::error_code instance.
      */
     static std::error_code munmap(void *addr, size_t len) {
@@ -184,9 +184,9 @@ class iface {
     /**
      * ioctl wrapper function.
      *
-     * @param fd[in]          Valid file descriptor.
-     * @param command[in]     I/O control command.
-     * @param args[in,out]    Command arguments.
+     * @param[in]     fd      Valid file descriptor.
+     * @param[in]     command I/O control command.
+     * @param[in,out] args    Command arguments.
      * @return A pair of std:error_code and `ioctl` return value.
      */
     template <typename command_t, typename... args_t>
@@ -204,9 +204,9 @@ class iface {
     /**
      * poll wrapper function.
      *
-     * @param fds[in]         The set of file descriptors to be monitored.
-     * @param nfds[in]        The number of items in the fds array in nfds.
-     * @param timeout[in]     The timeout in milliseconds that poll() should block
+     * @param[in] fds         The set of file descriptors to be monitored.
+     * @param[in] nfds        The number of items in the fds array in nfds.
+     * @param[in] timeout     The timeout in milliseconds that poll() should block
      *                        waiting for a file descriptor to become ready.
      * @return A pair of std:error_code and `poll` return value.
      */

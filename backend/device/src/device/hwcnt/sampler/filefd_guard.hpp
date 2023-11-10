@@ -38,7 +38,7 @@ class filefd_guard : private syscall_iface_t {
     /**
      * Default construct descriptor guard.
      *
-     * @param iface     Syscall interface (testing only).
+     * @param[in] iface     Syscall interface (testing only).
      */
     explicit filefd_guard(syscall_iface_t iface = {})
         : syscall_iface_t(iface)
@@ -47,8 +47,8 @@ class filefd_guard : private syscall_iface_t {
     /**
      * Construct descriptor guard.
      *
-     * @param fd[in]    Descriptor to manage.
-     * @param iface     Syscall interface (testing only).
+     * @param[in] fd        Descriptor to manage.
+     * @param[in] iface     Syscall interface (testing only).
      */
     filefd_guard(int fd, syscall_iface_t iface = {})
         : syscall_iface_t(iface)
@@ -76,7 +76,7 @@ class filefd_guard : private syscall_iface_t {
 
     /** Reset file handle to manage a new value.
      *
-     * @param fd[in]    New file handle to manage.
+     * @param[in] fd    New file handle to manage.
      */
     void reset(int fd) {
         if (fd_ >= 0)

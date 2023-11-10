@@ -49,8 +49,8 @@ class session {
     /**
      * Session constructor.
      *
-     * @param start_ts_ns[in]           Session start timestamp (nanoseconds).
-     * @param user_data_periodic[in]    User data for periodic samples.
+     * @param[in] start_ts_ns           Session start timestamp (nanoseconds).
+     * @param[in] user_data_periodic    User data for periodic samples.
      */
     session(uint64_t start_ts_ns, uint64_t user_data_periodic)
         : last_ts_ns_(start_ts_ns)
@@ -64,7 +64,7 @@ class session {
     /**
      * Update last timestamp.
      *
-     * @param ts[in] New timestamp value to store.
+     * @param[in] ts New timestamp value to store.
      * @return Last timestamp (nanoseconds) before the update.
      */
     uint64_t update_ts(uint64_t ts) {
@@ -79,7 +79,7 @@ class session {
     /**
      * Track session stop.
      *
-     * @param stop_sample_nr[in]    Number of the manual sample that corresponds to
+     * @param[in] stop_sample_nr    Number of the manual sample that corresponds to
      *                              this session stop.
      */
     void stop(uint64_t stop_sample_nr) {
@@ -90,7 +90,7 @@ class session {
     /**
      * Check if this session state can be erased.
      *
-     * @param manual_sample_nr[in]    Number of the manual sample being parsed.
+     * @param[in] manual_sample_nr    Number of the manual sample being parsed.
      * @return if this session can be removed.
      */
     bool can_erase(uint64_t manual_sample_nr) const {

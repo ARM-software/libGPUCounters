@@ -36,36 +36,34 @@ namespace hwcpipe {
 namespace device {
 namespace hwcnt {
 namespace sampler {
-/** Block extents filter. */
-class block_extents_filter {
-  public:
-    /**
-     * Filter block extents.
-     *
-     * @param instance[in]    Instance to get block extents to filter from.
-     * @param begin[in]       Counters configuration begin.
-     * @param end[in]         Counters configuration end.
-     * @return Pair of error code and block extents filtered.
-     */
-    template <typename instante_t>
-    static auto filter_block_extents(const instante_t &instance, const configuration *begin, const configuration *end) {
-        const auto extents = instance.get_hwcnt_block_extents();
+/**
+ * Filter block extents.
+ *
+ * @param[in] extents     Extents to filter.
+ * @param[in] begin       Counters configuration begin.
+ * @param[in] end         Counters configuration end.
+ * @return Pair of error code and block extents filtered.
+ */
+inline auto filter_block_extents(const block_extents &extents, const configuration *begin, const configuration *end) {
+    block_extents::num_blocks_of_type_type num_blocks_of_type{};
 
-        block_extents::num_blocks_of_type_type num_blocks_of_type{};
+    for (auto it = begin; it != end; ++it) {
+        // Disallow block configuration if it was not advertised by `instance`.
+        if (extents.num_blocks_of_type(it->type) == 0)
+            return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_extents{});
 
-        for (auto it = begin; it != end; ++it) {
-            const auto block_type_idx = static_cast<size_t>(it->type);
+        const auto block_type_idx = static_cast<size_t>(it->type);
 
-            if (num_blocks_of_type[block_type_idx])
-                return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_extents{});
+        // Disallow configuring a block twice.
+        if (num_blocks_of_type[block_type_idx])
+            return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_extents{});
 
-            num_blocks_of_type[block_type_idx] = extents.num_blocks_of_type(it->type);
-        }
-
-        const block_extents result{num_blocks_of_type, extents.counters_per_block(), extents.values_type()};
-        return std::make_pair(std::error_code{}, result);
+        num_blocks_of_type[block_type_idx] = extents.num_blocks_of_type(it->type);
     }
-};
+
+    const block_extents result{num_blocks_of_type, extents.counters_per_block(), extents.values_type()};
+    return std::make_pair(std::error_code{}, result);
+}
 
 } // namespace sampler
 } // namespace hwcnt

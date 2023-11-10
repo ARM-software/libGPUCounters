@@ -73,7 +73,7 @@ using backend_types_set = std::bitset<static_cast<size_t>(backend_type::last) + 
 /**
  * Parse back-end type from string.
  *
- * @param str[in] String to parse, must not be NULL.
+ * @param[in] str String to parse, must not be NULL.
  * @return A pair of error code and back-end type parsed.
  */
 std::pair<std::error_code, backend_type> backend_type_from_str(const char *str);
@@ -81,8 +81,8 @@ std::pair<std::error_code, backend_type> backend_type_from_str(const char *str);
 /**
  * Discover which HWCNT back-ends are available for a given kernel version / GPU product id.
  *
- * @param version[in]    Kbase version.
- * @param pid[in]        GPU product id.
+ * @param[in] version    Kbase version.
+ * @param[in] pid        GPU product id.
  * @return HWCNT back-ends available.
  */
 backend_types_set backend_type_discover(const kbase_version &version, product_id pid);
@@ -90,8 +90,8 @@ backend_types_set backend_type_discover(const kbase_version &version, product_id
 /**
  * Select HWCNT back-end to use.
  *
- * @param available_types[in] Available HWCNT back-end types.
- * @param iface[in]    Getenv iface (testing only).
+ * @param[in] available_types Available HWCNT back-end types.
+ * @param[in] iface           Getenv iface (testing only).
  * @return A pair of error code and back-end selected.
  */
 template <typename evnvar_iface_t = detail::getenv_iface>

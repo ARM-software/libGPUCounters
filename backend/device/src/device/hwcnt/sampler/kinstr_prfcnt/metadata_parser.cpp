@@ -22,10 +22,7 @@
  * SOFTWARE.
  */
 
-#pragma once
-
-#include <device/hwcnt/block_extents.hpp>
-#include <device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.hpp>
+#include "metadata_parser.hpp"
 
 namespace hwcpipe {
 namespace device {
@@ -33,20 +30,7 @@ namespace hwcnt {
 namespace sampler {
 namespace kinstr_prfcnt {
 
-/**
- *  Parse enum info to construct an instance of block extents.
- *
- * @param[in] ei Enum Info.
- * @return Block extents instance parsed from enum info.
- */
-inline hwcnt::block_extents construct_block_extents(enum_info ei) {
-    hwcnt::block_extents block_extents = hwcnt::block_extents{
-        ei.num_blocks_of_type,
-        ei.num_values,
-        hwcnt::sample_values_type::uint64,
-    };
-    return block_extents;
-}
+constexpr metadata_parser::type2member_type metadata_parser::type2member;
 
 } // namespace kinstr_prfcnt
 } // namespace sampler

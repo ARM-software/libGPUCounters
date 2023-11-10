@@ -32,7 +32,8 @@
 #include <device/hwcnt/block_extents.hpp>
 #include <device/hwcnt/block_metadata.hpp>
 #include <device/hwcnt/sampler/kinstr_prfcnt/construct_block_extents.hpp>
-#include <device/hwcnt/sampler/kinstr_prfcnt/enum_info.hpp>
+#include <device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.hpp>
+#include <device/hwcnt/sampler/manual.hpp>
 #include <device/hwcnt/sampler/vinstr/construct_block_extents.hpp>
 #include <device/instance.hpp>
 #include <device/ioctl/kbase/commands.hpp>
@@ -70,14 +71,15 @@ static uint64_t get_warp_width(uint64_t raw_gpu_id, std::error_code &ec) {
     static constexpr product_id product_id_g76{7, 1};
     static constexpr product_id product_id_g77{9, 0};
     static constexpr product_id product_id_g78{9, 2};
+    static constexpr product_id product_id_g78ae{9, 5};
     static constexpr product_id product_id_g310{10, 4};
     static constexpr product_id product_id_g510{10, 3};
     static constexpr product_id product_id_g610{10, 7};
     static constexpr product_id product_id_g710{10, 2};
-    static constexpr product_id product_id_gtux{11, 2};
-    static constexpr product_id product_id_gtux_2{11, 3};
+    static constexpr product_id product_id_g615{11, 3};
+    static constexpr product_id product_id_g715{11, 2};
 
-    const product_id pid(raw_gpu_id);
+    const auto pid = product_id::from_raw_gpu_id(raw_gpu_id);
 
     /* Midgard does not support warps. */
     if (pid.get_gpu_family() == product_id::gpu_family::midgard)
@@ -97,12 +99,13 @@ static uint64_t get_warp_width(uint64_t raw_gpu_id, std::error_code &ec) {
     case product_id_g57_2:
     case product_id_g77:
     case product_id_g78:
+    case product_id_g78ae:
     case product_id_g310:
     case product_id_g510:
     case product_id_g610:
     case product_id_g710:
-    case product_id_gtux:
-    case product_id_gtux_2:
+    case product_id_g615:
+    case product_id_g715:
         return 16;
     }
 
@@ -117,6 +120,7 @@ static uint64_t get_warp_width(uint64_t raw_gpu_id, std::error_code &ec) {
     return 0;
 }
 
+/** Decoder for a kbase GPU props buffer. */
 class prop_decoder {
   public:
     explicit prop_decoder(properties buffer) noexcept
@@ -137,7 +141,7 @@ class prop_decoder {
                 return {};
 
             switch (id) {
-            case prop_id_type::product_id:
+            case prop_id_type::raw_gpu_id:
                 dev_consts.gpu_id = value;
                 dev_consts.warp_width = get_warp_width(value, ec);
                 if (ec)
@@ -223,7 +227,7 @@ class prop_decoder {
         dev_consts.tile_size = 16;
 
         get_num_exec_engines_args args{};
-        args.id = product_id{dev_consts.gpu_id};
+        args.id = product_id::from_raw_gpu_id(dev_consts.gpu_id);
         args.core_count = dev_consts.num_shader_cores;
         args.core_features = raw_core_features;
         args.thread_features = raw_thread_features;
@@ -328,6 +332,7 @@ bool is_version_set(const version_t &version) {
 
 } // namespace detail
 
+/** Mali device driver instance implementation. */
 template <typename syscall_iface_t>
 class instance_impl : public instance, private syscall_iface_t {
     using kbase_version_type = ::hwcpipe::device::kbase_version;
@@ -336,43 +341,26 @@ class instance_impl : public instance, private syscall_iface_t {
     instance_impl(int fd, const syscall_iface_t &iface = {})
         : syscall_iface_t(iface)
         , fd_(fd) {
-        std::error_code ec = init();
-        if (ec) {
-            valid_ = false;
-            return;
-        }
-
-        const product_id pid{constants_.gpu_id};
-
-        switch (backend_type_) {
-        case hwcnt::backend_type::vinstr:
-        case hwcnt::backend_type::vinstr_pre_r21: {
-            block_extents_ = hwcnt::sampler::vinstr::construct_block_extents(pid, constants_.num_l2_slices,
-                                                                             constants_.num_shader_cores);
-            break;
-        }
-        case hwcnt::backend_type::kinstr_prfcnt:
-        case hwcnt::backend_type::kinstr_prfcnt_wa:
-        case hwcnt::backend_type::kinstr_prfcnt_bad:
-            using namespace hwcnt::sampler::kinstr_prfcnt;
-            std::tie(ec, ei_) = enum_info_parser::parse_enum_info(fd_, iface);
-            if (ec) {
-                valid_ = false;
-                return;
-            }
-            block_extents_ = construct_block_extents(ei_);
-            break;
-        }
+        std::error_code ec = init(iface);
+        valid_ = !ec;
     }
 
     ~instance_impl() override = default;
 
-    constants get_constants() const override { return constants_; }
+    constants get_constants() const override {
+        /* The constants must have been initialized. */
+        assert(constants_.gpu_id != 0);
+        return constants_;
+    }
 
-    hwcnt::block_extents get_hwcnt_block_extents() const override { return block_extents_; }
+    hwcnt::block_extents get_hwcnt_block_extents() const override {
+        /* The block extents must have been initialized. */
+        assert(block_extents_.num_blocks());
+        return block_extents_;
+    }
 
     hwcnt::sampler::kinstr_prfcnt::enum_info get_enum_info() const {
-        // enum info must have been initialized
+        /* The enum info must have been initialized. */
         assert(ei_.num_values != 0);
         return ei_;
     }
@@ -410,7 +398,7 @@ class instance_impl : public instance, private syscall_iface_t {
         if (ec)
             return {};
 
-        dev_consts.gpu_id = props.props.core_props.product_id;
+        dev_consts.gpu_id = props.props.raw_props.gpu_id;
         dev_consts.warp_width = detail::get_warp_width(dev_consts.gpu_id, ec);
         if (ec)
             return {};
@@ -425,7 +413,7 @@ class instance_impl : public instance, private syscall_iface_t {
         dev_consts.tile_size = 16;
 
         get_num_exec_engines_args args{};
-        args.id = product_id{dev_consts.gpu_id};
+        args.id = product_id::from_raw_gpu_id(dev_consts.gpu_id);
         args.core_count = dev_consts.num_shader_cores;
         /* No core features in this interface version. */
         args.core_features = 0;
@@ -524,10 +512,88 @@ class instance_impl : public instance, private syscall_iface_t {
     std::error_code backend_type_probe() {
         std::error_code ec;
 
-        auto available_types = hwcnt::backend_type_discover(kbase_version_, product_id{constants_.gpu_id});
+        auto available_types =
+            hwcnt::backend_type_discover(kbase_version_, product_id::from_raw_gpu_id(constants_.gpu_id));
         std::tie(ec, backend_type_) = hwcnt::backend_type_select(available_types);
+        return ec;
+    }
+
+    /**
+     * Initialize `block_extents_` field.
+     *
+     * @param[in] iface Syscall iface.
+     * @return Error code.
+     */
+    std::error_code init_block_extents(const syscall_iface_t &iface) {
+        const auto pid = product_id::from_raw_gpu_id(constants_.gpu_id);
+
+        std::error_code ec;
+
+        switch (backend_type_) {
+        case hwcnt::backend_type::vinstr:
+        case hwcnt::backend_type::vinstr_pre_r21: {
+            block_extents_ = hwcnt::sampler::vinstr::construct_block_extents(pid, constants_.num_l2_slices,
+                                                                             constants_.num_shader_cores);
+            break;
+        }
+        case hwcnt::backend_type::kinstr_prfcnt:
+        case hwcnt::backend_type::kinstr_prfcnt_wa:
+        case hwcnt::backend_type::kinstr_prfcnt_bad:
+            using namespace hwcnt::sampler::kinstr_prfcnt;
+            std::tie(ec, ei_) = parse_enum_info(fd_, iface);
+            if (ec)
+                return ec;
+
+            block_extents_ = construct_block_extents(ei_);
+            break;
+        }
 
         return ec;
+    }
+
+    /**
+     * Update backend_type_ if needed.
+     *
+     * Some kbase versions (UK 1.18) that do not include fixes for
+     * kinstr_prfcnt, have issues while creating sample reader. The fix is
+     * to update backend_type_ to kinstr_prfcnt_wa if the reader could not be
+     * created and current backend_type is kinstr_prfcnt.
+     *
+     * @return Error code if an unexpected error happened.
+     */
+    std::error_code backend_type_fixup() {
+        if (backend_type_ != hwcnt::backend_type::kinstr_prfcnt)
+            return {};
+
+        /* Testing with core configuration to potentially trigger the core mapping bug. */
+        const hwcnt::sampler::configuration config_core{
+            hwcnt::block_type::core,
+            ei_.set,
+            0b1111,
+        };
+        hwcnt::sampler::manual sampler{*this, &config_core, 1};
+
+        if (!sampler)
+            return std::make_error_code(std::errc::invalid_argument);
+
+        std::error_code ec;
+
+        ec = sampler.accumulation_start();
+
+        if (ec)
+            return ec;
+
+        /* This will trigger an implicit sample. */
+        ec = sampler.accumulation_stop(0);
+
+        if (ec)
+            return ec;
+
+        hwcnt::sample sample(sampler.get_reader(), ec);
+        if (ec)
+            backend_type_ = hwcnt::backend_type::kinstr_prfcnt_wa;
+
+        return {};
     }
 
     /** Call set flags ioctl. */
@@ -576,7 +642,7 @@ class instance_impl : public instance, private syscall_iface_t {
 
         auto p = props_post_r21(fd_, ec);
         if (ec)
-            return {};
+            return ec;
 
         constants_ = detail::prop_decoder{p}(ec);
         if (ec)
@@ -588,7 +654,7 @@ class instance_impl : public instance, private syscall_iface_t {
     }
 
     /** Get a raw properties buffer into structured data. */
-    std::error_code init() {
+    std::error_code init(const syscall_iface_t &iface) {
         std::error_code ec = version_check();
         if (ec)
             return ec;
@@ -602,6 +668,14 @@ class instance_impl : public instance, private syscall_iface_t {
             return ec;
 
         ec = backend_type_probe();
+        if (ec)
+            return ec;
+
+        ec = init_block_extents(iface);
+        if (ec)
+            return ec;
+
+        ec = backend_type_fixup();
         if (ec)
             return ec;
 

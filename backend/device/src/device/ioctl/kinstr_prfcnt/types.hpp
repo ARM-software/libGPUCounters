@@ -170,7 +170,7 @@ struct enum_item {
     header hdr;
     /** Padding bytes. */
     uint8_t padding[4];
-    /** Structure containing discriptor for enumeration item type. */
+    /** Structure containing descriptor for enumeration item type. */
     enum_union u;
 };
 
@@ -434,7 +434,7 @@ struct request_item {
     header hdr;
     /** Padding bytes. */
     uint8_t padding[4];
-    /** Structure containing discriptor for enumeration item type. */
+    /** Structure containing descriptor for enumeration item type. */
     request_union u;
 };
 

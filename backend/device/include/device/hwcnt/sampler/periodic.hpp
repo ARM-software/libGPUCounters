@@ -45,6 +45,11 @@ namespace sampler {
 /** Periodic hardware counters sampler. */
 class periodic {
   public:
+    using backend_type = detail::backend;
+
+    explicit periodic(std::unique_ptr<backend_type> backend = nullptr)
+        : backend_(std::move(backend)) {}
+
     /**
      * Constructor.
      *
@@ -73,6 +78,12 @@ class periodic {
      */
     periodic(const instance &inst, uint64_t period_ns, std::initializer_list<const configuration> lst)
         : periodic(inst, period_ns, lst.begin(), lst.size()) {}
+
+    /** Default move construct. */
+    periodic(periodic &&) = default;
+
+    /** Default move assign. */
+    periodic &operator=(periodic &&) = default;
 
     /**
      * Check if the sampler's back-end was initialized successfully.
@@ -146,7 +157,6 @@ class periodic {
     }
 
   private:
-    using backend_type = detail::backend;
     std::unique_ptr<backend_type> backend_;
 };
 

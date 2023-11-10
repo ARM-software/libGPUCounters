@@ -57,6 +57,7 @@ enum class sample_layout_type {
  */
 inline bool is_v4_layout(product_id id) {
     static constexpr product_id t760{0x0760};
+
     switch (id.get_version_style()) {
     case product_id::version_style::legacy_t60x:
         return true;
@@ -108,12 +109,12 @@ class sample_layout {
     /**
      * Look up block entry at a given index.
      *
-     * @param index[in]    Block index.
+     * @param[in] index    Block index.
      * @return Block entry.
      */
     const entry &operator[](size_t index) const { return layout_[index]; }
 
-    /** @param number of block entries. */
+    /** @return Number of block entries. */
     size_t size() const { return num_blocks_; }
 
   private:
@@ -204,7 +205,7 @@ class sample_layout {
     /**
      * Add layout entry for a block.
      *
-     * @param value[in]    Entry to add.
+     * @param[in] value    Entry to add.
      */
     void push_back(const entry &value) {
         assert(num_blocks_ < layout_.size());

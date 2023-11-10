@@ -142,14 +142,14 @@ struct uk_gpuprops {
              */
             uint32_t gpu_speed_mhz;
             /**
-             * @usecase GPU clock max speed is required for computing best case
+             * GPU clock max speed is required for computing best case
              * in tasks as job scheduling ant irq_throttling. (It is not specified in the
              * Midgard Architecture).
              * Also, GPU clock max speed is used for OpenCL's clGetDeviceInfo() function.
              */
             uint32_t gpu_freq_khz_max;
             /**
-             * @usecase GPU clock min speed is required for computing worst case
+             * GPU clock min speed is required for computing worst case
              * in tasks as job scheduling ant irq_throttling. (It is not specified in the
              * Midgard Architecture).
              */
@@ -228,9 +228,10 @@ struct uk_gpuprops {
          * the values should be better expressed in an unpacked form in the
          * base_gpu_props structure.
          *
-         * @usecase The raw properties in @ref gpu_raw_gpu_props are necessary to
+         * The raw properties in @c gpu_raw_gpu_props are necessary to
          * allow a user of the Mali Tools (e.g. PAT) to determine "Why is this device
          * behaving differently?". In this case, all information about the
+         * configuration is potentially useful, but it <b>does not need to be processed
          * by the driver</b>. Instead, the raw registers can be processed by the Mali
          * Tools software on the host PC.
          */
@@ -323,7 +324,7 @@ struct uk_gpuprops {
              * member. Use num_groups instead.
              */
             uint32_t num_core_groups;
-            /** Coherency features of the memory, accessed by @ref gpu_mem_features methods. */
+            /** Coherency features of the memory, accessed by @c gpu_mem_features methods. */
             uint32_t coherency;
             /** Padding. */
             uint32_t padding;

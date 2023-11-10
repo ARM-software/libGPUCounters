@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 
-/** @file enum_info.hpp */
+/** @file enum_info_parser.hpp */
 
 #pragma once
 
 #include "convert.hpp"
+#include "parse_all.hpp"
 
 #include <device/detail/enum_operators.hpp>
 #include <device/hwcnt/block_extents.hpp>
@@ -37,8 +38,10 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <system_error>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace hwcpipe {
@@ -53,69 +56,38 @@ struct enum_info {
     prfcnt_set set;
     /** Num values per block. */
     uint16_t num_values;
-    /** Blocks description. */
-    struct block {
-        uint16_t num_instances;
-    };
-    /** Blocks data. */
-    std::array<block, block_extents::num_block_types> blocks;
+    /** Num blocks of type for each block. */
+    block_extents::num_blocks_of_type_type num_blocks_of_type;
     /** True if GPU supports top cycle counter. */
     bool has_cycles_top;
     /** True if GPU supports shader cores cycle counter. */
     bool has_cycles_sc;
 };
 
-namespace detail {
 /** Enum info parser implementation. */
-class parser_impl {
-  public:
-    /**
-     * Parse enum info.
-     *
-     * @note this method can only be called once during the parser lifetime.
-     *
-     * @param begin[in]    Enum info items begin iterator.
-     * @param end[in]      Enum info items end iterator.
-     * @return A pair or error code and enum info parsed.
-     */
-    template <typename iterator_t>
-    auto parse(iterator_t begin, iterator_t end) {
-        std::error_code ec;
-
-        for (auto it = begin; it != end && !ec; ++it) {
-            /* We do not expect items after sentinel. */
-            if (parsed_sentinel_)
-                return std::make_pair(std::make_error_code(std::errc::invalid_argument), result_);
-
-            switch (it->hdr.type) {
-            case enum_item_type::item_type::block:
-                ec = parse_block(it->u.block_counter);
-                break;
-            case enum_item_type::item_type::request:
-                ec = parse_request(it->u.request);
-                break;
-            case enum_item_type::item_type::sample_info:
-                ec = parse_sample(it->u.sample_info);
-                break;
-            }
-        }
-
-        if (!ec)
-            ec = parse_done();
-
-        return std::make_pair(ec, result_);
-    }
-
-  private:
+class enum_info_parser {
     /** Enum item type. */
     using enum_item_type = ioctl::kinstr_prfcnt::enum_item;
 
+  public:
+    /** Type tag to member mapping. */
+    static constexpr auto type2member = std::make_tuple(
+        type2member_entry(enum_item_type::item_type::block, &enum_item_type::enum_union::block_counter),
+        type2member_entry(enum_item_type::item_type::request, &enum_item_type::enum_union::request),
+        type2member_entry(enum_item_type::item_type::sample_info, &enum_item_type::enum_union::sample_info));
+
+    /** Type to member mapping type. */
+    using type2member_type = decltype(type2member);
+
+    enum_info_parser(enum_info &result)
+        : result_(result) {}
+
     /** Prase block enum item.
      *
-     * @param block[in]    Block item to parse.
+     * @param[in] block    Block item to parse.
      * @return Error code.
      */
-    std::error_code parse_block(const enum_item_type::enum_block_counter &block) {
+    std::error_code on_item(const enum_item_type::enum_block_counter &block) {
         if (block.num_values == 0 && block.num_instances == 0) {
             parsed_sentinel_ = true;
             return {};
@@ -134,23 +106,26 @@ class parser_impl {
         if (result_.num_values != block.num_values)
             return std::make_error_code(std::errc::invalid_argument);
 
-        const auto block_type = convert(block.type);
+        std::error_code ec;
+        block_type type{};
+        std::tie(ec, type) = convert(block.type);
+
+        if (ec)
+            return ec;
 
         using namespace hwcpipe::device::detail::enum_operators;
-        const auto block_underlying = to_underlying(block_type);
 
-        /* Bad block index. */
-        if (block_underlying >= result_.blocks.size())
-            return std::make_error_code(std::errc::invalid_argument);
-
-        assert(block_underlying < parsed_blocks_.size());
+        const auto block_underlying = to_underlying(type);
 
         /* There must be only one entry for a block type. */
         if (parsed_blocks_[block_underlying])
             return std::make_error_code(std::errc::invalid_argument);
 
+        if (block.num_instances > std::numeric_limits<uint8_t>::max())
+            return std::make_error_code(std::errc::invalid_argument);
+
         parsed_blocks_[block_underlying] = true;
-        result_.blocks[block_underlying].num_instances = block.num_instances;
+        result_.num_blocks_of_type[block_underlying] = static_cast<uint8_t>(block.num_instances);
 
         return {};
     }
@@ -158,10 +133,10 @@ class parser_impl {
     /**
      * Parse request enum item.
      *
-     * @param request[in] Request item to parse.
+     * @param[in] request Request item to parse.
      * @return Error code.
      */
-    std::error_code parse_request(const enum_item_type::enum_request &request) {
+    std::error_code on_item(const enum_item_type::enum_request &request) {
         using request_type = enum_item_type::enum_request::request_type;
 
         /* Ignore unknown requests. */
@@ -193,10 +168,10 @@ class parser_impl {
     /**
      * Parse sample info enum item.
      *
-     * @param request[in] Sample info item to parse.
+     * @param[in] sample_info Sample info item to parse.
      * @return Error code.
      */
-    std::error_code parse_sample(const enum_item_type::enum_sample_info &sample_info) {
+    std::error_code on_item(const enum_item_type::enum_sample_info &sample_info) {
         /* There must be only one sample_info entry. */
         if (parsed_sample_info_)
             return std::make_error_code(std::errc::invalid_argument);
@@ -215,11 +190,7 @@ class parser_impl {
     }
 
     /** @return Error, if not all required items were parsed. */
-    std::error_code parse_done() {
-        /* Not all blocks were parsed. */
-        if (!parsed_blocks_.all())
-            return std::make_error_code(std::errc::invalid_argument);
-
+    std::error_code on_done() const {
         /* Not all requests were parsed. */
         if (!parsed_requests_.all())
             return std::make_error_code(std::errc::invalid_argument);
@@ -228,11 +199,15 @@ class parser_impl {
         if (!parsed_sample_info_ || !parsed_sentinel_)
             return std::make_error_code(std::errc::invalid_argument);
 
-        return {};
+        return std::error_code{};
     }
 
+    /** @return True if the sentinel item was parsed. */
+    bool sentinel_parsed() const { return parsed_sentinel_; }
+
+  private:
     /** Enum info being parsed. */
-    enum_info result_{};
+    enum_info &result_;
     /** Set of blocks parsed. */
     std::bitset<block_extents::num_block_types> parsed_blocks_{};
     /** Requests number. */
@@ -244,47 +219,40 @@ class parser_impl {
     /** True if sentinel item was parsed. */
     bool parsed_sentinel_{false};
 };
-} // namespace detail
 
-/** Enum info parser. */
-class enum_info_parser {
-  public:
-    /**
-     * Parse enum_info using `kinstr_prfcnt_enum_info` command.
-     *
-     * @param device_fd[in]    Device file descriptor.
-     * @param iface[in]        Syscall iface (test only).
-     * @return A pair of error code and enum_info instance parsed.
-     */
-    template <typename syscal_ifcace_t, typename parser_t = detail::parser_impl>
-    static auto parse_enum_info(int device_fd, syscal_ifcace_t &&iface = {}, parser_t &&parser = {}) {
-        ioctl::kbase::kinstr_prfcnt_enum_info ei{};
-        std::error_code ec;
+template <typename syscal_ifcace_t>
+static auto parse_enum_info(int device_fd, syscal_ifcace_t &&iface = {}) {
+    ioctl::kbase::kinstr_prfcnt_enum_info ei{};
+    std::error_code ec;
 
-        std::tie(ec, std::ignore) = iface.ioctl(device_fd, ioctl::kbase::command::kinstr_prfcnt_enum_info, &ei);
+    std::tie(ec, std::ignore) = iface.ioctl(device_fd, ioctl::kbase::command::kinstr_prfcnt_enum_info, &ei);
 
-        if (ec)
-            return std::make_pair(ec, enum_info{});
+    if (ec)
+        return std::make_pair(ec, enum_info{});
 
-        using enum_item_type = ioctl::kinstr_prfcnt::enum_item;
+    using enum_item_type = ioctl::kinstr_prfcnt::enum_item;
 
-        const auto memory_size = ei.info_item_size * ei.info_item_count;
-        std::vector<uint8_t> memory(memory_size);
-        void *const memory_ptr = memory.data();
+    const auto memory_size = ei.info_item_size * ei.info_item_count;
+    std::vector<uint8_t> memory(memory_size);
+    void *const memory_ptr = memory.data();
 
-        ei.info_list_ptr.reset(static_cast<enum_item_type *>(memory_ptr));
+    ei.info_list_ptr.reset(static_cast<enum_item_type *>(memory_ptr));
 
-        std::tie(ec, std::ignore) = iface.ioctl(device_fd, ioctl::kbase::command::kinstr_prfcnt_enum_info, &ei);
+    std::tie(ec, std::ignore) = iface.ioctl(device_fd, ioctl::kbase::command::kinstr_prfcnt_enum_info, &ei);
 
-        if (ec)
-            return std::make_pair(ec, enum_info{});
+    if (ec)
+        return std::make_pair(ec, enum_info{});
 
-        ioctl::strided_array_view<enum_item_type> enum_item_view(
-            ei.info_list_ptr.get(), static_cast<ptrdiff_t>(ei.info_item_size), ei.info_item_count);
+    ioctl::strided_array_view<enum_item_type> enum_item_view(
+        ei.info_list_ptr.get(), static_cast<ptrdiff_t>(ei.info_item_size), ei.info_item_count);
 
-        return parser.parse(enum_item_view.begin(), enum_item_view.end());
-    }
-};
+    enum_info result{};
+    enum_info_parser parser{result};
+
+    ec = parse_all(enum_item_view.begin(), enum_item_view.end(), parser);
+
+    return std::make_pair(ec, result);
+}
 
 } // namespace kinstr_prfcnt
 } // namespace sampler

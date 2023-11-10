@@ -81,19 +81,32 @@ class product_id {
     /**
      * Construct product id from a GPU id.
      *
-     * @param gpu_id[in] GPU id to parse.
+     * @param[in] raw_product_id Raw unmasked product id.
      */
-    explicit constexpr product_id(uint64_t gpu_id)
-        : product_id_(from_gpu_id(gpu_id)) {}
+    explicit constexpr product_id(uint32_t raw_product_id)
+        : product_id_(from_raw_product_id(raw_product_id)) {}
 
     /**
      * Construct product id using product/arch major versions pair.
      *
-     * @param arch_major[in]       Arch major version.
-     * @param product_major[in]    Product major version.
+     * @param[in] arch_major       Arch major version.
+     * @param[in] product_major    Product major version.
      */
     explicit constexpr product_id(uint32_t arch_major, uint32_t product_major)
         : product_id_(from_versions(arch_major, product_major)) {}
+
+    /**
+     * Construct product id from the raw GPU id value.
+     *
+     * @param gpu_id Raw gpu id.
+     * @return Product id.
+     */
+    static constexpr product_id from_raw_gpu_id(uint64_t gpu_id) {
+        constexpr uint64_t product_id_shift{16};
+        constexpr uint64_t product_id_mask{0xFFFF};
+
+        return product_id{static_cast<uint32_t>((gpu_id >> product_id_shift) & product_id_mask)};
+    }
 
     /** @return Version style of the product ID. */
     constexpr version_style get_version_style() const { return get_version_style(product_id_); }
@@ -156,40 +169,40 @@ class product_id {
     /**
      * Get version style of a gpu_id or product_id value.
      *
-     * @param value[in]    Value to get the style from.
+     * @param[in] value    Value to get the style from.
      * @return Version style of @p value.
      */
     constexpr static version_style get_version_style(uint32_t value) {
         if (value == product_id_t60x)
             return version_style::legacy_t60x;
-        else if (value < 0x1000)
+        else if (value < 0x1000U)
             return version_style::legacy_txxx;
         else
             return version_style::arch_product_major;
     }
 
     /**
-     * Get product id from a GPU id.
+     * Get product id from a raw unmasked value.
      *
-     * @param gpu_id[in] GPU id to parse.
+     * @param[in] raw_product_id Raw unmasked product id.
      * @return Product id value.
      */
-    static constexpr uint32_t from_gpu_id(uint64_t gpu_id) {
-        switch (get_version_style(gpu_id)) {
+    static constexpr uint32_t from_raw_product_id(uint32_t raw_product_id) {
+        switch (get_version_style(raw_product_id)) {
         case version_style::legacy_t60x:
         case version_style::legacy_txxx:
-            return gpu_id & product_id_mask_legacy;
+            return raw_product_id & product_id_mask_legacy;
         case version_style::arch_product_major:
         default:
-            return gpu_id & product_id_mask_modern;
+            return raw_product_id & product_id_mask_modern;
         }
     }
 
     /**
      * Get product id using product/arch major versions pair.
      *
-     * @param arch_major[in]       Arch major version.
-     * @param product_major[in]    Product major version.
+     * @param[in] arch_major       Arch major version.
+     * @param[in] product_major    Product major version.
      * @return Product id value.
      */
     static constexpr uint32_t from_versions(uint32_t arch_major, uint32_t product_major) {

@@ -17,6 +17,7 @@
 
 #include <device/handle.hpp>
 #include <device/hwcnt/block_metadata.hpp>
+#include <device/hwcnt/block_extents.hpp>
 #include <device/hwcnt/sampler/configuration.hpp>
 #include <device/hwcnt/sampler/manual.hpp>
 
@@ -127,7 +128,7 @@ class sampler_config {
         constexpr auto prfcnt_set = device::hwcnt::prfcnt_set::primary;
 
         // preallocate the backend enable maps for each possible block type
-        for (size_t i = 0; i != static_cast<size_t>(block_type::num_block_types); ++i) {
+        for (size_t i = 0; i != static_cast<size_t>(device::hwcnt::block_extents::num_block_types); ++i) {
             const auto type = static_cast<block_type>(i);
             backend_config_.emplace(type, backend_cfg_type{type, prfcnt_set, {}});
         }
@@ -605,7 +606,7 @@ class sampler : private detail::expression::context {
 
         // set up the index needed by the sample writer to convert from
         // block/offset to sample buffer position
-        for (size_t i = 0; i != static_cast<size_t>(block_type::num_block_types); ++i) {
+        for (size_t i = 0; i != static_cast<size_t>(device::hwcnt::block_extents::num_block_types); ++i) {
             counters_by_block_map_[static_cast<block_type>(i)] = {};
         }
 

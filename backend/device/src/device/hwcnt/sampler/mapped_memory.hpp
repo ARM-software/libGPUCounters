@@ -83,9 +83,10 @@ class mapped_memory : private syscall_iface_t {
     /**
      * Memory mapping constructor.
      *
-     * @param fd[in] File descriptor to map.
-     * @param size[in] Mapping size.
-     * @param iface[in] Syscall iface (testing only).
+     * @param[in] fd     File descriptor to map.
+     * @param[in] size   Mapping size.
+     * @param[out] ec    Error code.
+     * @param[in] iface  Syscall iface (testing only).
      */
     explicit mapped_memory(int fd, size_t size, std::error_code &ec, const syscall_iface_t &iface)
         : syscall_iface_t(iface)

@@ -68,6 +68,7 @@ class strided_array_view {
 };
 
 namespace detail {
+/** Arguments for constructing a strided array view. */
 struct strided_array_view_args {
     ptrdiff_t stride;
     size_t num_elements;
@@ -97,7 +98,7 @@ strided_array_view<value_t> operator|(value_t *ptr, const strided_array_view_arg
  *     printf("field1 = %f\n", element);
  * @endcode
  *
- * @param stride
+ * @param stride Offset in bytes between successive elements.
  * @param[in] num_elements    Number of elements in the array.
  */
 inline detail::strided_array_view_args strided_array(ptrdiff_t stride, size_t num_elements) {

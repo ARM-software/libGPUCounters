@@ -54,9 +54,9 @@ class handle_impl : public handle, private syscall_iface_t {
     /**
      * Handle constructor.
      *
-     * @param fd[in]          Device file descriptor.
-     * @param m[in]           Which descriptor handling mode to use.
-     * @param args[in,out]    System calls interface constructor args (unit tests only).
+     * @param[in]     fd   Device file descriptor.
+     * @param[in]     m    Which descriptor handling mode to use.
+     * @param[in,out] args System calls interface constructor args (unit tests only).
      */
     template <typename... args_t>
     handle_impl(int fd, mode m, args_t &&...args)
@@ -72,8 +72,8 @@ class handle_impl : public handle, private syscall_iface_t {
     /**
      * Open character device.
      *
-     * @param path[in]         The device path.
-     * @param iface[in,out]    System calls interface to use (unit tests only).
+     * @param[in]     path  The device path.
+     * @param[in,out] iface System calls interface to use (unit tests only).
      * @return Device handle on success, -1 on failure.
      */
     template <typename other_syscall_iface_t = syscall_iface_t>

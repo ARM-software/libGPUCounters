@@ -55,7 +55,7 @@ class reader;
  *  - @ref configuration to configure which counters to sample for a given
  *    block type.
  *
- * Also contains the low level @ref detail::backend interface,
+ * Also contains the low level @c detail::backend interface,
  * which is used for samplers implementation. The interface is implemented
  * for each hardware counters ioctl API version.
  */

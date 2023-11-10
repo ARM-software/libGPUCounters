@@ -52,8 +52,6 @@ namespace sampler {
 namespace vinstr {
 
 namespace detail {
-class setup_helper : public block_extents_filter {};
-
 inline auto init_features(ioctl::vinstr::reader_features reader_features) {
     features result{};
 
@@ -68,9 +66,9 @@ inline auto init_features(ioctl::vinstr::reader_features reader_features) {
 /**
  * Setup hardware counters reader handle.
  *
- * @param instance[in]      Mali device instance.
- * @param setup_args[in]    Ioctl setup arguments.
- * @param iface[in,out]    System calls interface to use (unit tests only).
+ * @param[in]     instance      Mali device instance.
+ * @param[in]     setup_args    Ioctl setup arguments.
+ * @param[in,out] iface         System calls interface to use (unit tests only).
  *
  * @return A pair of error code and the reader handle..
  */
@@ -110,11 +108,11 @@ inline auto reader_setup(const instance_t &instance, ioctl::kbase::hwcnt_reader_
 /**
  * Setup vinstr hardware counters.
  *
- * @param inst[in]         Mali device instance.
- * @param period_ns[in]    Period in nanoseconds between samples taken. Zero for manual context.
- * @param begin[in]        Counters configuration begin iterator.
- * @param end[in]          Counters configuration end iterator.
- * @param iface[in,out]    System calls interface to use (unit tests only).
+ * @param[in]     inst         Mali device instance.
+ * @param[in]     period_ns    Period in nanoseconds between samples taken. Zero for manual context.
+ * @param[in]     begin        Counters configuration begin iterator.
+ * @param[in]     end          Counters configuration end iterator.
+ * @param[in,out] iface        System calls interface to use (unit tests only).
  *
  * @return A pair of error code and `backend_args` structure.
  */
@@ -128,7 +126,7 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
     backend_args_type result{};
 
     block_extents extents{};
-    std::tie(ec, extents) = block_extents_filter::filter_block_extents(instance, begin, end);
+    std::tie(ec, extents) = filter_block_extents(instance.get_hwcnt_block_extents(), begin, end);
     if (ec)
         return std::make_pair(ec, std::move(result));
 
@@ -184,7 +182,8 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
 
     const auto consts = instance.get_constants();
 
-    const auto product_id = hwcpipe::device::product_id(consts.gpu_id);
+    const auto product_id = hwcpipe::device::product_id::from_raw_gpu_id(consts.gpu_id);
+
     const auto sample_layout_type = (is_v4_layout(product_id)) ? sample_layout_type::v4 : sample_layout_type::non_v4;
 
     result.sample_layout_v = sample_layout(extents, consts.num_l2_slices, consts.shader_core_mask, sample_layout_type);

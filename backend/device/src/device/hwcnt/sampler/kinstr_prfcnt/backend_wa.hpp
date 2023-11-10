@@ -77,14 +77,15 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
     /**
      * Constructor.
      *
-     * @param args[in] Back-end arguments.
-     * @param syscall_iface      Syscall interface.
-     * @param timestamp_iface    Timestam interface.
+     * @param[in] args            Back-end arguments.
+     * @param[in] syscall_iface   Syscall interface.
+     * @param[in] timestamp_iface Timestam interface.
      */
     backend_wa_impl(args_type &&args, const syscall_iface_type &syscall_iface = {},
                     const timestamp_iface_t &timestamp_iface = {})
-        : super(std::move(args), syscall_iface)
-        , timestamp_iface_t(timestamp_iface) {
+        : super(std::move(args), &remap_, syscall_iface)
+        , timestamp_iface_t(timestamp_iface)
+        , remap_(args.sc_mask) {
 
         if (sampler_type() == super::sampler_type::manual) {
             num_buffers_max_ = compute_num_buffers_max();
@@ -737,6 +738,8 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
     static constexpr size_t max_sessions = 32;
     /** Queue of sessions being tracked (periodic back-end only). */
     queue<session_type, max_sessions> sessions_;
+    /** Block index remap. */
+    block_index_remap remap_;
 };
 
 template <typename backend_base_t, typename timestamp_iface_t>
@@ -744,7 +747,7 @@ constexpr uint8_t backend_wa_impl<backend_base_t, timestamp_iface_t>::empty_samp
 
 /** Workaround back-end type. */
 template <typename syscall_iface_t>
-using backend_wa = backend_wa_impl<backend<syscall_iface_t, metadata_parser, block_index_remap>>;
+using backend_wa = backend_wa_impl<backend<syscall_iface_t>>;
 
 } // namespace kinstr_prfcnt
 } // namespace sampler

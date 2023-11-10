@@ -61,9 +61,9 @@ class kbase_version {
     /**
      * Constructor
      *
-     * @param major_version[in] Major kbase interface version.
-     * @param minor_version[in] Minor kbase interface version.
-     * @param type[in]          Kbase interface type.
+     * @param[in] major Major kbase interface version.
+     * @param[in] minor Minor kbase interface version.
+     * @param[in] type  Kbase interface type.
      */
     constexpr kbase_version(uint16_t major, uint16_t minor, ioctl_iface_type type)
         : major_(major)
