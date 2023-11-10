@@ -61,11 +61,11 @@ const std::vector<std::pair<gpu_id_type, std::vector<hwcpipe_counter>>> some_cou
 
 // As there are a lot of counters we can test a few
 const std::vector<counter_info> test_counters{
-    {hwcpipe_counter::MaliFragTileKill, "Unchanged tiles killed", "tiles"},
+    {hwcpipe_counter::MaliFragTileKill, "Killed unchanged tiles", "tiles"},
     {hwcpipe_counter::MaliGPUActiveCy, "GPU active cycles", "cycles"},
     {hwcpipe_counter::MaliExtBusRdLat192, "Output external read latency 192-255 cycles", "beats"},
-    {hwcpipe_counter::MaliSCBusTexExtRdBt, "Texture read beats from external memory", "beats"},
-    {hwcpipe_counter::MaliLSFullRd, "Load/store full read issues", "cycles"}};
+    {hwcpipe_counter::MaliSCBusTexExtRdBt, "Texture unit read beats from external memory", "beats"},
+    {hwcpipe_counter::MaliLSFullRd, "Load/store unit full read issues", "cycles"}};
 
 TEST_CASE("FindCountersForGPUProduct___FindsGPUCounters___AssertsCorrectGPUCountersReturned___ErrorCodeNotSet") {
     detail::counter_database db{};

@@ -13,7 +13,7 @@
 namespace hwcpipe {
 namespace database {
 
-extern const std::array<counter_metadata, 365> all_counter_metadata;
+extern const std::array<counter_metadata, 373> all_counter_metadata;
 
 } // namespace database
 

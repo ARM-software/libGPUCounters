@@ -57,7 +57,9 @@ class gpu {
 
     HWCP_NODISCARD uint64_t bus_width() const { return constants_.axi_bus_width; }
 
-    HWCP_NODISCARD device::product_id get_product_id() const { return device::product_id::from_raw_gpu_id(constants_.gpu_id); }
+    HWCP_NODISCARD device::product_id get_product_id() const {
+        return device::product_id::from_raw_gpu_id(constants_.gpu_id);
+    }
 
     HWCP_NODISCARD device::constants get_constants() const { return constants_; }
 

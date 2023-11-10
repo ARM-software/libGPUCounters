@@ -16,8 +16,8 @@
 #include "hwcpipe/types.hpp"
 
 #include <device/handle.hpp>
-#include <device/hwcnt/block_metadata.hpp>
 #include <device/hwcnt/block_extents.hpp>
+#include <device/hwcnt/block_metadata.hpp>
 #include <device/hwcnt/sampler/configuration.hpp>
 #include <device/hwcnt/sampler/manual.hpp>
 
