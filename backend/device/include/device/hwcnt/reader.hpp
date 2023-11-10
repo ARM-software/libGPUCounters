@@ -264,9 +264,9 @@ class HWCPIPE_DEVICE_API reader {
     /**
      * Constructor.
      *
-     * @param fd[in]            Counters file descriptor.
-     * @param features_v[in]    Reader features.
-     * @param extents[in]       Hardware counters block extents.
+     * @param[in] fd            Counters file descriptor.
+     * @param[in] features_v    Reader features.
+     * @param[in] extents       Hardware counters block extents.
      */
     reader(int fd, features features_v, block_extents extents)
         : fd_(fd)

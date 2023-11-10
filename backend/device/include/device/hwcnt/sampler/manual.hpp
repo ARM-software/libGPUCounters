@@ -45,6 +45,11 @@ namespace sampler {
 /** Manual hardware counters sampler. */
 class manual {
   public:
+    using backend_type = detail::backend;
+
+    explicit manual(std::unique_ptr<backend_type> backend = nullptr)
+        : backend_(std::move(backend)) {}
+
     /**
      * Constructor.
      *
@@ -65,6 +70,12 @@ class manual {
      */
     manual(const instance &inst, std::initializer_list<configuration> lst)
         : manual(inst, lst.begin(), lst.size()) {}
+
+    /** Default move construct. */
+    manual(manual &&) = default;
+
+    /** Default move assign. */
+    manual &operator=(manual &&) = default;
 
     /**
      * Check if the sampler's back-end was initialized successfully.
@@ -159,7 +170,6 @@ class manual {
     }
 
   private:
-    using backend_type = detail::backend;
     std::unique_ptr<backend_type> backend_;
 };
 

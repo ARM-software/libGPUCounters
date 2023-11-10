@@ -320,14 +320,20 @@ double MaliFragOverdraw_v3(const context &ctx) {
     return result;
 }
 double MaliFragOverdraw_v4(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliFragThread);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliFragQueueTask);
-    hwcpipe_double result = v0 / (v1 * 32 * 32);
+    hwcpipe_double v0 = ctx.get_counter_value(MaliFragWarp);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliFragIterTask);
+    hwcpipe_double result = (v0 * 16) / (v1 * 32 * 32);
     return result;
 }
 double MaliFragOverdraw_v5(const context &ctx) {
     hwcpipe_double v0 = ctx.get_counter_value(MaliFragThread);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliFragQueueTask);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliFragIterTask);
+    hwcpipe_double result = v0 / (v1 * 32 * 32);
+    return result;
+}
+double MaliFragOverdraw_v6(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliFragThread);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliMainIterTask);
     hwcpipe_double result = v0 / (v1 * 64 * 64);
     return result;
 }
@@ -383,9 +389,7 @@ double MaliALUUtil_v3(const context &ctx) {
     hwcpipe_double v2 = ctx.get_counter_value(MaliEngFMAInstr);
     hwcpipe_double v3 = ctx.get_counter_value(MaliCoreActiveCy);
     hwcpipe_double result =
-        (std::max<hwcpipe_double>({v0 + v1 + ((v2 - std::min<hwcpipe_double>({v2 - (v0 + v1), 0.0})) / 2), v1 * 4}) /
-         v3) *
-        100;
+        (std::max<hwcpipe_double>({v0 + v1 + ((v2 - std::min<hwcpipe_double>({v2, v0 + v1})) / 2), v1 * 4}) / v3) * 100;
     return result;
 }
 double MaliTexSample_v0(const context &ctx) {
@@ -440,9 +444,19 @@ double MaliTexCPI_v3(const context &ctx) {
 }
 double MaliTexCPI_v4(const context &ctx) {
     hwcpipe_double v0 = ctx.get_counter_value(MaliTexFiltIssueCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliTexOutMsg);
-    hwcpipe_double v2 = ctx.get_counter_value(MaliTexOutSingleMsg);
-    hwcpipe_double result = v0 / (((v1 * 2) - v2) * 4);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliTexCacheLookupCy);
+    hwcpipe_double v2 = ctx.get_counter_value(MaliTexCacheSimpleLoadCy);
+    hwcpipe_double v3 = ctx.get_counter_value(MaliTexCacheComplexLoadCy);
+    hwcpipe_double v4 = ctx.get_counter_value(MaliTexInBt);
+    hwcpipe_double v5 = ctx.get_counter_value(MaliTexOutBt);
+    hwcpipe_double v6 = ctx.get_counter_value(MaliTexL1CacheOutputCy);
+    hwcpipe_double v7 = ctx.get_counter_value(MaliTexL1CacheLookupCy);
+    hwcpipe_double v8 = ctx.get_counter_value(MaliTexIndexCy);
+    hwcpipe_double v9 = ctx.get_counter_value(MaliCoreActiveCy);
+    hwcpipe_double v10 = ctx.get_counter_value(MaliTexOutMsg);
+    hwcpipe_double v11 = ctx.get_counter_value(MaliTexOutSingleMsg);
+    hwcpipe_double result =
+        ((std::max<hwcpipe_double>({v0, v1, v2, v3, v4, v5, v6, v7, v8}) / v9) * 100) / (((v10 * 2) - v11) * 4);
     return result;
 }
 double MaliTexUtil_v0(const context &ctx) {
@@ -462,13 +476,26 @@ double MaliTexUtil_v1(const context &ctx) {
     hwcpipe_double v7 = ctx.get_counter_value(MaliTexL1CacheLookupCy);
     hwcpipe_double v8 = ctx.get_counter_value(MaliTexIndexCy);
     hwcpipe_double v9 = ctx.get_counter_value(MaliCoreActiveCy);
-    hwcpipe_double result = (std::max<hwcpipe_double>({v0, v1, v2, v3, v4, v5, v6, v7, v8}) / v9) * 100;
+    hwcpipe_double result = (((std::max<hwcpipe_double>({v0, v1, v2, v3, v4, v5, v6, v7, v8}) / v9) * 100) / v9) * 100;
     return result;
 }
-double MaliTexFiltUtil_v0(const context &ctx) {
+double MaliTexIssueCy_v0(const context &ctx) {
     hwcpipe_double v0 = ctx.get_counter_value(MaliTexFiltIssueCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliCoreActiveCy);
-    hwcpipe_double result = (v0 / v1) * 100;
+    hwcpipe_double result = v0;
+    return result;
+}
+double MaliTexIssueCy_v1(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliTexFiltIssueCy);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliTexCacheLookupCy);
+    hwcpipe_double v2 = ctx.get_counter_value(MaliTexCacheSimpleLoadCy);
+    hwcpipe_double v3 = ctx.get_counter_value(MaliTexCacheComplexLoadCy);
+    hwcpipe_double v4 = ctx.get_counter_value(MaliTexInBt);
+    hwcpipe_double v5 = ctx.get_counter_value(MaliTexOutBt);
+    hwcpipe_double v6 = ctx.get_counter_value(MaliTexL1CacheOutputCy);
+    hwcpipe_double v7 = ctx.get_counter_value(MaliTexL1CacheLookupCy);
+    hwcpipe_double v8 = ctx.get_counter_value(MaliTexIndexCy);
+    hwcpipe_double v9 = ctx.get_counter_value(MaliCoreActiveCy);
+    hwcpipe_double result = (std::max<hwcpipe_double>({v0, v1, v2, v3, v4, v5, v6, v7, v8}) / v9) * 100;
     return result;
 }
 double MaliLSUtil_v0(const context &ctx) {
@@ -498,7 +525,12 @@ double MaliGPUPix_v1(const context &ctx) {
     return result;
 }
 double MaliGPUPix_v2(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliFragQueueTask);
+    hwcpipe_double v0 = ctx.get_counter_value(MaliFragIterTask);
+    hwcpipe_double result = v0 * 32 * 32;
+    return result;
+}
+double MaliGPUPix_v3(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliMainIterTask);
     hwcpipe_double result = v0 * 64 * 64;
     return result;
 }
@@ -516,7 +548,13 @@ double MaliGPUCyPerPix_v1(const context &ctx) {
 }
 double MaliGPUCyPerPix_v2(const context &ctx) {
     hwcpipe_double v0 = ctx.get_counter_value(MaliGPUActiveCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliFragQueueTask);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliFragIterTask);
+    hwcpipe_double result = v0 / (v1 * 32 * 32);
+    return result;
+}
+double MaliGPUCyPerPix_v3(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliGPUActiveCy);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliMainIterTask);
     hwcpipe_double result = v0 / (v1 * 64 * 64);
     return result;
 }
@@ -1017,6 +1055,11 @@ double MaliTex3DInstrRate_v0(const context &ctx) {
     hwcpipe_double result = (v0 / v1) * 100;
     return result;
 }
+double MaliSCBusOtherWrBy_v0(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliSCBusOtherWrBt);
+    hwcpipe_double result = v0 * 16;
+    return result;
+}
 double MaliFragRastPartQdRate_v0(const context &ctx) {
     hwcpipe_double v0 = ctx.get_counter_value(MaliFragRastPartQd);
     hwcpipe_double v1 = ctx.get_counter_value(MaliFragRastQd);
@@ -1055,13 +1098,13 @@ double MaliEngArithInstr_v0(const context &ctx) {
     return result;
 }
 double MaliEngSWBlendRate_v0(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliEngSWBlend);
+    hwcpipe_double v0 = ctx.get_counter_value(MaliEngSWBlendInstr);
     hwcpipe_double v1 = ctx.get_counter_value(MaliFragWarp);
     hwcpipe_double result = ((v0 * 2) / v1) * 100;
     return result;
 }
 double MaliEngSWBlendRate_v1(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliEngSWBlend);
+    hwcpipe_double v0 = ctx.get_counter_value(MaliEngSWBlendInstr);
     hwcpipe_double v1 = ctx.get_counter_value(MaliFragWarp);
     hwcpipe_double result = ((v0 * 4) / v1) * 100;
     return result;
@@ -1225,28 +1268,28 @@ double MaliRTUUtil_v0(const context &ctx) {
     hwcpipe_double result = (std::max<hwcpipe_double>({v0, v1}) / v2) * 100;
     return result;
 }
-double MaliMainPhaseIterActiveCy_v0(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliMainPhaseIterQueuedCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliMainPhaseIterAssignStallCy);
+double MaliMainIterActiveCy_v0(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliMainIterQueuedCy);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliMainIterAssignStallCy);
     hwcpipe_double result = v0 - v1;
     return result;
 }
-double MaliMainPhaseIterUtil_v0(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliMainPhaseIterQueuedCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliMainPhaseIterAssignStallCy);
+double MaliMainIterUtil_v0(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliMainIterQueuedCy);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliMainIterAssignStallCy);
     hwcpipe_double v2 = ctx.get_counter_value(MaliGPUActiveCy);
     hwcpipe_double result = ((v0 - v1) / v2) * 100;
     return result;
 }
-double MaliBinPhaseIterActiveCy_v0(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliBinPhaseIterQueuedCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliBinPhaseIterAssignStallCy);
+double MaliBinningIterActiveCy_v0(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliBinningIterQueuedCy);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliBinningIterAssignStallCy);
     hwcpipe_double result = v0 - v1;
     return result;
 }
-double MaliBinPhaseIterUtil_v0(const context &ctx) {
-    hwcpipe_double v0 = ctx.get_counter_value(MaliBinPhaseIterQueuedCy);
-    hwcpipe_double v1 = ctx.get_counter_value(MaliBinPhaseIterAssignStallCy);
+double MaliBinningIterUtil_v0(const context &ctx) {
+    hwcpipe_double v0 = ctx.get_counter_value(MaliBinningIterQueuedCy);
+    hwcpipe_double v1 = ctx.get_counter_value(MaliBinningIterAssignStallCy);
     hwcpipe_double v2 = ctx.get_counter_value(MaliGPUActiveCy);
     hwcpipe_double result = ((v0 - v1) / v2) * 100;
     return result;

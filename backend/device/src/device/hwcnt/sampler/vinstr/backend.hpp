@@ -57,6 +57,7 @@ namespace hwcnt {
 namespace sampler {
 namespace vinstr {
 
+/** HWC backend using the vinstr kernel ioctls. */
 template <typename syscall_iface_t, typename timestamp_iface_t = timestamp_iface>
 class backend : public base::backend<syscall_iface_t>, private timestamp_iface_t {
   public:
@@ -246,7 +247,7 @@ class backend : public base::backend<syscall_iface_t>, private timestamp_iface_t
      *
      * @pre `access_` must be locked.
      *
-     * @param user_data[in]    User data.
+     * @param[in] user_data    User data.
      * @return Error code.
      */
     std::error_code request_sample_no_lock(uint64_t user_data) {

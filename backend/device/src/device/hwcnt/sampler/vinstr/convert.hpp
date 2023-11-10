@@ -42,7 +42,7 @@ namespace vinstr {
 /**
  * Convert from hwcpipe enable mask to vinstr enable mask.
  *
- * @param mask[in] Hwcpipe mask to convert.
+ * @param[in] mask Hwcpipe mask to convert.
  * @return vinstr counters mask.
  */
 inline uint32_t convert(configuration::enable_map_type mask) {
@@ -63,8 +63,8 @@ inline uint32_t convert(configuration::enable_map_type mask) {
 /**
  * Convert hwcpipe configuration arguments to vinstr setup arguments.
  *
- * @param begin[in]    Begin iterator.
- * @param end[in] End iterator.
+ * @param[in] begin    Begin iterator.
+ * @param[in] end End iterator.
  * @return A pair of error code and `hwcnt_reader_setup` structure.
  */
 inline auto convert(const configuration *begin, const configuration *end) {
@@ -87,8 +87,6 @@ inline auto convert(const configuration *begin, const configuration *end) {
         case block_type::core:
             result.shader_bm |= convert(it->enable_map);
             break;
-        default:
-            __builtin_unreachable();
         }
     }
 

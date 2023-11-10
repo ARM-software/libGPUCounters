@@ -27,8 +27,7 @@
 #pragma once
 
 #include <device/hwcnt/sampler/base/backend_args.hpp>
-
-#include <bitset>
+#include <device/shader_core_bitset.hpp>
 
 namespace hwcpipe {
 namespace device {
@@ -45,14 +44,12 @@ struct backend_args {
     using memory_type = typename base_args_type::memory_type;
     /** Max number of shader cores blocks. */
     static constexpr size_t max_blocks_sc = 64;
-    /** Shader cores mask type. */
-    using sc_mask_type = std::bitset<max_blocks_sc>;
 
     /** Arguments for `base::backend`. */
     base_args_type base_args;
 
     /** Shader cores mask. */
-    sc_mask_type sc_mask;
+    shader_core_bitset sc_mask;
     /** Metadata item size. */
     size_t metadata_item_size{};
 };

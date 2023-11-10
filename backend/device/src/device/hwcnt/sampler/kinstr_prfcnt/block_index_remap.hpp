@@ -97,19 +97,6 @@ class block_index_remap {
     std::array<uint8_t, max_shader_cores> map_{};
 };
 
-/** No op index remapper. */
-class block_index_remap_nop {
-  public:
-    /** Index type. */
-    using index_type = uint8_t;
-
-    /** Constructor. */
-    block_index_remap_nop(shader_core_bitset) {}
-
-    /** Nop remap function. */
-    auto remap(block_type, index_type index) const { return std::make_pair(std::error_code{}, index); }
-};
-
 } // namespace kinstr_prfcnt
 } // namespace sampler
 } // namespace hwcnt

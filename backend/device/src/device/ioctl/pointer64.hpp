@@ -97,7 +97,7 @@ class pointer64 {
     /**
      * Set pointer value.
      *
-     * @param ptr[in] New pointer value.
+     * @param[in] ptr New pointer value.
      */
     void reset(pointer_type ptr = {}) { value_ = ptr_to_uint64(ptr); }
 

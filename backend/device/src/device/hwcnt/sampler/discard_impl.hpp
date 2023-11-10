@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-/** @file discard.hpp Discard function implementation. */
+/** @file discard_impl.hpp Discard function implementation. */
 
 #pragma once
 

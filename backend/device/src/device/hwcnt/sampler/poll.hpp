@@ -39,9 +39,9 @@ namespace detail {
 /**
  * Poll file descriptor.
  *
- * @param fd[in] File descriptor to poll.
- * @param timeout[in] Polling timeout. -1 to wait forever.
- * @param iface[in] Syscall iface (testing only).
+ * @param[in] fd File descriptor to poll.
+ * @param[in] timeout Polling timeout. -1 to wait forever.
+ * @param[in] iface Syscall iface (testing only).
  * @return A pair of error code and boolean. The boolean is `true` if @p fd is ready.
  */
 template <typename syscall_iface_t>
@@ -65,8 +65,8 @@ inline auto poll_fd(int fd, int timeout, syscall_iface_t &&iface = {}) {
 /**
  * Wait for hardware counters sample.
  *
- * @param fd[in]    Hardware counters file descriptor.
- * @param iface[in] Syscall iface (testing only).
+ * @param[in] fd    Hardware counters file descriptor.
+ * @param[in] iface Syscall iface (testing only).
  * @return Error code.
  */
 template <typename syscall_iface_t>
@@ -90,8 +90,8 @@ inline std::error_code wait_for_sample(int fd, syscall_iface_t &&iface = {}) {
 /**
  * Check if a sample is ready to be read.
  *
- * @param fd[in]    Hardware counters file descriptor.
- * @param iface[in] Syscall iface (testing only).
+ * @param[in] fd    Hardware counters file descriptor.
+ * @param[in] iface Syscall iface (testing only).
  * @return A pair of error code and boolean. The boolean is `true` if @p fd is ready.
  */
 template <typename syscall_iface_t>

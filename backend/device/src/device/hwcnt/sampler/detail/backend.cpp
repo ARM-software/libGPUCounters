@@ -77,7 +77,7 @@ static std::unique_ptr<detail::backend> kinstr_prfcnt_backend_create(const insta
     if (inst.backend_type() == backend_type::kinstr_prfcnt_wa)
         return std::make_unique<kinstr_backend_wa>(std::move(args), syscall::iface{});
 
-    return std::make_unique<kinstr_backend>(std::move(args), syscall::iface{});
+    return std::make_unique<kinstr_backend>(std::move(args), nullptr, syscall::iface{});
 }
 
 /** Create vinstr backend if possible.

@@ -47,16 +47,16 @@ namespace hwcnt {
 namespace sampler {
 namespace kinstr_prfcnt {
 
-template <typename syscall_iface_t, typename metadata_parser_t = metadata_parser,
-          typename block_index_remap_t = block_index_remap_nop>
-class backend : public base::backend<syscall_iface_t>, private block_index_remap_t {
+/** HWC backend using the kinstr_prfcnt kernel ioctls. */
+template <typename syscall_iface_t>
+class backend : public base::backend<syscall_iface_t> {
   public:
     using args_type = backend_args<syscall_iface_t>;
 
-    explicit backend(args_type &&args, const syscall_iface_t &syscall_iface = {})
+    explicit backend(args_type &&args, block_index_remap *remap = nullptr, const syscall_iface_t &syscall_iface = {})
         : base_type(std::move(args.base_args), syscall_iface)
-        , block_index_remap_type(args.sc_mask)
-        , metadata_item_size_(args.metadata_item_size) {}
+        , metadata_item_size_(args.metadata_item_size)
+        , remap_(remap) {}
 
     std::error_code start(uint64_t user_data) override { return issue_command(cmd_code_type::start, user_data); }
 
@@ -84,8 +84,9 @@ class backend : public base::backend<syscall_iface_t>, private block_index_remap
         const auto metadata_ptr{sample_hndl.sample_metadata_ptr.get(memory_.data())};
         ioctl::strided_array_iterator<const metadata_item_type> metadata_it{metadata_ptr, metadata_item_size_};
 
-        metadata_parser_type parser{sm, block_extents_};
-        ec = parser.parse_sample(metadata_it, get_block_index_remap());
+        metadata_parser parser{sm, block_extents_, remap_};
+        auto metadata_it_end = parser.end(metadata_it);
+        ec = parse_all(metadata_it, metadata_it_end, parser);
 
         /* Put sample back if its metadata is invalid. */
         if (ec)
@@ -107,8 +108,9 @@ class backend : public base::backend<syscall_iface_t>, private block_index_remap
         ioctl::strided_array_iterator<const metadata_item_type> it{block_hndl, metadata_item_size_};
         bool done{false};
 
-        std::tie(done, bm) = metadata_parser_type::parse_block(it, static_cast<const uint8_t *>(memory_.data()),
-                                                               get_block_index_remap());
+        const auto mapping = static_cast<const uint8_t *>(memory_.data());
+
+        done = parse_block_item(bm, it, mapping, remap_);
 
         block_hndl = &*it;
 
@@ -134,15 +136,10 @@ class backend : public base::backend<syscall_iface_t>, private block_index_remap
     using base_type::memory_;
 
   private:
-    using metadata_parser_type = metadata_parser_t;
-    using block_index_remap_type = block_index_remap_t;
     using metadata_item_type = ioctl::kinstr_prfcnt::metadata_item;
     using sample_handle_type = ioctl::kinstr_prfcnt::sample_access;
     using block_handle_type = const metadata_item_type *;
     using cmd_code_type = ioctl::kinstr_prfcnt::control_cmd::control_cmd_code;
-
-    /** @return block index remap instance. */
-    const block_index_remap_type &get_block_index_remap() const { return *this; }
 
     std::error_code issue_command(cmd_code_type cmd, uint64_t user_data = 0) {
         std::error_code ec;
@@ -157,20 +154,10 @@ class backend : public base::backend<syscall_iface_t>, private block_index_remap
         return ec;
     }
 
-    block_metadata convert_block(const metadata_item_type::block_metadata &value) const {
-        block_metadata result{};
-
-        result.type = convert(value.type);
-        result.index = value.block_idx;
-        result.set = convert(value.set);
-        result.state = convert(value.block_state);
-        result.values = static_cast<const uint8_t *>(memory_.data()) + value.values_offset;
-
-        return result;
-    }
-
     /** Size of metadata item: includes sample metadata, clock metadata and block metadata. */
     const uint32_t metadata_item_size_{};
+    /** Block index remap instance, if any. */
+    const block_index_remap *remap_;
 };
 
 } // namespace kinstr_prfcnt

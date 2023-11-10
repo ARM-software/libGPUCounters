@@ -68,7 +68,7 @@ class queue {
     /**
      * Push value to the queue.
      *
-     * @param value[in] Value to push to the queue.
+     * @param[in] value Value to push to the queue.
      */
     void push(const value_type &value) {
         assert(!full());

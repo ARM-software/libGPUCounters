@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2022 ARM Limited.
+# Copyright (c) 2021-2023 ARM Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -29,6 +29,8 @@ add_library(
     src/device/hwcnt/reader.cpp
     src/device/hwcnt/sampler/detail/backend.cpp
     src/device/hwcnt/sampler/kinstr_prfcnt/block_index_remap.cpp
+    src/device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.cpp
+    src/device/hwcnt/sampler/kinstr_prfcnt/metadata_parser.cpp
     src/device/instance.cpp
     src/device/num_exec_engines.cpp
 )

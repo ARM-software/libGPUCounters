@@ -43,11 +43,18 @@ class reader;
 
 /** Hardware counters block type. */
 enum class block_type : uint8_t {
-    fe,              /**< Front End. */
-    tiler,           /**< Tiler. */
-    memory,          /**< Memory System. */
-    core,            /**< Shader Core. */
-    num_block_types, /**< Sentinel. */
+    /** Front End. */
+    fe,
+    /** Tiler. */
+    tiler,
+    /** Memory System. */
+    memory,
+    /** Shader Core. */
+    core,
+    /** First block type. */
+    first = fe,
+    /** Last block type. */
+    last = core,
 };
 
 /**

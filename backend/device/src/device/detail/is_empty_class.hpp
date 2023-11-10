@@ -23,7 +23,7 @@
  */
 
 /**
- * @file is_empty traits header.
+ * @file is_empty_class.hpp is_empty traits header.
  */
 
 #pragma once

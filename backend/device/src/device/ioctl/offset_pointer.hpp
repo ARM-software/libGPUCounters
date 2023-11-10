@@ -61,7 +61,7 @@ namespace ioctl {
  * // Read the pointer value:
  * my_struct *ptr = offset_ptr.get(base_addr);
  * printf("my_struct { field0 =  %d, field1 = %f}", ptr->field0, ptr->field1);
- * @endocde
+ * @endcode
  */
 template <typename value_t, typename representation_t>
 class offset_pointer {
@@ -94,8 +94,8 @@ class offset_pointer {
     /**
      * Construct from pointer and base address.
      *
-     * @param[in]    Pointer value. ptr
-     * @param[in]    Base address of the memory region. base
+     * @param[in] ptr  Pointer value.
+     * @param[in] base Base address of the memory region.
      */
     offset_pointer(pointer_type ptr, base_pointer_type base) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -106,7 +106,7 @@ class offset_pointer {
     /**
      * Get pointer value.
      *
-     * @param[in] Base address. base
+     * @param[in] base Base address.
      * @return Pointer value.
      */
     pointer_type get(base_pointer_type base) const {
@@ -129,8 +129,8 @@ class offset_pointer {
     /**
      * Reset the offset value.
      *
-     * @param[in]    Pointer value. ptr
-     * @param[in]    Base address of the memory region. base
+     * @param[in] ptr  Pointer value.
+     * @param[in] base Base address of the memory region.
      */
     void reset(pointer_type ptr, base_pointer_type base) { *this = offset_pointer(ptr, base); }
 

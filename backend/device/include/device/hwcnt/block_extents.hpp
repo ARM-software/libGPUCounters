@@ -60,16 +60,16 @@ class block_extents {
 
     /** Number of block types. */
     static const constexpr num_block_types_type num_block_types =
-        static_cast<num_block_types_type>(block_type::num_block_types);
+        static_cast<num_block_types_type>(block_type::last) + 1;
 
-    using num_blocks_of_type_type = std::array<uint16_t, num_block_types>;
+    using num_blocks_of_type_type = std::array<uint8_t, num_block_types>;
 
     /**
      * Construct block extents.
      *
-     * @param num_blocks_of_type_v[in] Array of number of blocks on per type basis.
-     * @param counters_per_block[in] Number of counters per block.
-     * @param values_type[in]        Hardware counters values type.
+     * @param[in] num_blocks_of_type_v Array of number of blocks on per type basis.
+     * @param[in] counters_per_block   Number of counters per block.
+     * @param[in] values_type          Hardware counters values type.
      */
     block_extents(num_blocks_of_type_type num_blocks_of_type_v, uint16_t counters_per_block,
                   sample_values_type values_type)
@@ -86,16 +86,18 @@ class block_extents {
 
     /** @return Number of hardware counters blocks. */
     uint8_t num_blocks() const {
-        return num_blocks_of_type(block_type::fe)       //
-               + num_blocks_of_type(block_type::tiler)  //
-               + num_blocks_of_type(block_type::memory) //
-               + num_blocks_of_type(block_type::core);
+        uint8_t result{};
+
+        for (const auto num_blocks : num_blocks_of_type_)
+            result = static_cast<uint8_t>(result + num_blocks);
+
+        return result;
     }
 
     /**
      * Number of blocks of a given type.
      *
-     * @param type[in]    Block type.
+     * @param[in] type Block type.
      * @return Number of blocks of type @p type.
      */
     uint8_t num_blocks_of_type(block_type type) const { return num_blocks_of_type_[static_cast<size_t>(type)]; }

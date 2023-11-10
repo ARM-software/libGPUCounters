@@ -45,29 +45,28 @@ namespace kinstr_prfcnt {
 /**
  * Convert from kinstr_prfcnt block_type to hwcpipe block_type.
  *
- * @param value[in] Value to convert.
- * @return Converted value.
+ * @param[in] value Value to convert.
+ * @return A pair of error code and value converted.
  */
-inline block_type convert(ioctl::kinstr_prfcnt::block_type value) {
+inline std::pair<std::error_code, block_type> convert(ioctl::kinstr_prfcnt::block_type value) {
     switch (value) {
     case ioctl::kinstr_prfcnt::block_type::fe:
-        return block_type::fe;
+        return std::make_pair(std::error_code{}, block_type::fe);
     case ioctl::kinstr_prfcnt::block_type::tiler:
-        return block_type::tiler;
+        return std::make_pair(std::error_code{}, block_type::tiler);
     case ioctl::kinstr_prfcnt::block_type::memory:
-        return block_type::memory;
+        return std::make_pair(std::error_code{}, block_type::memory);
     case ioctl::kinstr_prfcnt::block_type::shader_core:
-        return block_type::core;
-    default:
-        assert(!"Unexpected ioctl::kinstr_prfcnt::block_type value");
-        __builtin_unreachable();
+        return std::make_pair(std::error_code{}, block_type::core);
     }
+
+    return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_type{});
 }
 
 /**
  * Convert from hwcpipe block_type to kinstr_prfcnt block_type.
  *
- * @param value[in] Value to convert.
+ * @param[in] value Value to convert.
  * @return Converted value.
  */
 inline ioctl::kinstr_prfcnt::block_type convert(block_type value) {
@@ -80,16 +79,16 @@ inline ioctl::kinstr_prfcnt::block_type convert(block_type value) {
         return ioctl::kinstr_prfcnt::block_type::memory;
     case block_type::core:
         return ioctl::kinstr_prfcnt::block_type::shader_core;
-    default:
-        assert(!"Unexpected block_type value");
-        __builtin_unreachable();
     }
+
+    assert(!"Unexpected block_type value");
+    __builtin_unreachable();
 }
 
 /**
  * Convert from kinstr_prfcnt prfcnt_set to hwcpipe prfcnt_set.
  *
- * @param value[in] Value to convert.
+ * @param[in] value Value to convert.
  * @return Converted value.
  */
 inline prfcnt_set convert(ioctl::kinstr_prfcnt::prfcnt_set value) {
@@ -100,16 +99,16 @@ inline prfcnt_set convert(ioctl::kinstr_prfcnt::prfcnt_set value) {
         return prfcnt_set::secondary;
     case ioctl::kinstr_prfcnt::prfcnt_set::tertiary:
         return prfcnt_set::tertiary;
-    default:
-        assert(!"Unexpected ioctl::kinstr_prfcnt::prfcnt_set value");
-        __builtin_unreachable();
     }
+
+    assert(!"Unexpected ioctl::kinstr_prfcnt::prfcnt_set value");
+    __builtin_unreachable();
 }
 
 /**
  * Convert from hwcpipe prfcnt_set to kinstr_prfcnt prfcnt_set.
  *
- * @param value[in] Value to convert.
+ * @param[in] value Value to convert.
  * @return Converted value.
  */
 inline ioctl::kinstr_prfcnt::prfcnt_set convert(prfcnt_set value) {
@@ -120,16 +119,16 @@ inline ioctl::kinstr_prfcnt::prfcnt_set convert(prfcnt_set value) {
         return ioctl::kinstr_prfcnt::prfcnt_set::secondary;
     case prfcnt_set::tertiary:
         return ioctl::kinstr_prfcnt::prfcnt_set::tertiary;
-    default:
-        assert(!"Unexpected prfcnt_set value");
-        __builtin_unreachable();
     }
+
+    assert(!"Unexpected prfcnt_set value");
+    __builtin_unreachable();
 }
 
 /**
  * Convert from kinstr_prfcnt block state to hwcpipe block state.
  *
- * @param value[in] Value to convert.
+ * @param[in] value Value to convert.
  * @return Converted value.
  */
 inline block_state convert(ioctl::kinstr_prfcnt::metadata_item::block_metadata::block_state_type value) {
@@ -150,7 +149,7 @@ inline block_state convert(ioctl::kinstr_prfcnt::metadata_item::block_metadata::
 /**
  * Convert from kinstr_prfcnt sample flag to hwcpipe sample flag.
  *
- * @param value[in]    Value to convert.
+ * @param[in] value    Value to convert.
  * @return Converted value.
  */
 inline sample_flags convert(ioctl::kinstr_prfcnt::metadata_item::sample_metadata::sample_flag value) {
@@ -167,7 +166,7 @@ inline sample_flags convert(ioctl::kinstr_prfcnt::metadata_item::sample_metadata
 /**
  * Convert from hwcpipe enable map to kinstr_prfcnt enable map.
  *
- * @param value[in]    Value to convert.
+ * @param[in] value    Value to convert.
  * @return Converted value.
  */
 inline std::array<uint64_t, 2> convert(configuration::enable_map_type value) {
@@ -182,7 +181,7 @@ inline std::array<uint64_t, 2> convert(configuration::enable_map_type value) {
 /**
  * Convert from kinstr_prfcnt enable map to hwcpipe enable map.
  *
- * @param value[in]    Value to convert.
+ * @param[in] value    Value to convert.
  * @return Converted value.
  */
 inline configuration::enable_map_type convert(const std::array<uint64_t, 2> &value) {
@@ -194,7 +193,7 @@ inline configuration::enable_map_type convert(const std::array<uint64_t, 2> &val
 /**
  * Convert from hwcpipe sampler configuration to kinstr_prfcnt request item.
  *
- * @param value[in]    Value to convert.
+ * @param[in] value    Value to convert.
  * @return Converted value.
  */
 inline ioctl::kinstr_prfcnt::request_item convert(const configuration &value) {

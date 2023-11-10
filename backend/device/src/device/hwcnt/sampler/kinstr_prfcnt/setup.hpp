@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
-/** @file setup.hpp `kinstr_prfcnt::backend` setup routine. */
+/** @file setup.hpp @c kinstr_prfcnt::backend setup routine. */
 
 #pragma once
 
 #include "backend_args.hpp"
 #include "convert.hpp"
-#include "enum_info.hpp"
+#include "enum_info_parser.hpp"
 
 #include <device/hwcnt/backend_type.hpp>
 #include <device/hwcnt/sampler/filefd_guard.hpp>
@@ -53,7 +53,7 @@ namespace detail {
 /**
  * Construct request mode structure.
  *
- * @param period_ns[in]    Sampling period.
+ * @param[in] period_ns    Sampling period.
  * @return request mode structure constructed.
  */
 inline auto request_mode(uint64_t period_ns) {
@@ -77,10 +77,10 @@ inline auto request_mode(uint64_t period_ns) {
 /**
  * Fill request array for `ioctl::kbase::command::kinstr_prfcnt_setup` ioctl.
  *
- * @param period_ns[in] Sampling period (nanoseconds).
- * @param begin[in]     Configuration begin.
- * @param end[in]       Configuration end.
- * @param out[out]      Output iterator for the request items.
+ * @param[in]  period_ns Sampling period (nanoseconds).
+ * @param[in]  begin     Configuration begin.
+ * @param[in]  end       Configuration end.
+ * @param[out] out       Output iterator for the request items.
  * @return End iterator for the output request items.
  */
 template <typename input_iterator_t, typename output_iterator_t>
@@ -100,9 +100,10 @@ inline auto fill_request(uint64_t period_ns, input_iterator_t begin, input_itera
 /**
  * Call `ioctl::kbase::command::kinstr_prfcnt_setup` ioctl.
  *
- * @param device_fd[in]    Device file descriptor.
- * @param begin[in]        Request items begin.
- * @param end[in]          Request items end.
+ * @param[in] device_fd    Device file descriptor.
+ * @param[in] begin        Request items begin.
+ * @param[in] end          Request items end.
+ * @param[in] iface        System calls interface to use (unit tests only).
  * @return Tuple of error code, kinstr_prfcnt file descriptor, metadata item size and mapping size.
  */
 template <typename syscall_iface_t>
@@ -126,7 +127,7 @@ inline auto invoke_request(int device_fd, ioctl::kinstr_prfcnt::request_item *be
 /**
  * Init features structure.
  *
- * @param ei[in]    Enum info.
+ * @param[in] ei    Enum info.
  * @return features structure initialized.
  */
 inline auto init_features(const enum_info &ei) {
@@ -139,26 +140,22 @@ inline auto init_features(const enum_info &ei) {
 
     return result;
 }
-
-class setup_helper : public block_extents_filter, public enum_info_parser {};
 } // namespace detail
 
 /**
  * Setup kisntr_prfcnt hardware counters.
  *
- * @param[in] inst         Mali device instance.
- * @param[in] period_ns    Period in nanoseconds between samples taken. Zero for manual context.
- * @param begin[in]        Counters configuration begin iterator.
- * @param end[in]          Counters configuration end iterator.
- * @param iface[in,out]    System calls interface to use (unit tests only).
- * @param helper[in,out]   Setup helper (unit tests only).
+ * @param[in]     instance  Mali device instance.
+ * @param[in]     period_ns Period in nanoseconds between samples taken. Zero for manual context.
+ * @param[in]     begin     Counters configuration begin iterator.
+ * @param[in]     end       Counters configuration end iterator.
+ * @param[in,out] iface     System calls interface to use (unit tests only).
  *
  * @return A pair of error code and `backend_args` structure.
  */
-template <typename instance_t, typename syscall_iface_t = syscall::iface,
-          typename setup_helper_t = detail::setup_helper>
+template <typename instance_t, typename syscall_iface_t = syscall::iface>
 auto setup(const instance_t &instance, uint64_t period_ns, const configuration *begin, const configuration *end,
-           syscall_iface_t &&iface = {}, setup_helper_t &&helper = {}) {
+           syscall_iface_t &&iface = {}) {
     using ioctl::kinstr_prfcnt::request_item;
 
     using syscall_iface_type = std::remove_reference_t<syscall_iface_t>;
@@ -167,7 +164,7 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
     std::error_code ec{};
 
     block_extents extents{};
-    std::tie(ec, extents) = helper.filter_block_extents(instance, begin, end);
+    std::tie(ec, extents) = filter_block_extents(instance.get_hwcnt_block_extents(), begin, end);
     if (ec)
         return std::make_pair(ec, std::move(result));
 
