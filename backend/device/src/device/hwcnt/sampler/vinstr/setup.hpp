@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -56,7 +56,6 @@ inline auto init_features(ioctl::vinstr::reader_features reader_features) {
     features result{};
 
     result.has_gpu_cycle = !!reader_features;
-    result.has_block_state = false;
     result.has_stretched_flag = false;
     result.overflow_behavior_defined = true;
 
@@ -108,7 +107,7 @@ inline auto reader_setup(const instance_t &instance, ioctl::kbase::hwcnt_reader_
 /**
  * Setup vinstr hardware counters.
  *
- * @param[in]     inst         Mali device instance.
+ * @param[in]     instance     Mali device instance.
  * @param[in]     period_ns    Period in nanoseconds between samples taken. Zero for manual context.
  * @param[in]     begin        Counters configuration begin iterator.
  * @param[in]     end          Counters configuration end iterator.
@@ -182,9 +181,8 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
 
     const auto consts = instance.get_constants();
 
-    const auto product_id = hwcpipe::device::product_id::from_raw_gpu_id(consts.gpu_id);
-
-    const auto sample_layout_type = (is_v4_layout(product_id)) ? sample_layout_type::v4 : sample_layout_type::non_v4;
+    product_id pid = instance.get_product_id();
+    const auto sample_layout_type = (is_v4_layout(pid)) ? sample_layout_type::v4 : sample_layout_type::non_v4;
 
     result.sample_layout_v = sample_layout(extents, consts.num_l2_slices, consts.shader_core_mask, sample_layout_type);
     result.base_args.fd = std::move(vinstr_fd_guard);

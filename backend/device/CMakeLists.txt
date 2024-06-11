@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2023 ARM Limited.
+# Copyright (c) 2021-2024 ARM Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -33,6 +33,7 @@ add_library(
     src/device/hwcnt/sampler/kinstr_prfcnt/metadata_parser.cpp
     src/device/instance.cpp
     src/device/num_exec_engines.cpp
+    src/device/product_id.cpp
 )
 
 target_include_directories(device PUBLIC "include")

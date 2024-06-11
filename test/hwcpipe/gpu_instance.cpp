@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
+
+#include "device/product_id.hpp"
 
 #include <catch2/catch.hpp>
 
@@ -19,23 +21,18 @@ TEST_CASE("gpu_family") {
     std::stringstream ss{};
 
     SECTION("midgard") {
-        ss << pid::gpu_family::midgard;
+        ss << device::gpu_family::midgard;
         REQUIRE(ss.str() == "midgard");
     }
 
     SECTION("bifrost") {
-        ss << pid::gpu_family::bifrost;
+        ss << device::gpu_family::bifrost;
         REQUIRE(ss.str() == "bifrost");
     }
 
     SECTION("valhall") {
-        ss << pid::gpu_family::valhall;
+        ss << device::gpu_family::valhall;
         REQUIRE(ss.str() == "valhall");
-    }
-
-    SECTION("unknown") {
-        ss << pid::gpu_family(~0);
-        REQUIRE(ss.str() == "unknown");
     }
 }
 
@@ -44,18 +41,13 @@ TEST_CASE("gpu_frontend") {
     std::stringstream ss{};
 
     SECTION("jm") {
-        ss << pid::gpu_frontend::jm;
+        ss << device::gpu_frontend::jm;
         REQUIRE(ss.str() == "jm");
     }
 
     SECTION("csf") {
-        ss << pid::gpu_frontend::csf;
+        ss << device::gpu_frontend::csf;
         REQUIRE(ss.str() == "csf");
-    }
-
-    SECTION("unknown") {
-        ss << pid::gpu_frontend(~0);
-        REQUIRE(ss.str() == "unknown");
     }
 }
 

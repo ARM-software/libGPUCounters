@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -14,8 +14,8 @@
 
 #include <unistd.h>
 
-const char *get_product_family_name(hwcpipe::device::product_id::gpu_family f) {
-    using gpu_family = hwcpipe::device::product_id::gpu_family;
+const char *get_product_family_name(hwcpipe::device::gpu_family f) {
+    using gpu_family = hwcpipe::device::gpu_family;
 
     switch (f) {
     case gpu_family::bifrost:
@@ -24,6 +24,8 @@ const char *get_product_family_name(hwcpipe::device::product_id::gpu_family f) {
         return "Midgard";
     case gpu_family::valhall:
         return "Valhall";
+    case gpu_family::fifthgen:
+        return "Arm 5th Gen";
     default:
         return "Unknown";
     }
@@ -46,8 +48,7 @@ int main() {
         std::cout << "------------------------------------------------------------\n"
                   << " GPU Device " << gpu.get_device_number() << ":\n"
                   << "------------------------------------------------------------\n";
-        std::cout << "    Product Family:  " << get_product_family_name(gpu.get_product_id().get_gpu_family())
-                  << std::endl;
+        std::cout << "    Product Family:  " << get_product_family_name(gpu.get_gpu_family()) << std::endl;
         std::cout << "    Number of Cores: " << gpu.num_shader_cores() << std::endl;
         std::cout << "    Bus Width:       " << gpu.bus_width() << std::endl;
     }
@@ -90,9 +91,19 @@ int main() {
         std::cout << "GPU Active Cycles counter not supported by this GPU." << std::endl;
         return -1;
     }
-    ec = config.add_counter(MaliFragActiveCy);
+
+
+    hwcpipe_counter activity_counter = MaliFragActiveCy;
+    const char * activity_counter_name = "Fragment Active Cycles";
+    if (gpu.get_gpu_family() == hwcpipe::device::gpu_family::fifthgen) {
+        // 5th Gen GPUs don't have the FragActiveCy counter
+        activity_counter = MaliAnyActiveCy;
+        activity_counter_name = "Shader Core Active";
+    }
+
+    ec = config.add_counter(activity_counter);
     if (ec) {
-        std::cout << "Fragment Active Cycles counter not supported by this GPU." << std::endl;
+        std::cout << activity_counter_name << " counter not supported by this GPU." << std::endl;
         return -1;
     }
     ec = config.add_counter(MaliGeomSampleCullRate);
@@ -131,13 +142,13 @@ int main() {
         std::cout << "] ; ";
 
         // Fetch the Fragment Active Cycles counter
-        ec = sampler.get_counter_value(MaliFragActiveCy, sample);
+        ec = sampler.get_counter_value(activity_counter, sample);
         if (ec) {
             std::cout << ec.message() << std::endl;
             continue;
         }
 
-        std::cout << "Fragment Active Cycles [";
+        std::cout << activity_counter_name << " [";
         print_sample_value(sample);
         std::cout << "] ; ";
 

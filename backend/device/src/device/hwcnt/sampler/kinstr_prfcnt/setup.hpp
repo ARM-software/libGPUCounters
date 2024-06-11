@@ -127,14 +127,28 @@ inline auto invoke_request(int device_fd, ioctl::kinstr_prfcnt::request_item *be
 /**
  * Init features structure.
  *
- * @param[in] ei    Enum info.
+ * @param[in] ei           Enum info.
+ * @param[in] kbase_ver    Current kbase version.
  * @return features structure initialized.
  */
-inline auto init_features(const enum_info &ei) {
+inline auto init_features(const enum_info &ei, kbase_version kbase_ver) {
+    static const kbase_version min_kbase_ver_block_state_jm(11, 41, ioctl_iface_type::jm_post_r21);
+    static const kbase_version min_kbase_ver_block_state_csf(1, 23, ioctl_iface_type::csf);
+
     features result{};
 
+    if (kbase_ver.type() == ioctl_iface_type::csf && kbase_ver >= min_kbase_ver_block_state_csf) {
+        result.has_power_states = true;
+        result.has_vm_states = false;
+        result.has_protection_states = true;
+    } else if (kbase_ver.type() == ioctl_iface_type::jm_post_r21 && kbase_ver >= min_kbase_ver_block_state_jm) {
+        result.has_power_states = true;
+        result.has_vm_states = true;
+        result.has_protection_states = false;
+    } else {
+        assert(kbase_ver.type() != ioctl_iface_type::jm_pre_r21);
+    }
     result.has_gpu_cycle = ei.has_cycles_top;
-    result.has_block_state = false;          // always false
     result.has_stretched_flag = true;        // always true
     result.overflow_behavior_defined = true; // always true, on tODx under some circumstances false
 
@@ -168,10 +182,10 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
     if (ec)
         return std::make_pair(ec, std::move(result));
 
-    enum_info ei{instance.get_enum_info()};
+    const auto ei = instance.get_enum_info();
 
-    // There can be at most 1 + 4 + 1 request items.
-    static constexpr size_t max_request_items = 6;
+    // There can be at most 1 + `block_extents::num_block_types` + 1 request items.
+    static constexpr size_t max_request_items = block_extents::num_block_types + 2;
     std::array<request_item, max_request_items> request_items{};
     const auto request_items_end = detail::fill_request(period_ns, begin, end, request_items.begin());
 
@@ -194,7 +208,7 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
 
     result.base_args.fd = std::move(guard_kinstr_prfcnt_fd);
     result.base_args.period_ns = period_ns;
-    result.base_args.features_v = detail::init_features(ei);
+    result.base_args.features_v = detail::init_features(ei, instance.kbase_version());
     result.base_args.extents = extents;
     result.base_args.memory = std::move(memory);
 

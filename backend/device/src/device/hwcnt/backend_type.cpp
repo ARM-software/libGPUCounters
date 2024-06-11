@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -34,13 +34,36 @@ namespace device {
 namespace hwcnt {
 
 static bool is_gtux_or_later(product_id pid) {
-    static constexpr auto arch_major_gtux = 11U;
-
-    if (pid.get_version_style() == product_id::version_style::arch_product_major &&
-        pid.get_arch_major() >= arch_major_gtux)
+    switch (pid) {
+    case product_id::t60x:
+    case product_id::t62x:
+    case product_id::t720:
+    case product_id::t760:
+    case product_id::t820:
+    case product_id::t830:
+    case product_id::t860:
+    case product_id::t880:
+    case product_id::g31:
+    case product_id::g51:
+    case product_id::g52:
+    case product_id::g57:
+    case product_id::g57_2:
+    case product_id::g68:
+    case product_id::g71:
+    case product_id::g72:
+    case product_id::g76:
+    case product_id::g77:
+    case product_id::g78:
+    case product_id::g78ae:
+    case product_id::g310:
+    case product_id::g510:
+    case product_id::g610:
+    case product_id::g710:
+        return false;
+    default:
         return true;
-
-    return false;
+    }
+    __builtin_unreachable();
 }
 
 static bool is_vinstr_available(const kbase_version &version, product_id pid) {

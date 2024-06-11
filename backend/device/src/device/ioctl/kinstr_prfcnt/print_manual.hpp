@@ -52,20 +52,26 @@ inline std::ostream &operator<<(std::ostream &os, const enum_item &value) {
        << debug::indent_level::push                         //
        << debug::indent << ".hdr = " << value.hdr << ",\n"; //
 
+    bool printed{false};
+
     switch (value.hdr.type) {
     case enum_item::item_type::block:
         os << debug::indent << ".u.block_counter = " << value.u.block_counter << ",\n";
+        printed = true;
         break;
     case enum_item::item_type::request:
         os << debug::indent << ".u.request = " << value.u.request << ",\n";
+        printed = true;
         break;
     case enum_item::item_type::sample_info:
         os << debug::indent << ".u.sample_info = " << value.u.sample_info << ",\n";
+        printed = true;
         break;
-    default:
-        assert(!"Unknown enum_item::item_type");
+    }
+
+    if (!printed) {
+        assert(!&"Unknown enum_item::item_type");
         os << debug::indent << ".u = <unknown>,\n";
-        break;
     }
     return os << debug::indent_level::pop //
               << debug::indent << "}";
@@ -76,24 +82,32 @@ inline std::ostream &operator<<(std::ostream &os, const metadata_item &value) {
        << debug::indent_level::push                         //
        << debug::indent << ".hdr = " << value.hdr << ",\n"; //
 
+    bool printed{false};
+
     switch (value.hdr.type) {
     case metadata_item::item_type::none:
         os << debug::indent << ".u = {},\n";
+        printed = true;
         break;
     case metadata_item::item_type::block:
         os << debug::indent << ".u.block_md = " << value.u.block_md << ",\n";
+        printed = true;
         break;
     case metadata_item::item_type::clock:
         os << debug::indent << ".u.clock_md = " << value.u.clock_md << ",\n";
+        printed = true;
         break;
     case metadata_item::item_type::sample:
         os << debug::indent << ".u.sample_md = " << value.u.sample_md << ",\n";
-        break;
-    default:
-        assert(!"Unknown metadata_item::item_type");
-        os << debug::indent << ".u = <unknown>,\n";
+        printed = true;
         break;
     }
+
+    if (!printed) {
+        assert(!&"Unknown metadata_item::item_type");
+        os << debug::indent << ".u = <unknown>,\n";
+    }
+
     return os << debug::indent_level::pop //
               << debug::indent << "}";
 }
@@ -103,24 +117,32 @@ inline std::ostream &operator<<(std::ostream &os, const request_item &value) {
        << debug::indent_level::push                         //
        << debug::indent << ".hdr = " << value.hdr << ",\n"; //
 
+    bool printed{false};
+
     switch (value.hdr.type) {
     case request_item::item_type::none:
         os << debug::indent << ".u = {},\n";
+        printed = true;
         break;
     case request_item::item_type::enable:
         os << debug::indent << ".u.req_enable = " << value.u.req_enable << ",\n";
+        printed = true;
         break;
     case request_item::item_type::mode:
         os << debug::indent << ".u.req_mode = " << value.u.req_mode << ",\n";
+        printed = true;
         break;
     case request_item::item_type::scope:
         os << debug::indent << ".u.req_scope = " << value.u.req_scope << ",\n";
-        break;
-    default:
-        assert(!"Unknown request_item::item_type");
-        os << debug::indent << ".u = <unknown>,\n";
+        printed = true;
         break;
     }
+
+    if (!printed) {
+        assert(!&"Unknown request_item::item_type");
+        os << debug::indent << ".u = <unknown>,\n";
+    }
+
     return os << debug::indent_level::pop //
               << debug::indent << "}";
 }
@@ -130,18 +152,24 @@ inline std::ostream &operator<<(std::ostream &os, const request_item::request_mo
        << debug::indent_level::push                           //
        << debug::indent << ".mode = " << value.mode << ",\n"; //
 
+    bool printed{false};
+
     switch (value.mode) {
     case request_item::request_mode::sampling_mode::periodic:
         os << debug::indent << ".mode_config.periodic = " << value.mode_config.periodic << ",\n";
+        printed = true;
         break;
     case request_item::request_mode::sampling_mode::manual:
         os << debug::indent << ".mode_config = {},\n";
-        break;
-    default:
-        assert(!"Unknown request_item::request_mode::sampling_mode");
-        os << debug::indent << ".mode_config = <unknown>,\n";
+        printed = true;
         break;
     }
+
+    if (!printed) {
+        assert(!&"Unknown request_item::request_mode::sampling_mode");
+        os << debug::indent << ".mode_config = <unknown>,\n";
+    }
+
     return os << debug::indent_level::pop //
               << debug::indent << "}";
 }

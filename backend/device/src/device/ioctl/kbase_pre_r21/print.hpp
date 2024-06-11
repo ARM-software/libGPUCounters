@@ -74,10 +74,10 @@ inline std::ostream &operator<<(std::ostream &os, header_id value) {
         return os << "get_props";
     case header_id::set_flags:
         return os << "set_flags";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 // no `operator<<` for union uk_header
@@ -202,10 +202,10 @@ inline std::ostream &operator<<(std::ostream &os, command::command_type cmd) {
         return os << "kbase_pre_r21::command::get_gpuprops";
     case command::hwcnt_reader_setup:
         return os << "kbase_pre_r21::command::hwcnt_reader_setup";
-    default:
-        assert(!"Unknown command");
-        return os << "::command::<unknown>";
     }
+
+    assert(!&"Unknown command");
+    return os << "::command::<unknown>";
 }
 
 } // namespace kbase_pre_r21

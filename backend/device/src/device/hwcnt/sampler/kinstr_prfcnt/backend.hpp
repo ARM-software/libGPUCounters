@@ -155,7 +155,7 @@ class backend : public base::backend<syscall_iface_t> {
     }
 
     /** Size of metadata item: includes sample metadata, clock metadata and block metadata. */
-    const uint32_t metadata_item_size_{};
+    const size_t metadata_item_size_{};
     /** Block index remap instance, if any. */
     const block_index_remap *remap_;
 };

@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.13.5)
 
-project(hwcpipe VERSION 2.2)
+project(hwcpipe VERSION 2.3)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

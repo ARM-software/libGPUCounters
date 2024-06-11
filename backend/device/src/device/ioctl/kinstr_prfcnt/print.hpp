@@ -85,10 +85,14 @@ inline std::ostream &operator<<(std::ostream &os, block_type value) {
         return os << "memory";
     case block_type::shader_core:
         return os << "shader_core";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
+    case block_type::firmware:
+        return os << "firmware";
+    case block_type::csg:
+        return os << "csg";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, prfcnt_set value) {
@@ -99,10 +103,10 @@ inline std::ostream &operator<<(std::ostream &os, prfcnt_set value) {
         return os << "secondary";
     case prfcnt_set::tertiary:
         return os << "tertiary";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, enum_item::item_type value) {
@@ -113,10 +117,10 @@ inline std::ostream &operator<<(std::ostream &os, enum_item::item_type value) {
         return os << "request";
     case enum_item::item_type::sample_info:
         return os << "sample_info";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const enum_item::header &value) {
@@ -148,10 +152,10 @@ inline std::ostream &operator<<(std::ostream &os, enum_item::enum_request::reque
         return os << "enable";
     case enum_item::enum_request::request_type::scope:
         return os << "scope";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const enum_item::enum_request &value) {
@@ -183,10 +187,10 @@ inline std::ostream &operator<<(std::ostream &os, metadata_item::item_type value
         return os << "clock";
     case metadata_item::item_type::block:
         return os << "block";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const metadata_item::header &value) {
@@ -251,7 +255,7 @@ inline std::ostream &operator<<(std::ostream &os, metadata_item::block_metadata:
         os << " | ";
 
     if (!!value) {
-        assert(!"Unknown bits");
+        assert(!&"Unknown bits");
         os << std::hex << static_cast<uint32_t>(value);
     }
 
@@ -300,7 +304,7 @@ inline std::ostream &operator<<(std::ostream &os, metadata_item::sample_metadata
         os << " | ";
 
     if (!!value) {
-        assert(!"Unknown bits");
+        assert(!&"Unknown bits");
         os << std::hex << static_cast<uint32_t>(value);
     }
 
@@ -333,10 +337,10 @@ inline std::ostream &operator<<(std::ostream &os, control_cmd::control_cmd_code 
         return os << "sample_async";
     case control_cmd::control_cmd_code::discard:
         return os << "discard";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const control_cmd &value) {
@@ -358,10 +362,10 @@ inline std::ostream &operator<<(std::ostream &os, request_item::item_type value)
         return os << "enable";
     case request_item::item_type::scope:
         return os << "scope";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const request_item::header &value) {
@@ -379,10 +383,10 @@ inline std::ostream &operator<<(std::ostream &os, request_item::request_mode::sa
         return os << "manual";
     case request_item::request_mode::sampling_mode::periodic:
         return os << "periodic";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const request_item::request_mode::periodic_type &value) {
@@ -409,10 +413,10 @@ inline std::ostream &operator<<(std::ostream &os, request_item::request_scope::c
     switch (value) {
     case request_item::request_scope::counters_scope::global:
         return os << "global";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const request_item::request_scope &value) {
@@ -442,10 +446,10 @@ inline std::ostream &operator<<(std::ostream &os, command::command_type cmd) {
         return os << "kinstr_prfcnt::command::get_sample";
     case command::put_sample:
         return os << "kinstr_prfcnt::command::put_sample";
-    default:
-        assert(!"Unknown command");
-        return os << "::command::<unknown>";
     }
+
+    assert(!&"Unknown command");
+    return os << "::command::<unknown>";
 }
 
 } // namespace kinstr_prfcnt

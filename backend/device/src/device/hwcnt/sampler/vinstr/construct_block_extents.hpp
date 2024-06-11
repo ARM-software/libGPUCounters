@@ -41,8 +41,6 @@ namespace vinstr {
  * @param[in] pid                   Product ID.
  * @param[in] num_l2_slices         Number of L2 slices, which will be parsed to determine the number of memory blocks.
  * @param[in] num_shader_cores      Number of shader cores.
- * @param[in] counters_per_block    Counters per block.
- * @param[in] values_type           Type of hardware counters values.
  * @return  Instance of block extents.
  */
 inline hwcnt::block_extents construct_block_extents(product_id pid, uint64_t num_l2_slices, uint64_t num_shader_cores) {

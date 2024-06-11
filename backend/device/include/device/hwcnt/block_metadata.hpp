@@ -51,17 +51,21 @@ enum class block_type : uint8_t {
     memory,
     /** Shader Core. */
     core,
+    /** CSF Firmware. */
+    firmware,
+    /** Firmware command stream group. */
+    csg,
     /** First block type. */
     first = fe,
-    /** Last block type. */
-    last = core,
+    last = csg,
 };
 
 /**
  * Block state during the counters sample time.
  *
  * @note If no bits are set, the block is in unknown state,
- * backend_features::has_block_state must be false.
+ * backend_features::has_power_states, backend_features::has_vm_states
+ * and backend_features::has_protection_states must be false.
  */
 struct block_state {
     /** This block was powered on for at least some portion of the sample */

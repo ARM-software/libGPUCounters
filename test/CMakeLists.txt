@@ -19,6 +19,12 @@ function(add_test_target)
     string(REPLACE ";" " " LIBS_STR "${ADD_TEST_TARGET_LIBRARIES}")
     target_link_libraries(${ADD_TEST_TARGET_TARGET} ${LIBS_STR} hwcpipe catch-main)
 
+    target_compile_options(${ADD_TEST_TARGET_TARGET}
+        PRIVATE -Werror
+                -Wswitch-default
+                -Wswitch-enum
+    )
+
     catch_discover_tests(${ADD_TEST_TARGET_TARGET}
         REPORTER        junit
         OUTPUT_DIR      ${CMAKE_CURRENT_BINARY_DIR}

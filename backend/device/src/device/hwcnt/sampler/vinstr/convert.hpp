@@ -87,6 +87,9 @@ inline auto convert(const configuration *begin, const configuration *end) {
         case block_type::core:
             result.shader_bm |= convert(it->enable_map);
             break;
+        case block_type::firmware:
+        case block_type::csg:
+            return std::make_pair(std::make_error_code(std::errc::invalid_argument), result);
         }
     }
 

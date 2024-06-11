@@ -11,3 +11,9 @@ add_executable(api-example
 target_link_libraries(api-example
     PRIVATE hwcpipe
 )
+
+target_compile_options(api-example
+    PRIVATE -Werror
+            -Wswitch-default
+            -Wswitch-enum
+)

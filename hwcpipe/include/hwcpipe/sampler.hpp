@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -8,6 +8,7 @@
 
 #include "device/constants.hpp"
 #include "device/hwcnt/prfcnt_set.hpp"
+#include "device/product_id.hpp"
 #include "hwcpipe/detail/counter_database.hpp"
 #include "hwcpipe/detail/internal_types.hpp"
 #include "hwcpipe/error.hpp"
@@ -116,14 +117,14 @@ class sampler_config {
      * @brief Construct a sampler configuration for a GPU.
      */
     sampler_config(const gpu &gpu)
-        : sampler_config(static_cast<uint32_t>(gpu.get_product_id()), gpu.get_device_number()) {}
+        : sampler_config(gpu.get_product_id(), gpu.get_device_number()) {}
 
     /**
      * @brief Construct a sampler configuration from the provided GPU ID and
      * device device.
      */
-    sampler_config(gpu_id_type gpu_id, int device_number)
-        : gpu_id_(gpu_id)
+    sampler_config(device::product_id pid, int device_number)
+        : pid_(pid)
         , device_number_(device_number) {
         constexpr auto prfcnt_set = device::hwcnt::prfcnt_set::primary;
 
@@ -149,7 +150,7 @@ class sampler_config {
 
         std::error_code ec;
         // validate that the GPU actually has the counter
-        auto definition = db_.get_counter_def(gpu_id_, counter, ec);
+        auto definition = db_.get_counter_def(pid_, counter, ec);
         if (ec) {
             return ec;
         }
@@ -171,6 +172,7 @@ class sampler_config {
             break;
         }
         case detail::counter_definition::type::invalid:
+        default:
             return hwcpipe::make_error_code(hwcpipe::errc::invalid_counter_for_device);
         }
 
@@ -207,7 +209,7 @@ class sampler_config {
   private:
     using block_type = device::hwcnt::block_type;
 
-    gpu_id_type gpu_id_;
+    device::product_id pid_;
     int device_number_;
 
     detail::counter_database db_{};
@@ -630,6 +632,7 @@ class sampler : private detail::expression::context {
                 break;
             }
             case detail::counter_definition::type::invalid:
+            default:
                 // ignore (unreachable)
                 break;
             }

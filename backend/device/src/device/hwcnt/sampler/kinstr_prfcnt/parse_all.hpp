@@ -86,7 +86,7 @@ constexpr auto type2member_entry(item_tag_t item_tag, member_ptr_t member_ptr) {
 /**
  * Declare sentinel item tag.
  *
- * @param[in] itemg_tag    Sentinel item tag.
+ * @param[in] item_tag    Sentinel item tag.
  * @return Declaration data structure.
  */
 template <typename item_tag_t>

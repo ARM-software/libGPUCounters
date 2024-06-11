@@ -59,7 +59,7 @@ class strided_array_view {
     strided_array_view &operator=(const strided_array_view &) = default;
 
     iterator_type begin() { return iterator_type{ptr_, stride_}; }
-    iterator_type end() { return begin() + num_elements_; }
+    iterator_type end() { return begin() + static_cast<difference_type>(num_elements_); }
 
   private:
     pointer ptr_;

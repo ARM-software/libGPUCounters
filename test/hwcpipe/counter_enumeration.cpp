@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
+
+#include "device/product_id.hpp"
 
 #include <catch2/catch.hpp>
 
@@ -35,8 +37,7 @@ inline bool operator==(const counter_info &lhs, const counter_info &rhs) {
     assert(lhs.name && rhs.name);
     assert(lhs.units && rhs.units);
 
-    return (lhs.counter == rhs.counter) && !std::strcmp(lhs.name, rhs.name) &&
-           !std::strcmp(lhs.units, rhs.units);
+    return (lhs.counter == rhs.counter) && !std::strcmp(lhs.name, rhs.name) && !std::strcmp(lhs.units, rhs.units);
 }
 
 const std::vector<hwcpipe_counter> rtu_counters = {
@@ -53,9 +54,9 @@ const std::vector<hwcpipe_counter> csf_counters = {
     hwcpipe_counter::MaliCSFCS3ActiveCy,
 };
 
-const std::vector<std::pair<gpu_id_type, std::vector<hwcpipe_counter>>> some_counters_for_gpu{
-    std::pair<uint32_t, std::vector<hwcpipe_counter>>(
-        0x7003,
+const std::vector<std::pair<device::product_id, std::vector<hwcpipe_counter>>> some_counters_for_gpu{
+    std::pair<device::product_id, std::vector<hwcpipe_counter>>(
+        device::product_id::g31,
         {hwcpipe_counter::MaliFragTileKill, hwcpipe_counter::MaliGPUActiveCy, hwcpipe_counter::MaliExtBusRdLat192,
          hwcpipe_counter::MaliSCBusTexExtRdBt, hwcpipe_counter::MaliLSFullRd})};
 
@@ -70,9 +71,9 @@ const std::vector<counter_info> test_counters{
 TEST_CASE("FindCountersForGPUProduct___FindsGPUCounters___AssertsCorrectGPUCountersReturned___ErrorCodeNotSet") {
     detail::counter_database db{};
     for (const auto &test_counter : some_counters_for_gpu) {
-        const gpu_id_type test_gpu_id = test_counter.first;
+        const device::product_id test_pid = test_counter.first;
 
-        auto counters_iterable = db.get_counters_for_gpu(test_gpu_id);
+        auto counters_iterable = db.get_counters_for_gpu(test_pid);
         std::set<hwcpipe_counter> gpu_counters(counters_iterable.begin(), counters_iterable.end());
 
         for (auto counter : test_counter.second) {
@@ -82,8 +83,8 @@ TEST_CASE("FindCountersForGPUProduct___FindsGPUCounters___AssertsCorrectGPUCount
 }
 
 TEST_CASE("FindCountersForGPUProduct___DoesNotFindGPU___AssertsErrorCodeIsCorrectlyAssigned") {
-    const gpu_id_type test_gpu_id = 0xDEADBEEF;
-    auto counters_iterable = detail::counter_database().get_counters_for_gpu(test_gpu_id);
+    const device::product_id useless_pid{};
+    auto counters_iterable = detail::counter_database().get_counters_for_gpu(useless_pid);
     std::set<hwcpipe_counter> gpu_counters(counters_iterable.begin(), counters_iterable.end());
     REQUIRE(gpu_counters.empty());
 }
@@ -91,8 +92,11 @@ TEST_CASE("FindCountersForGPUProduct___DoesNotFindGPU___AssertsErrorCodeIsCorrec
 TEST_CASE(
     "FindCountersForGPUProduct___ValidateRayTracingCountersNotPresentOnNonRayTracingCapableHardware___ErrorCodeNotSet"
     "ErrorCodeNotSet") {
-    const std::vector<uint32_t> non_rtu_gpus = {0x6000, 0x6001, 0x7003, 0x7000, 0x7002, 0x7001, 0x9003, 0x9000,
-                                                0x9004, 0x9002, 0x9005, 0xa002, 0xa007, 0xa003, 0xa004};
+    const std::vector<device::product_id> non_rtu_gpus = {
+        device::product_id::g71,  device::product_id::g72,  device::product_id::g31,   device::product_id::g51,
+        device::product_id::g52,  device::product_id::g76,  device::product_id::g57_2, device::product_id::g77,
+        device::product_id::g68,  device::product_id::g78,  device::product_id::g78ae, device::product_id::g710,
+        device::product_id::g610, device::product_id::g510, device::product_id::g310};
 
     detail::counter_database db{};
     for (auto non_rtu_gpu : non_rtu_gpus) {
@@ -105,9 +109,9 @@ TEST_CASE(
     }
 }
 
-TEST_CASE(
-    "FindCountersForGPUProduct___ValidateRayTracingCountersPresentOnRayTracingCapableHardware___IteratorYieldsCounters") {
-    const std::vector<uint32_t> rtu_gpus = {0xb002, 0xb003};
+TEST_CASE("FindCountersForGPUProduct___ValidateRayTracingCountersPresentOnRayTracingCapableHardware___"
+          "IteratorYieldsCounters") {
+    const std::vector<device::product_id> rtu_gpus = {device::product_id::g715, device::product_id::g615};
 
     detail::counter_database db{};
     for (auto rtu_gpu : rtu_gpus) {
@@ -122,7 +126,7 @@ TEST_CASE(
 
 TEST_CASE("FindCountersForGPUProduct___CSFSpecificCountersNotPresentInJobManagerEnabledGPU___ErrorCodeNotSet") {
     // "Mali-G72": [0x6001] Job Manager
-    const uint32_t non_csf_gpu = 0x6001;
+    const device::product_id non_csf_gpu = device::product_id::g72;
     auto counters_iterable = detail::counter_database().get_counters_for_gpu(non_csf_gpu);
     std::set<hwcpipe_counter> gpu_counters(counters_iterable.begin(), counters_iterable.end());
 
@@ -133,7 +137,7 @@ TEST_CASE("FindCountersForGPUProduct___CSFSpecificCountersNotPresentInJobManager
 
 TEST_CASE("FindCountersForGPUProduct___CSFSpecificCountersPresentInCSFEnabledGPU") {
     // "Mali-G710": [0xa002] CSF
-    const uint32_t csf_gpu = 0xa002;
+    const device::product_id csf_gpu = device::product_id::g710;
     auto counters_iterable = detail::counter_database().get_counters_for_gpu(csf_gpu);
     std::set<hwcpipe_counter> gpu_counters(counters_iterable.begin(), counters_iterable.end());
 
@@ -143,8 +147,8 @@ TEST_CASE("FindCountersForGPUProduct___CSFSpecificCountersPresentInCSFEnabledGPU
 }
 
 TEST_CASE("FindCounterData___ReturnsCounterDataForSpecifiedCounterName") {
-    detail::counter_database db {};
-    counter_metadata metadata {};
+    detail::counter_database db{};
+    counter_metadata metadata{};
 
     for (const auto &ctr : test_counters) {
         auto ec = db.describe_counter(ctr.counter, metadata);

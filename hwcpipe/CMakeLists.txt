@@ -14,6 +14,12 @@ add_library(hwcpipe
     src/hwcpipe/derived_functions.cpp
 )
 
+target_compile_options(hwcpipe
+    PRIVATE -Werror
+            -Wswitch-default
+            -Wswitch-enum
+)
+
 if(HWCPIPE_PIC)
     set_target_properties(hwcpipe PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()

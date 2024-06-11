@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -18,8 +18,8 @@ namespace hwcpipe {
 namespace mock {
 
 class reader_mock {
-    public:
-      MOCK(bool, is_valid, ());
+  public:
+    MOCK(bool, is_valid, ());
 };
 MOCK_DEFAULT_RET(bool, reader_mock, is_valid, true);
 

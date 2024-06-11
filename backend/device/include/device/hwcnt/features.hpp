@@ -63,8 +63,14 @@ struct features {
      */
     bool has_gpu_cycle;
 
-    /** True if @ref block_metadata::state values are set. */
-    bool has_block_state;
+    /** True if @ref block_metadata::state power values are set. */
+    bool has_power_states;
+
+    /** True if @ref block_metadata::state availability values are set. */
+    bool has_vm_states;
+
+    /** True if @ref block_metadata::state protected values are set. */
+    bool has_protection_states;
 
     /**
      * True if hardware counters back-end can detect sample period stretched due to

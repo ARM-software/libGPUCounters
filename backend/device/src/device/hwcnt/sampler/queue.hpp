@@ -52,7 +52,7 @@ class queue {
     using value_type = value_t;
 
     /** Maximum size this queue can store. */
-    static constexpr uint64_t max_size_value = size_v;
+    static constexpr size_t max_size_value = size_v;
 
     /** @return element popped from the queue. */
     value_type pop() {
@@ -147,9 +147,9 @@ class queue {
     }
 
     /** Push index. */
-    uint64_t push_idx_{};
+    uint32_t push_idx_{};
     /** Pop index. */
-    uint64_t pop_idx_{};
+    uint32_t pop_idx_{};
     /** Queue elements. */
     std::array<value_t, max_size_value> elements_{};
 };

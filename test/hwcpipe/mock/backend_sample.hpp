@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -48,11 +48,11 @@ class backend_sample_mock {
             ec = std::make_error_code(std::errc::invalid_argument);
         }
     }
-    MOCK(sample_metadata,get_metadata,());
-    MOCK(std::vector<block_metadata>,blocks,());
+    MOCK(sample_metadata, get_metadata, ());
+    MOCK(std::vector<block_metadata>, blocks, ());
 };
-MOCK_DEFAULT_RET(sample_metadata , backend_sample_mock, get_metadata, {});
-MOCK_DEFAULT_RET(std::vector<block_metadata> , backend_sample_mock, blocks, {});
+MOCK_DEFAULT_RET(sample_metadata, backend_sample_mock, get_metadata, {});
+MOCK_DEFAULT_RET(std::vector<block_metadata>, backend_sample_mock, blocks, {});
 
 } // namespace mock
 } // namespace hwcpipe

@@ -142,7 +142,7 @@ class strided_array_iterator {
   private:
     pointer advance(difference_type diff) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        auto addr = reinterpret_cast<uintptr_t>(ptr_);
+        auto addr = reinterpret_cast<difference_type>(ptr_);
 
         addr += diff * stride_;
 

@@ -52,11 +52,11 @@ enum class flex_list_type : uint8_t {
 
 /** @return Flex list item type. */
 inline constexpr uint16_t flex_list_item_type(flex_list_type type, uint16_t subtype) {
-    constexpr uint16_t type_mask = 0xf;
+
     constexpr uint16_t type_shift = 12;
     constexpr uint16_t subtype_mask = 0xfff;
 
-    return ((static_cast<uint8_t>(type) & type_mask) << type_shift) | (subtype_mask & subtype);
+    return static_cast<uint16_t>((static_cast<uint8_t>(type) << type_shift)) | (subtype_mask & subtype);
 }
 } // namespace detail
 
@@ -73,6 +73,10 @@ enum class block_type : uint8_t {
     memory,
     /** Shader core. */
     shader_core,
+    /** CSF Firmware. */
+    firmware,
+    /** Firmware command stream group. */
+    csg,
 };
 
 /** Type of performance counter block set. */
