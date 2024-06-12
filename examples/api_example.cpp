@@ -39,6 +39,8 @@ void print_sample_value(const hwcpipe::counter_sample &sample) {
     case hwcpipe::counter_sample::type::float64:
         std::cout << sample.value.float64;
         return;
+    default:
+        return;
     }
 }
 
