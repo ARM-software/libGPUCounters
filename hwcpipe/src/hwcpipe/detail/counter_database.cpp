@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
 
+#include "device/product_id.hpp"
 #include "hwcpipe/all_gpu_counters.hpp"
 #include "hwcpipe/counter_metadata.hpp"
 #include "hwcpipe/detail/counter_database.hpp"
@@ -12,16 +13,17 @@
 namespace hwcpipe {
 namespace detail {
 
-bool counter_database::is_gpu_known(gpu_id_type id) const {
+bool counter_database::is_gpu_known(device::product_id id) const {
     namespace db = hwcpipe::database;
+
     auto it = db::all_gpu_counters.find(id);
     return it != db::all_gpu_counters.end();
 }
 
-gpu_counter_view<counter_database> counter_database::get_counters_for_gpu(gpu_id_type id) const {
+gpu_counter_view<counter_database> counter_database::get_counters_for_gpu(device::product_id id) const {
     namespace db = hwcpipe::database;
-    auto it = db::all_gpu_counters.find(id);
 
+    auto it = db::all_gpu_counters.find(id);
     if (it == db::all_gpu_counters.end()) {
         return {*this, {}, {}};
     }
@@ -40,8 +42,10 @@ std::error_code counter_database::describe_counter(hwcpipe_counter counter, coun
     return {};
 }
 
-counter_definition counter_database::get_counter_def(gpu_id_type id, hwcpipe_counter counter, std::error_code &ec) {
+counter_definition counter_database::get_counter_def(device::product_id id, hwcpipe_counter counter,
+                                                     std::error_code &ec) {
     namespace db = hwcpipe::database;
+
     auto it = db::all_gpu_counters.find(id);
     if (it == db::all_gpu_counters.end()) {
         ec = make_error_code(hwcpipe::errc::invalid_device);

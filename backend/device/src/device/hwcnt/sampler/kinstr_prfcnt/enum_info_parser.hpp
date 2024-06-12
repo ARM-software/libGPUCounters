@@ -110,8 +110,9 @@ class enum_info_parser {
         block_type type{};
         std::tie(ec, type) = convert(block.type);
 
+        /* Ignore unknown block types. */
         if (ec)
-            return ec;
+            return {};
 
         using namespace hwcpipe::device::detail::enum_operators;
 

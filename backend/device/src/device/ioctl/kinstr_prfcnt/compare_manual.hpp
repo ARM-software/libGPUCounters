@@ -44,10 +44,10 @@ bool operator==(const enum_item &lhs, const enum_item &rhs) {
         return lhs.u.request == rhs.u.request;
     case enum_item::item_type::sample_info:
         return lhs.u.sample_info == rhs.u.sample_info;
-    default:
-        assert(!"Unknown enum_item::item_type");
-        return false;
     }
+
+    assert(!&"Unknown enum_item::item_type");
+    return false;
 }
 
 bool operator==(const metadata_item &lhs, const metadata_item &rhs) {
@@ -63,10 +63,10 @@ bool operator==(const metadata_item &lhs, const metadata_item &rhs) {
         return lhs.u.clock_md == rhs.u.clock_md;
     case metadata_item::item_type::sample:
         return lhs.u.sample_md == rhs.u.sample_md;
-    default:
-        assert(!"Unknown metadata_item::item_type");
-        return false;
     }
+
+    assert(!&"Unknown metadata_item::item_type");
+    return false;
 }
 
 bool operator==(const request_item &lhs, const request_item &rhs) {
@@ -82,10 +82,10 @@ bool operator==(const request_item &lhs, const request_item &rhs) {
         return lhs.u.req_mode == rhs.u.req_mode;
     case request_item::item_type::scope:
         return lhs.u.req_scope == rhs.u.req_scope;
-    default:
-        assert(!"Unknown request_item::item_type");
-        return false;
     }
+
+    assert(!&"Unknown request_item::item_type");
+    return false;
 }
 
 bool operator==(const request_item::request_mode &lhs, const request_item::request_mode &rhs) {
@@ -97,10 +97,10 @@ bool operator==(const request_item::request_mode &lhs, const request_item::reque
         return true;
     case request_item::request_mode::sampling_mode::periodic:
         return lhs.mode_config.periodic == rhs.mode_config.periodic;
-    default:
-        assert(!"Unknown request_item::request_mode::sampling_mode");
-        return false;
     }
+
+    assert(!&"Unknown request_item::request_mode::sampling_mode");
+    return false;
 }
 
 } // namespace kinstr_prfcnt

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -34,9 +34,9 @@ namespace device {
 
 /** Argument pack for \c get_num_exec_engines. */
 struct get_num_exec_engines_args {
-    product_id id{};            //!< The GPU product to query.
-    uint8_t core_count{};       //!< The number of cores of the GPU.
-    uint32_t core_features{};   //!< The raw value of the CORE_FEATURES register.
+    product_id known_pid{};     //!< The GPU product to query.
+    uint64_t core_count{};      //!< The number of cores of the GPU.
+    uint64_t core_features{};   //!< The raw value of the CORE_FEATURES register.
     uint32_t thread_features{}; //!< The raw value of the THREAD_FEATURES register.
 };
 

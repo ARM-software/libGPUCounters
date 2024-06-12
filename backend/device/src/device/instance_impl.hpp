@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -59,62 +59,44 @@ using properties = std::vector<unsigned char>;
 
 namespace detail {
 
-static uint64_t get_warp_width(uint64_t raw_gpu_id, std::error_code &ec) {
-    static constexpr product_id product_id_g31{7, 3};
-    static constexpr product_id product_id_g51{7, 0};
-    static constexpr product_id product_id_g52{7, 2};
-    static constexpr product_id product_id_g57{9, 1};
-    static constexpr product_id product_id_g57_2{9, 3};
-    static constexpr product_id product_id_g68{9, 4};
-    static constexpr product_id product_id_g71{6, 0};
-    static constexpr product_id product_id_g72{6, 1};
-    static constexpr product_id product_id_g76{7, 1};
-    static constexpr product_id product_id_g77{9, 0};
-    static constexpr product_id product_id_g78{9, 2};
-    static constexpr product_id product_id_g78ae{9, 5};
-    static constexpr product_id product_id_g310{10, 4};
-    static constexpr product_id product_id_g510{10, 3};
-    static constexpr product_id product_id_g610{10, 7};
-    static constexpr product_id product_id_g710{10, 2};
-    static constexpr product_id product_id_g615{11, 3};
-    static constexpr product_id product_id_g715{11, 2};
-
-    const auto pid = product_id::from_raw_gpu_id(raw_gpu_id);
-
-    /* Midgard does not support warps. */
-    if (pid.get_gpu_family() == product_id::gpu_family::midgard)
+static uint64_t get_warp_width(product_id known_pid, std::error_code &ec) {
+    switch (known_pid) {
+    case product_id::t60x:
+    case product_id::t62x:
+    case product_id::t720:
+    case product_id::t760:
+    case product_id::t820:
         return 1;
-
-    switch (pid) {
-    case product_id_g31:
-    case product_id_g68:
-    case product_id_g51:
-    case product_id_g71:
-    case product_id_g72:
+    case product_id::g31:
+    case product_id::g68:
+    case product_id::g51:
+    case product_id::g71:
+    case product_id::g72:
         return 4;
-    case product_id_g52:
-    case product_id_g76:
+    case product_id::g52:
+    case product_id::g76:
         return 8;
-    case product_id_g57:
-    case product_id_g57_2:
-    case product_id_g77:
-    case product_id_g78:
-    case product_id_g78ae:
-    case product_id_g310:
-    case product_id_g510:
-    case product_id_g610:
-    case product_id_g710:
-    case product_id_g615:
-    case product_id_g715:
+    case product_id::g57:
+    case product_id::g57_2:
+    case product_id::g77:
+    case product_id::g78:
+    case product_id::g310:
+    case product_id::g510:
+    case product_id::g610:
+    case product_id::g710:
+    case product_id::g615:
+    case product_id::g715:
+        return 16;
+    case product_id::t830:
+    case product_id::t860:
+    case product_id::t880:
+    case product_id::g78ae:
+    case product_id::g720:
+    case product_id::g620:
+    case product_id::g725:
+    case product_id::g625:
         return 16;
     }
-
-    /* Must be arch/product style since it is not Midgard. */
-    assert(pid.get_version_style() == product_id::version_style::arch_product_major);
-
-    /* Newer GPUs are likely to have wide wraps. */
-    if (pid.get_arch_major() > 11)
-        return 16;
 
     ec = std::make_error_code(std::errc::not_supported);
     return 0;
@@ -126,26 +108,23 @@ class prop_decoder {
     explicit prop_decoder(properties buffer) noexcept
         : reader_{std::move(buffer)} {}
 
-    constants operator()(std::error_code &ec) noexcept {
+    std::tuple<constants, product_id> operator()(std::error_code &ec) noexcept {
         constants dev_consts{};
         uint64_t num_core_groups{};
         std::array<uint64_t, 16> core_mask{};
         uint64_t raw_core_features{};
-        uint64_t raw_thread_features{};
+        uint32_t raw_thread_features{};
 
         while (reader_.size() > 0) {
             auto p = next(ec);
             prop_id_type id = p.first;
             uint64_t value = p.second;
             if (ec)
-                return {};
+                return std::make_pair<constants, product_id>({}, product_id{});
 
             switch (id) {
             case prop_id_type::raw_gpu_id:
                 dev_consts.gpu_id = value;
-                dev_consts.warp_width = get_warp_width(value, ec);
-                if (ec)
-                    return {};
                 break;
             case prop_id_type::l2_log2_cache_size:
                 dev_consts.l2_slice_size = (1UL << value);
@@ -164,7 +143,7 @@ class prop_decoder {
                 num_core_groups = value;
                 break;
             case prop_id_type::raw_thread_features:
-                raw_thread_features = value;
+                raw_thread_features = static_cast<uint32_t>(value);
                 break;
             case prop_id_type::coherency_group_0:
                 core_mask[0] = value;
@@ -222,20 +201,31 @@ class prop_decoder {
         }
         for (auto i{0U}; i < num_core_groups; ++i)
             dev_consts.shader_core_mask |= core_mask[i];
-        dev_consts.num_shader_cores = __builtin_popcount(dev_consts.shader_core_mask);
+        dev_consts.num_shader_cores = static_cast<uint64_t>(__builtin_popcountll(dev_consts.shader_core_mask));
 
         dev_consts.tile_size = 16;
 
+        product_id known_pid{};
+        std::tie(ec, known_pid) = product_id_from_raw_gpu_id(dev_consts.gpu_id);
+        if (ec)
+            return std::make_pair<constants, product_id>({}, product_id{});
+
+        /* Warp width */
+        dev_consts.warp_width = get_warp_width(known_pid, ec);
+        if (ec)
+            return std::make_pair<constants, product_id>({}, product_id{});
+
+        /* Number of execution engines */
         get_num_exec_engines_args args{};
-        args.id = product_id::from_raw_gpu_id(dev_consts.gpu_id);
+        args.known_pid = known_pid;
         args.core_count = dev_consts.num_shader_cores;
         args.core_features = raw_core_features;
         args.thread_features = raw_thread_features;
         dev_consts.num_exec_engines = get_num_exec_engines(std::move(args), ec);
         if (ec)
-            return {};
+            return std::make_pair<constants, product_id>({}, product_id{});
 
-        return dev_consts;
+        return {dev_consts, known_pid};
     }
 
   private:
@@ -365,6 +355,8 @@ class instance_impl : public instance, private syscall_iface_t {
         return ei_;
     }
 
+    product_id get_product_id() const { return pid_; }
+
     /**
      * Check if instance_impl is valid.
      *
@@ -388,32 +380,36 @@ class instance_impl : public instance, private syscall_iface_t {
     syscall_iface_t &get_syscall_iface() { return *this; }
 
     /** Get device constants from old ioctl. */
-    constants props_pre_r21(int fd, std::error_code &ec) {
+    std::tuple<constants, product_id> props_pre_r21(int fd, std::error_code &ec) {
         constants dev_consts{};
+        product_id known_pid{};
 
         ioctl::kbase_pre_r21::uk_gpuprops props{};
         props.header.id = ioctl::kbase_pre_r21::header_id::get_props;
 
         std::tie(ec, std::ignore) = get_syscall_iface().ioctl(fd, ioctl::kbase_pre_r21::command::get_gpuprops, &props);
         if (ec)
-            return {};
+            return std::make_pair<constants, product_id>({}, product_id{});
 
         dev_consts.gpu_id = props.props.raw_props.gpu_id;
-        dev_consts.warp_width = detail::get_warp_width(dev_consts.gpu_id, ec);
+        std::tie(ec, known_pid) = product_id_from_raw_gpu_id(dev_consts.gpu_id);
         if (ec)
-            return {};
+            return std::make_pair<constants, product_id>({}, product_id{});
+        dev_consts.warp_width = detail::get_warp_width(known_pid, ec);
+        if (ec)
+            return std::make_pair<constants, product_id>({}, product_id{});
         dev_consts.l2_slice_size = 1UL << props.props.l2_props.log2_cache_size;
         dev_consts.num_l2_slices = props.props.l2_props.num_l2_slices;
         dev_consts.axi_bus_width = 1UL << ((props.props.raw_props.l2_features & 0xFF000000) >> 24);
 
         for (auto i{0U}; i < props.props.coherency_info.num_core_groups; i++)
             dev_consts.shader_core_mask |= props.props.coherency_info.group[i].core_mask;
-        dev_consts.num_shader_cores = __builtin_popcount(dev_consts.shader_core_mask);
+        dev_consts.num_shader_cores = static_cast<uint64_t>(__builtin_popcountll(dev_consts.shader_core_mask));
 
         dev_consts.tile_size = 16;
 
         get_num_exec_engines_args args{};
-        args.id = product_id::from_raw_gpu_id(dev_consts.gpu_id);
+        args.known_pid = known_pid;
         args.core_count = dev_consts.num_shader_cores;
         /* No core features in this interface version. */
         args.core_features = 0;
@@ -421,7 +417,7 @@ class instance_impl : public instance, private syscall_iface_t {
 
         dev_consts.num_exec_engines = get_num_exec_engines(std::move(args), ec);
 
-        return dev_consts;
+        return {dev_consts, known_pid};
     }
 
     /** Get the raw properties buffer as it's returned from the kernel. */
@@ -512,8 +508,9 @@ class instance_impl : public instance, private syscall_iface_t {
     std::error_code backend_type_probe() {
         std::error_code ec;
 
-        auto available_types =
-            hwcnt::backend_type_discover(kbase_version_, product_id::from_raw_gpu_id(constants_.gpu_id));
+        product_id known_pid = get_product_id();
+
+        auto available_types = hwcnt::backend_type_discover(kbase_version_, known_pid);
         std::tie(ec, backend_type_) = hwcnt::backend_type_select(available_types);
         return ec;
     }
@@ -525,9 +522,9 @@ class instance_impl : public instance, private syscall_iface_t {
      * @return Error code.
      */
     std::error_code init_block_extents(const syscall_iface_t &iface) {
-        const auto pid = product_id::from_raw_gpu_id(constants_.gpu_id);
-
         std::error_code ec;
+
+        product_id pid = get_product_id();
 
         switch (backend_type_) {
         case hwcnt::backend_type::vinstr:
@@ -636,7 +633,7 @@ class instance_impl : public instance, private syscall_iface_t {
     std::error_code init_constants() {
         std::error_code ec;
         if (kbase_version_.type() == ioctl_iface_type::jm_pre_r21) {
-            constants_ = props_pre_r21(fd_, ec);
+            std::tie(constants_, pid_) = props_pre_r21(fd_, ec);
             return ec;
         }
 
@@ -644,7 +641,7 @@ class instance_impl : public instance, private syscall_iface_t {
         if (ec)
             return ec;
 
-        constants_ = detail::prop_decoder{p}(ec);
+        std::tie(constants_, pid_) = detail::prop_decoder{p}(ec);
         if (ec)
             return ec;
 
@@ -687,6 +684,7 @@ class instance_impl : public instance, private syscall_iface_t {
     kbase_version_type kbase_version_{};
     hwcnt::backend_type backend_type_{};
     hwcnt::sampler::kinstr_prfcnt::enum_info ei_{};
+    product_id pid_{};
 
     bool valid_{true};
     int fd_;

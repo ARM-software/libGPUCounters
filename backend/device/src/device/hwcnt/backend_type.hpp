@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <system_error>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 

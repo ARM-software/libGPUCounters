@@ -58,6 +58,10 @@ inline std::pair<std::error_code, block_type> convert(ioctl::kinstr_prfcnt::bloc
         return std::make_pair(std::error_code{}, block_type::memory);
     case ioctl::kinstr_prfcnt::block_type::shader_core:
         return std::make_pair(std::error_code{}, block_type::core);
+    case ioctl::kinstr_prfcnt::block_type::firmware:
+        return std::make_pair(std::error_code{}, block_type::firmware);
+    case ioctl::kinstr_prfcnt::block_type::csg:
+        return std::make_pair(std::error_code{}, block_type::csg);
     }
 
     return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_type{});
@@ -79,9 +83,13 @@ inline ioctl::kinstr_prfcnt::block_type convert(block_type value) {
         return ioctl::kinstr_prfcnt::block_type::memory;
     case block_type::core:
         return ioctl::kinstr_prfcnt::block_type::shader_core;
+    case block_type::firmware:
+        return ioctl::kinstr_prfcnt::block_type::firmware;
+    case block_type::csg:
+        return ioctl::kinstr_prfcnt::block_type::csg;
     }
 
-    assert(!"Unexpected block_type value");
+    assert(!&"Unexpected block_type value");
     __builtin_unreachable();
 }
 
@@ -101,7 +109,7 @@ inline prfcnt_set convert(ioctl::kinstr_prfcnt::prfcnt_set value) {
         return prfcnt_set::tertiary;
     }
 
-    assert(!"Unexpected ioctl::kinstr_prfcnt::prfcnt_set value");
+    assert(!&"Unexpected ioctl::kinstr_prfcnt::prfcnt_set value");
     __builtin_unreachable();
 }
 
@@ -121,7 +129,7 @@ inline ioctl::kinstr_prfcnt::prfcnt_set convert(prfcnt_set value) {
         return ioctl::kinstr_prfcnt::prfcnt_set::tertiary;
     }
 
-    assert(!"Unexpected prfcnt_set value");
+    assert(!&"Unexpected prfcnt_set value");
     __builtin_unreachable();
 }
 

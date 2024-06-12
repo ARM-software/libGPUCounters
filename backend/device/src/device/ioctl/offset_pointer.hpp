@@ -87,7 +87,7 @@ class offset_pointer {
     /**
      * Construct from offset.
      *
-     * @param[in] offset
+     * @param[in] offset    Offset value.
      */
     offset_pointer(representation_type offset)
         : offset_(offset) {}
@@ -99,7 +99,7 @@ class offset_pointer {
      */
     offset_pointer(pointer_type ptr, base_pointer_type base) {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        const ptrdiff_t diff = reinterpret_cast<uintptr_t>(ptr) - reinterpret_cast<uintptr_t>(base);
+        const ptrdiff_t diff = (reinterpret_cast<ptrdiff_t>(ptr) - reinterpret_cast<ptrdiff_t>(base));
         offset_ = static_cast<representation_type>(diff);
     }
 

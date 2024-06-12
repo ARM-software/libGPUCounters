@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -56,13 +56,12 @@ enum class sample_layout_type {
  * @return true if the product id given is a gpu, which uses a v4 block layout. false otherwise.
  */
 inline bool is_v4_layout(product_id id) {
-    static constexpr product_id t760{0x0760};
-
-    switch (id.get_version_style()) {
-    case product_id::version_style::legacy_t60x:
+    switch (id) {
+    case product_id::t60x:
+    case product_id::t62x:
+    case product_id::t720:
+    case product_id::t760:
         return true;
-    case product_id::version_style::legacy_txxx:
-        return id < t760;
     default:
         return false;
     }

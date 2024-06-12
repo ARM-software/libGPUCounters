@@ -58,10 +58,10 @@ inline std::ostream &operator<<(std::ostream &os, reader_event value) {
         return os << "prejob";
     case reader_event::postjob:
         return os << "postjob";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, reader_features value) {
@@ -85,7 +85,7 @@ inline std::ostream &operator<<(std::ostream &os, reader_features value) {
         os << " | ";
 
     if (!!value) {
-        assert(!"Unknown bits");
+        assert(!&"Unknown bits");
         os << std::hex << static_cast<uint32_t>(value);
     }
 
@@ -157,10 +157,10 @@ inline std::ostream &operator<<(std::ostream &os, command::command_type cmd) {
         return os << "vinstr::command::get_api_version";
     case command::get_api_version_with_features:
         return os << "vinstr::command::get_api_version_with_features";
-    default:
-        assert(!"Unknown command");
-        return os << "::command::<unknown>";
     }
+
+    assert(!&"Unknown command");
+    return os << "::command::<unknown>";
 }
 
 } // namespace vinstr

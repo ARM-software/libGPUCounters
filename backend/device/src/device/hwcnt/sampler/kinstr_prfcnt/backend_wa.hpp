@@ -256,7 +256,7 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
     /**
      * Put sample (manual back-end).
      *
-     * @param[in]     sample_hndl    Sample handle.
+     * @param[in]     sample_hndl_raw    Sample handle.
      * @return Error code.
      */
     std::error_code put_sample_manual(sample_handle sample_hndl_raw) {
@@ -400,7 +400,7 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
     /**
      * Put sample (periodic back-end).
      *
-     * @param[in]     sample_hndl    Sample handle.
+     * @param[in]     sample_hndl_raw    Sample handle.
      * @return Error code.
      */
     std::error_code put_sample_periodic(sample_handle sample_hndl_raw) {

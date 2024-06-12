@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -65,7 +65,7 @@ TEST_CASE("counter_sampler__CorrectTypesAreAssigned") {
 TEST_CASE("ValidGpuIDPassedToCounter___CountersCorrectlySetInConfiguration___NoErrorCode") {
     std::error_code ec;
 
-    sampler_config config{0x7003, 0};
+    sampler_config config{device::product_id::g31, 0};
 
     hwcpipe_counter some_counter_1 = hwcpipe_counter::MaliGPUActiveCy;
     uint32_t some_counter_offset_1 = 6;
@@ -118,7 +118,7 @@ TEST_CASE("ValidCorrectErrorsReported___ErrorCodeIsSetAppropriately") {
     REQUIRE(!ec);
 
     SECTION("GPU ID not found") {
-        sampler_config config(0xD3ADB33F, 0);
+        sampler_config config({}, 0);
 
         auto ec = config.add_counter(some_counter_2);
 
@@ -126,7 +126,7 @@ TEST_CASE("ValidCorrectErrorsReported___ErrorCodeIsSetAppropriately") {
     }
 
     SECTION("Counter not found") {
-        sampler_config config(0x7003, 0);
+        sampler_config config(device::product_id::g31, 0);
 
         const auto unknown_counter = hwcpipe_counter::MaliRTURay;
         auto ec = config.add_counter(unknown_counter);
@@ -135,7 +135,7 @@ TEST_CASE("ValidCorrectErrorsReported___ErrorCodeIsSetAppropriately") {
     }
 
     SECTION("Config with no counters results in invalid sampler") {
-        sampler_config config(0x7003, 0);
+        sampler_config config(device::product_id::g31, 0);
 
         sampler_t sampler(config);
         REQUIRE_FALSE(sampler);
@@ -146,7 +146,7 @@ TEST_CASE("ValidCorrectErrorsReported___ErrorCodeIsSetAppropriately") {
 }
 
 TEST_CASE("SamplerReportsCorrectErrorCode__WhenSartSamplingIsCalled") {
-    sampler_config config(0x7003, 0);
+    sampler_config config(device::product_id::g31, 0);
     auto ec = config.add_counter(hwcpipe_counter::MaliGPUActiveCy);
     REQUIRE(!ec);
 
@@ -190,7 +190,7 @@ TEST_CASE("SamplerReportsCorrectErrorCode__WhenSartSamplingIsCalled") {
 }
 
 TEST_CASE("SamplerReportsCorrectErrorCode__WhenSampleNowIsCalled") {
-    sampler_config config{0x7003, 0};
+    sampler_config config{device::product_id::g31, 0};
     auto ec = config.add_counter(MaliGPUActiveCy);
     REQUIRE(!ec);
     ec = config.add_counter(MaliFragActiveCy);
@@ -285,7 +285,7 @@ TEST_CASE("SamplerReportsCorrectErrorCode__WhenSampleNowIsCalled") {
 }
 
 TEST_CASE("SamplerReportsCorrectErrorCode__WhenStopSamplingIsCalled") {
-    sampler_config config(0x7003, 0);
+    sampler_config config(device::product_id::g31, 0);
     auto ec = config.add_counter(hwcpipe_counter::MaliGPUActiveCy);
     REQUIRE(!ec);
 
@@ -354,7 +354,7 @@ TEST_CASE("SamplerReportsCorrectErrorCode__WhenGetCounterValueIsCalled") {
     values_core0[c2_core.second] = 0xC0C0;
     values_core1[c2_core.second] = 0x0C0C;
 
-    sampler_config config(0x7003, 0);
+    sampler_config config(device::product_id::g31, 0);
     auto ec = config.add_counter(c1_fe.first);
     REQUIRE(!ec);
     ec = config.add_counter(c2_core.first);
@@ -468,7 +468,7 @@ TEST_CASE("SamplerReadsCorrectValues__WhenValuesTypeIsUint64") {
     values_core0[c2_core.second] = 0xC0C00000UL;
     values_core1[c2_core.second] = 0x0C0C0000UL;
 
-    sampler_config config(0x7003, 0);
+    sampler_config config(device::product_id::g31, 0);
     auto ec = config.add_counter(c1_fe.first);
     REQUIRE(!ec);
     ec = config.add_counter(c2_core.first);
@@ -504,7 +504,7 @@ TEST_CASE("SamplerReadsCorrectValues__WhenValuesTypeIsUint64") {
 }
 
 TEST_CASE("SamplerReadsCorrectValues__WhenCounterValueIsShifted") {
-    sampler_config config(0xb002, 0); // Turse
+    sampler_config config(device::product_id::g715, 0); // Turse
 
     SECTION("MaliFragThread shifted by 2") {
         using counter_offset_pair = std::pair<hwcpipe_counter, uint32_t>;
@@ -532,7 +532,7 @@ TEST_CASE("SamplerReadsCorrectValues__WhenCounterValueIsShifted") {
 TEST_CASE("SamplerReadsCorrectValues__WhenSamplesAreExpressions") {
     std::error_code ec{};
 
-    sampler_config config(0x7003, 0);
+    sampler_config config(device::product_id::g31, 0);
 
     SECTION("Read expression") {
         using counter_offset_pair = std::pair<hwcpipe_counter, uint32_t>;
@@ -573,7 +573,7 @@ TEST_CASE("SamplerReadsCorrectValues__WhenSamplesAreExpressions") {
 
 TEST_CASE("ExpressionCounterGivenToSamplerConfig__CounterDependenciesAreSet") {
     std::error_code ec;
-    sampler_config config{0x7003, 0};
+    sampler_config config{device::product_id::g31, 0};
 
     SECTION("Unsupported expression counter") {
         ec = config.add_counter(hwcpipe_counter::MaliRTUUtil);

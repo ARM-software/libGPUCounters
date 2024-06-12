@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include "funcs/libmali.hpp"
 #include "funcs/unix.hpp"
 
 #include <device/detail/is_empty_class.hpp>

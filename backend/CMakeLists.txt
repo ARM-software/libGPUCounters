@@ -121,6 +121,7 @@ if(HWCPIPE_WALL)
         -Wextra
         -pedantic
         -Wno-abi # Silence GCC 7.1 ABI compatibility warning
+        -Wconversion
     )
 endif()
 

@@ -82,10 +82,10 @@ inline std::ostream &operator<<(std::ostream &os, get_gpuprops::gpuprop_size val
         return os << "uint32";
     case get_gpuprops::gpuprop_size::uint64:
         return os << "uint64";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, get_gpuprops::gpuprop_code value) {
@@ -256,10 +256,10 @@ inline std::ostream &operator<<(std::ostream &os, get_gpuprops::gpuprop_code val
         return os << "tls_alloc";
     case get_gpuprops::gpuprop_code::raw_gpu_features:
         return os << "raw_gpu_features";
-    default:
-        assert(!"Unknown enum value");
-        return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
     }
+
+    assert(!&"Unknown enum value");
+    return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
 inline std::ostream &operator<<(std::ostream &os, const get_gpuprops &value) {
@@ -359,10 +359,10 @@ inline std::ostream &operator<<(std::ostream &os, command::command_type cmd) {
         return os << "kbase::command::kinstr_prfcnt_enum_info";
     case command::kinstr_prfcnt_setup:
         return os << "kbase::command::kinstr_prfcnt_setup";
-    default:
-        assert(!"Unknown command");
-        return os << "::command::<unknown>";
     }
+
+    assert(!&"Unknown command");
+    return os << "::command::<unknown>";
 }
 
 } // namespace kbase

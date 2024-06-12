@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
 
 #pragma once
 
+#include "device/product_id.hpp"
 #include "hwcpipe/detail/internal_types.hpp"
 #include "hwcpipe/hwcpipe_counter.h"
 
@@ -121,13 +122,13 @@ class counter_database {
      * @brief Checks to see if the database contains counter data for the
      * specified GPU ID value.
      */
-    HWCP_NODISCARD bool is_gpu_known(gpu_id_type id) const;
+    HWCP_NODISCARD bool is_gpu_known(device::product_id id) const;
 
     /**
      * @brief Returns an iterable view of all of the counters that are valid for
      * the specified GPU ID value.
      */
-    HWCP_NODISCARD gpu_counter_view<counter_database> get_counters_for_gpu(gpu_id_type id) const;
+    HWCP_NODISCARD gpu_counter_view<counter_database> get_counters_for_gpu(device::product_id id) const;
 
     /**
      * @brief Fetches the descriptive information for a counter.
@@ -138,7 +139,8 @@ class counter_database {
      * @brief Queries the database to find the block/offset address of a counter
      * for the specified GPU.
      */
-    HWCP_NODISCARD counter_definition get_counter_def(gpu_id_type id, hwcpipe_counter counter, std::error_code &ec);
+    HWCP_NODISCARD counter_definition get_counter_def(device::product_id id, hwcpipe_counter counter,
+                                                      std::error_code &ec);
 };
 
 } // namespace detail

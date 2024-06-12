@@ -97,6 +97,7 @@ class block_iterator {
     /** @return Iterator pointing to the next hardware counters block. */
     class block_iterator &operator++() {
         assert(reader_);
+        // NOLINTNEXTLINE
         reader_ = reader_->next(sample_hndl_, metadata_, block_hndl_) ? reader_ : nullptr;
         return *this;
     }

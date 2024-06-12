@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -13,7 +13,7 @@
 namespace hwcpipe {
 namespace database {
 
-extern const std::array<counter_metadata, 373> all_counter_metadata;
+extern const std::array<counter_metadata, 417> all_counter_metadata;
 
 } // namespace database
 

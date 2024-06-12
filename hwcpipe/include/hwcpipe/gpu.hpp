@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -47,6 +47,14 @@ class gpu {
             valid_ = true;
             fetch_device_info(*handle);
         }
+
+        auto result = device::product_id_from_raw_gpu_id(constants_.gpu_id);
+
+        if (result.first) {
+            valid_ = false;
+        }
+
+        id_ = result.second;
     }
 
     HWCP_NODISCARD int get_device_number() const { return device_number_; }
@@ -57,9 +65,9 @@ class gpu {
 
     HWCP_NODISCARD uint64_t bus_width() const { return constants_.axi_bus_width; }
 
-    HWCP_NODISCARD device::product_id get_product_id() const {
-        return device::product_id::from_raw_gpu_id(constants_.gpu_id);
-    }
+    HWCP_NODISCARD device::product_id get_product_id() const { return id_; }
+
+    HWCP_NODISCARD device::gpu_family get_gpu_family() const { return device::get_gpu_family(id_); }
 
     HWCP_NODISCARD device::constants get_constants() const { return constants_; }
 
@@ -70,6 +78,7 @@ class gpu {
     int device_number_;
     bool valid_{};
     device::constants constants_{};
+    device::product_id id_{};
 
     void fetch_device_info(device::handle &handle) {
         auto instance = device::instance::create(handle);
@@ -177,24 +186,26 @@ class find_gpus {
 
 } // namespace hwcpipe
 
-inline std::ostream &operator<<(std::ostream &os, const hwcpipe::device::product_id::gpu_family &family) {
+inline std::ostream &operator<<(std::ostream &os, const hwcpipe::device::gpu_family &family) {
     switch (family) {
-    case hwcpipe::device::product_id::gpu_family::midgard:
+    case hwcpipe::device::gpu_family::midgard:
         return os << "midgard";
-    case hwcpipe::device::product_id::gpu_family::bifrost:
+    case hwcpipe::device::gpu_family::bifrost:
         return os << "bifrost";
-    case hwcpipe::device::product_id::gpu_family::valhall:
+    case hwcpipe::device::gpu_family::valhall:
         return os << "valhall";
+    case hwcpipe::device::gpu_family::fifthgen:
+        return os << "Arm 5th Gen";
     default:
         return os << "unknown";
     }
 }
 
-inline std::ostream &operator<<(std::ostream &os, const hwcpipe::device::product_id::gpu_frontend &frontend) {
+inline std::ostream &operator<<(std::ostream &os, const hwcpipe::device::gpu_frontend &frontend) {
     switch (frontend) {
-    case hwcpipe::device::product_id::gpu_frontend::jm:
+    case hwcpipe::device::gpu_frontend::jm:
         return os << "jm";
-    case hwcpipe::device::product_id::gpu_frontend::csf:
+    case hwcpipe::device::gpu_frontend::csf:
         return os << "csf";
     default:
         return os << "unknown";

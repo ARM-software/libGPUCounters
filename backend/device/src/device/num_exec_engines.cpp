@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -32,41 +32,19 @@
 namespace hwcpipe {
 namespace device {
 
-static constexpr product_id product_t830{0x0830};
-static constexpr product_id product_t860{0x0860};
-static constexpr product_id product_t880{0x0880};
-static constexpr product_id product_g31{7, 3};
-static constexpr product_id product_g51{7, 0};
-static constexpr product_id product_g52{7, 2};
-static constexpr product_id product_g57{9, 1};
-static constexpr product_id product_g57_2{9, 3};
-static constexpr product_id product_g68{9, 4};
-static constexpr product_id product_g71{6, 0};
-static constexpr product_id product_g72{6, 1};
-static constexpr product_id product_g76{7, 1};
-static constexpr product_id product_g77{9, 0};
-static constexpr product_id product_g78{9, 2};
-static constexpr product_id product_g78ae{9, 5};
-static constexpr product_id product_g310{10, 4};
-static constexpr product_id product_g510{10, 3};
-static constexpr product_id product_g610{10, 7};
-static constexpr product_id product_g710{10, 2};
-static constexpr product_id product_g615{11, 3};
-static constexpr product_id product_g715{11, 2};
-static constexpr product_id product_g720{12, 0};
-static constexpr product_id product_g720_2{12, 1};
-static constexpr product_id product_g720_3{12, 2};
+static constexpr uint32_t max_registers_mask = 0xFFFF;
+static constexpr uint64_t exec_engines_mask = 0xF;
 
-template <uint32_t pid_v>
+template <product_id pid_v>
 static constexpr uint32_t max_registers(uint32_t raw_thread_features) {
-    static_assert(pid_v == product_g31 || pid_v == product_g51, "Unsupported product_id for max_registers()");
-    return raw_thread_features & 0xFFFF;
+    static_assert(pid_v == product_id::g31 || pid_v == product_id::g51, "Unsupported product_id for max_registers()");
+    return raw_thread_features & max_registers_mask;
 }
 
 static constexpr uint16_t g31_g51_max_registers_small_core{0x2000};
 
 uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &ec) {
-    auto const id = args.id;
+    auto const known_pid = args.known_pid;
     auto const core_count = args.core_count;
     auto const core_features = args.core_features;
     auto const thread_features = args.thread_features;
@@ -74,50 +52,65 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
     uint8_t core_variant{};
     uint8_t ee_count{};
 
-    switch (id) {
-    case product_t830:
-    case product_t860:
+    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, bugprone-branch-clone)
+    switch (known_pid) {
+    case product_id::t60x:
+    case product_id::t62x:
+    case product_id::t720:
+    case product_id::t760:
+    case product_id::t820:
+        return 1;
+    case product_id::t830:
+    case product_id::t860:
         return 2;
-    case product_t880:
+    case product_id::t880:
         return 3;
-    case product_g31: {
-        if (core_count == 1 &&
-            max_registers<(uint32_t)product_g31>(thread_features) == g31_g51_max_registers_small_core)
+    case product_id::g31: {
+        if (core_count == 1 && max_registers<product_id::g31>(thread_features) == g31_g51_max_registers_small_core)
             return 1;
         return 2;
     }
-    case product_g51: {
-        if (core_count == 1 &&
-            max_registers<(uint32_t)product_g51>(thread_features) == g31_g51_max_registers_small_core)
+    case product_id::g51: {
+        if (core_count == 1 && max_registers<product_id::g51>(thread_features) == g31_g51_max_registers_small_core)
             return 1;
         return 3;
     }
-    case product_g52:
-        ee_count = static_cast<uint8_t>(core_features & 0xF);
+    case product_id::g52:
+        ee_count = static_cast<uint8_t>(core_features & exec_engines_mask);
         return ee_count;
-    // NOLINTNEXTLINE(bugprone-branch-clone)
-    case product_g57:
-    case product_g57_2:
+    case product_id::g57:
+    case product_id::g57_2:
         return 1;
-    case product_g68:
+    case product_id::g68:
         return 1;
-    // NOLINTNEXTLINE(bugprone-branch-clone)
-    case product_g71:
+    case product_id::g71:
         return 3;
-    // NOLINTNEXTLINE(bugprone-branch-clone)
-    case product_g72:
+    case product_id::g72:
         return 3;
-    case product_g76:
+    case product_id::g76:
         return 3;
-    // NOLINTNEXTLINE(bugprone-branch-clone)
-    case product_g77:
+    case product_id::g77:
         return 1;
-    case product_g78:
-    case product_g78ae:
+    case product_id::g78:
+    case product_id::g78ae:
         return 1;
-    case product_g310:
-    case product_g510:
-        core_variant = static_cast<uint8_t>(core_features & 0xF);
+    case product_id::g310:
+        core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
+        switch (core_variant) {
+        case 0:
+        case 1:
+        case 5:
+        case 6:
+            return 1;
+        case 2:
+        case 3:
+        case 4:
+            return 2;
+        }
+        ec = std::make_error_code(std::errc::not_supported);
+        return 0;
+    case product_id::g510:
+        core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
         switch (core_variant) {
         case 0:
         case 1:
@@ -129,12 +122,12 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         }
         ec = std::make_error_code(std::errc::not_supported);
         return 0;
-    case product_g610:
-    case product_g710:
+    case product_id::g610:
+    case product_id::g710:
         return 2;
-    case product_g615:
-    case product_g715:
-        core_variant = static_cast<uint8_t>(core_features & 0xF);
+    case product_id::g615:
+    case product_id::g715:
+        core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
         switch (core_variant) {
         case 0:
         case 1:
@@ -146,10 +139,11 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         }
         ec = std::make_error_code(std::errc::not_supported);
         return 0;
-    case product_g720:
-    case product_g720_2:
-    case product_g720_3:
-        core_variant = static_cast<uint8_t>(core_features & 0xF);
+    case product_id::g720:
+    case product_id::g620:
+    case product_id::g725:
+    case product_id::g625:
+        core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
         switch (core_variant) {
         case 1:
             return 1;
@@ -159,10 +153,7 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         ec = std::make_error_code(std::errc::not_supported);
         return 0;
     }
-
-    // Any Midgard GPUs not in the list above have 1 arithmetic pipe.
-    if (id.get_gpu_family() == product_id::gpu_family::midgard)
-        return 1;
+    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, bugprone-branch-clone)
 
     ec = std::make_error_code(std::errc::not_supported);
     return 0;

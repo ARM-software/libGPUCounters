@@ -69,6 +69,7 @@ static std::unique_ptr<detail::backend> kinstr_prfcnt_backend_create(const insta
     std::error_code ec;
     kinstr_backend::args_type args{};
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::tie(ec, args) = kinstr_prfcnt::setup(inst, period_ns, config, config + config_len);
 
     if (ec)
@@ -93,6 +94,7 @@ static std::unique_ptr<detail::backend> vinstr_backend_create(const instance_imp
     std::error_code ec;
     vinstr_backend::args_type args{};
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     std::tie(ec, args) = vinstr::setup(inst, period_ns, config, config + config_len);
 
     if (ec)

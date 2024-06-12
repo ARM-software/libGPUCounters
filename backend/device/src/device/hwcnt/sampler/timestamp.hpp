@@ -55,7 +55,7 @@ class timestamp_iface {
 #endif
         constexpr uint64_t nsec_per_sec = 1000000000;
 
-        return now.tv_sec * nsec_per_sec + now.tv_nsec;
+        return static_cast<uint64_t>(now.tv_sec) * nsec_per_sec + static_cast<uint64_t>(now.tv_nsec);
     }
 };
 
