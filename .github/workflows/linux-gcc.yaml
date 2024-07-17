@@ -2,9 +2,11 @@ name: Build for Linux with GCC
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - main
+    inputs:
+      ref:
+        description: 'Branch or commit to build'
+        required: true
+        default: 'main'
 
 jobs:
   build:
