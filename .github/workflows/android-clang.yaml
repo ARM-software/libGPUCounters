@@ -2,11 +2,9 @@ name: Build for Android with Clang using the NDK
 
 on:
   workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch or commit to build'
-        required: true
-        default: 'main'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:

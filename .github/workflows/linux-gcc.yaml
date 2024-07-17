@@ -2,11 +2,9 @@ name: Build for Linux with GCC
 
 on:
   workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Branch or commit to build'
-        required: true
-        default: 'main'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -15,9 +13,6 @@ jobs:
     steps:
     - name: Git checkout
       uses: actions/checkout@v4
-
-    - name: Set up GCC
-      run: sudo apt-get install -y build-essential
 
     - name: Build with GCC
       run: |
