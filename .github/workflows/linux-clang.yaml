@@ -20,3 +20,10 @@ jobs:
         cd build
         cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
         make
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: libgpu-linux-x86
+        path: |
+          build/*
