@@ -24,9 +24,7 @@ jobs:
 
     - name: Download and set up Android NDK
       run: |
-        wget https://dl.google.com/android/repository/android-ndk-r27-linux.zip
-        unzip android-ndk-r27-linux.zip
-        echo "export ANDROID_NDK_HOME=$GITHUB_WORKSPACE/android-ndk-r27" >> $GITHUB_ENV
+        echo "export ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk/26.3.11579264" >> $GITHUB_ENV
         echo "export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux/bin:$PATH" >> $GITHUB_ENV
 
     - name: Build with Clang and Android NDK
