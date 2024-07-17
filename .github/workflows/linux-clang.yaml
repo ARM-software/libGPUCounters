@@ -1,0 +1,25 @@
+name: Build for Linux with Clang
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Clang
+      run: sudo apt-get install -y clang
+
+    - name: Build with Clang
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+        make
