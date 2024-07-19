@@ -1,0 +1,22 @@
+name: Build for Linux with GCC
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v4
+
+    - name: Build with GCC
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ ..
+        make
