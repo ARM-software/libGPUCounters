@@ -1,11 +1,11 @@
 # About
 
-HWCPipe is a utility that allows applications to sample performance counters from Arm® Immortalis™
-and Arm Mali™ GPUs. This information allows developers to profile and optimize their application
-workload using their existing in-house performance tooling, and gives the ability to display
-performance data live in the application user interface.
+libGPUCounters (formerly called HWCPipe) is a utility that allows applications to sample performance
+counters from Arm® Immortalis™ and Arm Mali™ GPUs. This information allows developers to profile and
+optimize their application workload using their existing in-house performance tooling, and gives the
+ability to display performance data live in the application user interface.
 
-The HWCPipe 2.x series is a major rewrite of the library, capable of exposing all of the public
+The 2.x release series is a major rewrite of the library, capable of exposing all of the public
 performance counters accessible in the Arm Streamline profiler. This version of the library
 is not API compatible with the 1.x series, and no longer supports Arm CPU performance counters.
 
@@ -25,7 +25,7 @@ you acknowledge that you accept terms specified in the [LICENSE.md](LICENSE.md) 
 
 # Building
 
-The HWCPipe library is designed to be embedded into existing CMake build process. Clone the GitHub
+The library is designed to be embedded into existing CMake build process. Clone the GitHub
 repository and add it as a subdirectory to your CMakeLists.txt. A single library target, called
 `hwcpipe`, is made available for you to link to your project.
 
@@ -55,6 +55,6 @@ graphics development or technology please submit them on the [Arm Community grap
 
 - - -
 
-_Copyright © 2023, Arm Limited and contributors. All rights reserved._
+_Copyright © 2023-2024, Arm Limited and contributors. All rights reserved._
 
 [1]: https://community.arm.com/support-forums/f/graphics-gaming-and-vr-forum/
