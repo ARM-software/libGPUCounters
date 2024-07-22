@@ -25,7 +25,7 @@ you acknowledge that you accept terms specified in the [LICENSE.md](LICENSE.md) 
 
 # Building
 
-The HWCPipe library is designed to be embedded into existing CMake build process. Clone the GitHub
+The library is designed to be embedded into existing CMake build process. Clone the GitHub
 repository and add it as a subdirectory to your CMakeLists.txt. A single library target, called
 `hwcpipe`, is made available for you to link to your project.
 
