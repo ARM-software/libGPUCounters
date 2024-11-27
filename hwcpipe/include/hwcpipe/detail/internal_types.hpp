@@ -96,6 +96,7 @@ struct block_offset {
  */
 struct counter_definition {
     enum class type { invalid, hardware, expression };
+    type tag;
     union u {
         block_offset address{};
         expression::expression_definition expression;
@@ -104,7 +105,6 @@ struct counter_definition {
         explicit u(block_offset address)
             : address(address) {}
     } u;
-    type tag;
 
     counter_definition()
         : tag(type::invalid)
