@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -29,6 +29,11 @@ namespace expression {
  */
 class context {
   public:
+    /**
+     * @brief Ensure we have a destructor for polymorphic type.
+     */
+    virtual ~context() noexcept = default;
+
     /**
      * @brief Returns the value a hardware counter from the sampler to be used
      * in the expression evaluator
