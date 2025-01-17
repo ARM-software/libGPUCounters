@@ -75,7 +75,7 @@ struct counter_sample {
 
     /** Default constructor */
     counter_sample()
-        : counter_sample(hwcpipe_counter(), 0, 0UL) {}
+        : counter_sample(hwcpipe_counter(), 0, (uint64_t)0UL) {}
 };
 
 /**
