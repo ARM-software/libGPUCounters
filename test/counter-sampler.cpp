@@ -44,12 +44,22 @@ struct hwcpipe_sampler_mock_policy {
 using namespace hwcpipe::mock;
 using sampler_t = hwcpipe::sampler<hwcpipe_sampler_mock_policy>;
 
+TEST_CASE("counter_sampler__DefaultConstructor") {
+    SECTION("uint64") {
+        counter_sample sample;
+
+        REQUIRE(sample.timestamp == 0);
+        REQUIRE(sample.value.uint64 == static_cast<uint64_t>(0UL));
+        REQUIRE(sample.type == counter_sample::type::uint64);
+    }
+}
+
 TEST_CASE("counter_sampler__CorrectTypesAreAssigned") {
     SECTION("uint64") {
-        counter_sample sample{hwcpipe_counter(), 0xbaadcafe, 42UL};
+        counter_sample sample{hwcpipe_counter(), 0xbaadcafe, static_cast<uint64_t>(42UL)};
 
         REQUIRE(sample.timestamp == 0xbaadcafe);
-        REQUIRE(sample.value.uint64 == 42);
+        REQUIRE(sample.value.uint64 == static_cast<uint64_t>(42));
         REQUIRE(sample.type == counter_sample::type::uint64);
     }
 
