@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -75,7 +75,7 @@ struct counter_sample {
 
     /** Default constructor */
     counter_sample()
-        : counter_sample(hwcpipe_counter(), 0, 0UL) {}
+        : counter_sample(hwcpipe_counter(), 0, static_cast<uint64_t>(0UL)) {}
 };
 
 /**
