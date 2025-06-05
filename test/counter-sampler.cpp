@@ -59,7 +59,7 @@ TEST_CASE("counter_sampler__CorrectTypesAreAssigned") {
         counter_sample sample{hwcpipe_counter(), 0xbaadcafe, static_cast<uint64_t>(42UL)};
 
         REQUIRE(sample.timestamp == 0xbaadcafe);
-        REQUIRE(sample.value.uint64 == static_cast<uint64_t>(42));
+        REQUIRE(sample.value.uint64 == static_cast<uint64_t>(42UL));
         REQUIRE(sample.type == counter_sample::type::uint64);
     }
 

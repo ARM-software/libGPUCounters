@@ -18,8 +18,13 @@
 #include <cstdint>
 #include <initializer_list>
 #include <system_error>
+#include <vector>
 namespace hwcpipe {
 namespace detail {
+
+struct counter_data {
+    virtual ~counter_data() noexcept = default;
+};
 
 namespace expression {
 /**
@@ -66,7 +71,7 @@ using evaluator = double (*)(const context &);
  * Holds information about the expression that the sampler will need when
  * registering the counters and evaluating.
  */
-struct expression_definition {
+struct expression_definition : public counter_data {
     /**
      * Pointer to the function that will evaluate the expression and return the
      * calculated result.
@@ -77,7 +82,11 @@ struct expression_definition {
      * be implicitly registered with the sampler so that they can be collected
      * when it is polled.
      */
-    const std::initializer_list<hwcpipe_counter> dependencies;
+    const std::vector<hwcpipe_counter> dependencies;
+
+    expression_definition(evaluator eval, const std::initializer_list<hwcpipe_counter> dependencies)
+        : eval(eval)
+        , dependencies(std::move(dependencies)) {}
 };
 
 } // namespace expression
@@ -85,10 +94,17 @@ struct expression_definition {
  * Structure representing the block type/offset address and shift
  * scaling of a counter within a particular GPU's PMU data.
  */
-struct block_offset {
+struct block_offset : public counter_data {
+    using block_t = hwcpipe::device::hwcnt::block_type;
+
     uint32_t offset;
     uint32_t shift;
-    hwcpipe::device::hwcnt::block_type block_type;
+    block_t block_type;
+
+    block_offset(uint32_t offset, uint32_t shift, block_t block_type)
+        : offset(offset)
+        , shift(shift)
+        , block_type(block_type) {}
 };
 
 /**
@@ -102,24 +118,29 @@ struct block_offset {
 struct counter_definition {
     enum class type { invalid, hardware, expression };
     type tag;
-    union u {
-        block_offset address{};
-        expression::expression_definition expression;
-        explicit u(expression::expression_definition expression)
-            : expression(expression) {}
-        explicit u(block_offset address)
-            : address(address) {}
-    } u;
+    const std::shared_ptr<counter_data> data;
+
+    HWCP_NODISCARD const expression::expression_definition &get_expression() const {
+        assert(tag == type::expression);
+        auto const ptr = std::static_pointer_cast<const expression::expression_definition>(data);
+        return *ptr;
+    }
+
+    HWCP_NODISCARD const block_offset &get_address() const {
+        assert(tag == type::hardware);
+        auto const ptr = std::static_pointer_cast<const block_offset>(data);
+        return *ptr;
+    }
 
     counter_definition()
         : tag(type::invalid)
-        , u(block_offset{0, 0, device::hwcnt::block_type::fe}) {}
+        , data(std::make_shared<block_offset>(0, 0, device::hwcnt::block_type::fe)) {}
     explicit counter_definition(expression::expression_definition expression)
         : tag(type::expression)
-        , u(expression) {}
+        , data(std::make_shared<expression::expression_definition>(expression)) {}
     explicit counter_definition(block_offset address)
         : tag(type::hardware)
-        , u(address) {}
+        , data(std::make_shared<block_offset>(address)) {}
 };
 
 struct hwcpipe_backend_policy {
