@@ -157,7 +157,7 @@ class sampler_config {
 
         switch (definition.tag) {
         case detail::counter_definition::type::hardware: {
-            const auto &address = definition.u.address;
+            const auto &address = definition.get_address();
             counters_.emplace(counter, definition);
 
             backend_config_[address.block_type].enable_map[address.offset] = 1;
@@ -165,7 +165,7 @@ class sampler_config {
         }
         case detail::counter_definition::type::expression: {
             counters_.emplace(counter, definition);
-            ec = add_expression_depedencies(definition.u.expression);
+            ec = add_expression_depedencies(definition.get_expression());
             if (ec) {
                 return ec;
             }
@@ -621,14 +621,14 @@ class sampler : private detail::expression::context {
                 counter_to_buffer_pos_[counter.counter] = buffer_pos;
                 sample_buffer_.push_back({});
 
-                auto &block_pos_list = counters_by_block_map_[counter.definition.u.address.block_type];
-                block_pos_list.emplace_back(counter.definition.u.address.offset, buffer_pos,
-                                            counter.definition.u.address.shift);
+                auto &address = counter.definition.get_address();
+                auto &block_pos_list = counters_by_block_map_[address.block_type];
+                block_pos_list.emplace_back(address.offset, buffer_pos, address.shift);
                 break;
             }
             case detail::counter_definition::type::expression: {
                 // store the function pointer to run this expression in get_counter_value()
-                counter_to_evaluator_.emplace(counter.counter, counter.definition.u.expression.eval);
+                counter_to_evaluator_.emplace(counter.counter, counter.definition.get_expression().eval);
                 break;
             }
             case detail::counter_definition::type::invalid:

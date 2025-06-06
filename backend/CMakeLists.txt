@@ -29,7 +29,7 @@ project(hwcpipe2)
 option(
     HWCPIPE_ENABLE_TESTS
     "If set, build unit tests."
-    OFF
+    ON
 )
 option(HWCPIPE_ENABLE_EXCEPTIONS "If set, c++ exceptions are enabled.")
 option(

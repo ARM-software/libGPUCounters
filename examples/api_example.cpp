@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -40,6 +40,7 @@ void print_sample_value(const hwcpipe::counter_sample &sample) {
         std::cout << sample.value.float64;
         return;
     default:
+        std::cout << "Unknown";
         return;
     }
 }
