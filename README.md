@@ -26,14 +26,22 @@ you acknowledge that you accept terms specified in the [LICENSE.md](LICENSE.md) 
 # Building
 
 The library is designed to be embedded into existing CMake build process. Clone the GitHub
-repository and add it as a subdirectory to your CMakeLists.txt. A single library target, called
-`hwcpipe`, is made available for you to link to your project.
+repository and add it as a subdirectory to your `CMakeLists.txt`. The build generates two
+libraries:
 
-For example, your `CMakeLists.txt` could contain:
+* `device` is the low-level hardware sampling backend.
+* `hwcpipe` is the high-level query and sampling frontend.
 
-```
-add_subdirectory(external/hwcpipe)
-target_link_libraries(my_project hwcpipe)
+You will need to include both libraries in your application link step. For example, your
+`CMakeLists.txt` could contain:
+
+```cmake
+add_subdirectory(path/to/libGPUCounters)
+
+target_link_libraries(
+    my_project
+        device
+        hwcpipe)
 ```
 
 ## Building the example
@@ -41,7 +49,7 @@ target_link_libraries(my_project hwcpipe)
 A small example demonstrating the API usage is provided in the `examples` folder. To build the
 example enable the `HWCPIPE_BUILD_EXAMPLES` CMake build option.
 
-```
+```sh
 cmake -DHWCPIPE_BUILD_EXAMPLES=ON -B build .
 ```
 
@@ -51,7 +59,6 @@ If you have issues with the library itself, please raise them in the project's G
 
 If you have any questions about Arm GPUs, application development for Arm GPUs, or general mobile
 graphics development or technology please submit them on the [Arm Community graphics forums][1].
-
 
 - - -
 
