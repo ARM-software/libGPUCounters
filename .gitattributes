@@ -1,0 +1,12 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text eol=lf
+
+# Force these text files to normalized endings
+*.c text
+*.cpp text
+*.h text
+*.hpp text
+*.md text
+*.py text
+*.sh text
+*.txt text
