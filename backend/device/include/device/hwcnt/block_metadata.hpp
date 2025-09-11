@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -57,7 +57,19 @@ enum class block_type : uint8_t {
     csg,
     /** First block type. */
     first = fe,
+    /** Last block type. */
     last = csg,
+};
+
+enum class block_state_type : uint8_t {
+    on,
+    off,
+    available,
+    unavailable,
+    normal_mode,
+    protected_mode,
+    first = on,
+    last = protected_mode,
 };
 
 /**

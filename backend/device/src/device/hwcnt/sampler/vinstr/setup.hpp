@@ -55,7 +55,8 @@ namespace detail {
 inline auto init_features(ioctl::vinstr::reader_features reader_features) {
     features result{};
 
-    result.has_gpu_cycle = !!reader_features;
+    result.has_gpu_cycle = !!(reader_features & ioctl::vinstr::reader_features::cycles_top);
+    result.has_sc_cycle = !!(reader_features & ioctl::vinstr::reader_features::cycles_shader_core);
     result.has_stretched_flag = false;
     result.overflow_behavior_defined = true;
 

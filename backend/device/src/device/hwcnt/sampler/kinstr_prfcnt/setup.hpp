@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -132,6 +132,7 @@ inline auto invoke_request(int device_fd, ioctl::kinstr_prfcnt::request_item *be
  * @return features structure initialized.
  */
 inline auto init_features(const enum_info &ei, kbase_version kbase_ver) {
+    // TODO GPURD-5866: Update UK min version once features are fully supported
     static const kbase_version min_kbase_ver_block_state_jm(11, 41, ioctl_iface_type::jm_post_r21);
     static const kbase_version min_kbase_ver_block_state_csf(1, 23, ioctl_iface_type::csf);
 
@@ -149,6 +150,7 @@ inline auto init_features(const enum_info &ei, kbase_version kbase_ver) {
         assert(kbase_ver.type() != ioctl_iface_type::jm_pre_r21);
     }
     result.has_gpu_cycle = ei.has_cycles_top;
+    result.has_sc_cycle = ei.has_cycles_sc;
     result.has_stretched_flag = true;        // always true
     result.overflow_behavior_defined = true; // always true, on tODx under some circumstances false
 

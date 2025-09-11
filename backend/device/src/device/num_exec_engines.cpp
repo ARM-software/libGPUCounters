@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -145,6 +145,19 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
     case product_id::g625:
         core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
         switch (core_variant) {
+        case 1:
+            return 1;
+        case 4:
+            return 2;
+        }
+        ec = std::make_error_code(std::errc::not_supported);
+        return 0;
+    case product_id::g1_ultra:
+    case product_id::g1_premium:
+    case product_id::g1_pro:
+        core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
+        switch (core_variant) {
+        case 0:
         case 1:
             return 1;
         case 4:

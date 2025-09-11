@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -125,9 +125,9 @@ class strided_array_iterator {
         assert(rhs.stride_ == stride_);
 
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        char *lhs_addr = reinterpret_cast<char *>(ptr_);
+        unsigned char *lhs_addr = reinterpret_cast<unsigned char *>(ptr_);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        char *rhs_addr = reinterpret_cast<char *>(rhs.ptr_);
+        unsigned char *rhs_addr = reinterpret_cast<unsigned char *>(rhs.ptr_);
 
         difference_type diff = lhs_addr - rhs_addr;
 
@@ -140,7 +140,7 @@ class strided_array_iterator {
     pointer operator->() { return ptr_; }
 
   private:
-    pointer advance(difference_type diff) {
+    pointer advance(difference_type diff) const {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         auto addr = reinterpret_cast<difference_type>(ptr_);
 

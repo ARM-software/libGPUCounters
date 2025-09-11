@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -75,6 +75,9 @@ enum class product_id {
     g620,
     g725,
     g625,
+    g1_ultra,
+    g1_premium,
+    g1_pro,
 };
 
 /** GPU Family. */

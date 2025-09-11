@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -22,36 +22,33 @@
  * SOFTWARE.
  */
 
-/* Note, this file is generated, do NOT edit! */
-
 #pragma once
 
-#include "types.hpp"
-
-#include <linux/ioctl.h>
+#include <device/hwcnt/clock_extents.hpp>
+#include <device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.hpp>
 
 namespace hwcpipe {
 namespace device {
-namespace ioctl {
+namespace hwcnt {
+namespace sampler {
 namespace kinstr_prfcnt {
 
-/** Interface kinstr_prfcnt number. */
-constexpr auto iface_number = 0xbf;
+/**
+ *  Parse enum info to construct an instance of clock extents.
+ *
+ * @param[in] ei Enum Info.
+ * @return Clock extents instance parsed from enum info.
+ */
+inline hwcnt::clock_extents construct_clock_extents(enum_info ei) {
+    hwcnt::clock_extents clock_extents = hwcnt::clock_extents{
+        ei.has_cycles_top,
+        ei.has_cycles_sc,
+    };
+    return clock_extents;
+}
 
-namespace command {
-
-/** Commands describing kinstr_prfcnt ioctl interface. */
-enum command_type {
-    /** Issue command. */
-    issue_command = _IOW(iface_number, 0x0, ::hwcpipe::device::ioctl::kinstr_prfcnt::control_cmd),
-    /** Get sample. */
-    get_sample = _IOR(iface_number, 0x1, ::hwcpipe::device::ioctl::kinstr_prfcnt::sample_access),
-    /** Put sample. */
-    put_sample = _IOW(iface_number, 0x10, ::hwcpipe::device::ioctl::kinstr_prfcnt::sample_access),
-};
-
-} // namespace command
 } // namespace kinstr_prfcnt
-} // namespace ioctl
+} // namespace sampler
+} // namespace hwcnt
 } // namespace device
 } // namespace hwcpipe

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -77,6 +77,11 @@ double MaliFragTileKillRate_v0(const context &ctx);
 double MaliFragTileKillRate_v1(const context &ctx);
 double MaliCoreUtil_v0(const context &ctx);
 double MaliCoreUtil_v1(const context &ctx);
+double MaliALUIssueCy_v0(const context &ctx);
+double MaliALUIssueCy_v1(const context &ctx);
+double MaliALUIssueCy_v2(const context &ctx);
+double MaliALUIssueCy_v3(const context &ctx);
+double MaliALUIssueCy_v4(const context &ctx);
 double MaliALUUtil_v0(const context &ctx);
 double MaliALUUtil_v1(const context &ctx);
 double MaliALUUtil_v2(const context &ctx);
@@ -184,6 +189,8 @@ double MaliSCBusLSWrBy_v1(const context &ctx);
 double MaliSCBusLSWrByPerWr_v0(const context &ctx);
 double MaliSCBusLSWrByPerWr_v1(const context &ctx);
 double MaliSCBusTileWrBy_v0(const context &ctx);
+double MaliSCBusTileWrBPerPx_v0(const context &ctx);
+double MaliSCBusTileWrBPerPx_v1(const context &ctx);
 double MaliCoreAllRegsWarpRate_v0(const context &ctx);
 double MaliCoreFullWarpRate_v0(const context &ctx);
 double MaliTexCompressInstrRate_v0(const context &ctx);
@@ -227,6 +234,7 @@ double MaliGeomPlaneCullRate_v1(const context &ctx);
 double MaliFragShadRate_v0(const context &ctx);
 double MaliCoreFragWarpOcc_v0(const context &ctx);
 double MaliEngNarrowInstrRate_v0(const context &ctx);
+double MaliRTUIssueCy_v0(const context &ctx);
 double MaliRTUUtil_v0(const context &ctx);
 double MaliMainQueueActiveCy_v0(const context &ctx);
 double MaliMainQueueUtil_v0(const context &ctx);
@@ -240,7 +248,7 @@ double MaliFragMainPassStallRate_v0(const context &ctx);
 double MaliFragInputPrim_v0(const context &ctx);
 double MaliFragPrepassPrimRate_v0(const context &ctx);
 double MaliFragPrepassCullPrimRate_v0(const context &ctx);
-double MaliFragPrepassUncullPrimRate_v0(const context &ctx);
+double MaliFragPrepassSkipPrimRate_v0(const context &ctx);
 double MaliFragPrepassWarpRate_v0(const context &ctx);
 double MaliFragPrepassThread_v0(const context &ctx);
 double MaliFragMainThread_v0(const context &ctx);
@@ -251,6 +259,11 @@ double MaliEngLSBackpressureRate_v0(const context &ctx);
 double MaliEngTexBackpressureRate_v0(const context &ctx);
 double MaliEngVarBackpressureRate_v0(const context &ctx);
 double MaliEngZSBackpressureRate_v0(const context &ctx);
+double MaliEngRTUBackpressureRate_v0(const context &ctx);
+double MaliAttrUtil_v0(const context &ctx);
+double MaliBlendUtil_v0(const context &ctx);
+double MaliSCBusRTUL2RdBy_v0(const context &ctx);
+double MaliSCBusRTUExtRdBy_v0(const context &ctx);
 
 } // namespace database
 

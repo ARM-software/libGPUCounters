@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -79,6 +79,7 @@ typedef enum hwcpipe_counter {
     MaliFragOverdraw,
     MaliFragTileKillRate,
     MaliCoreUtil,
+    MaliALUIssueCy,
     MaliALUUtil,
     MaliTexSample,
     MaliTexCPI,
@@ -244,6 +245,7 @@ typedef enum hwcpipe_counter {
     MaliSCBusLSWrBy,
     MaliSCBusLSWrByPerWr,
     MaliSCBusTileWrBy,
+    MaliSCBusTileWrBPerPx,
     MaliCoreAllRegsWarp,
     MaliCoreFullWarp,
     MaliCoreAllRegsWarpRate,
@@ -325,7 +327,7 @@ typedef enum hwcpipe_counter {
     MaliCSFMCUUtil,
     MaliCSFLSUUtil,
     MaliCSFCEUUtil,
-    MaliGPUActive2Cy,
+    MaliGPUActiveRawCy,
     MaliEngNarrowInstr,
     MaliFragRastCoarseQd,
     MaliRTUTri,
@@ -352,6 +354,7 @@ typedef enum hwcpipe_counter {
     MaliFragShadRate,
     MaliCoreFragWarpOcc,
     MaliEngNarrowInstrRate,
+    MaliRTUIssueCy,
     MaliRTUUtil,
     MaliBinningQueuedCy,
     MaliBinningQueueJob,
@@ -394,7 +397,7 @@ typedef enum hwcpipe_counter {
     MaliFragPrim,
     MaliFragPrepassCullPrim,
     MaliFragPrepassPrim,
-    MaliFragPrepassUncullPrim,
+    MaliFragPrepassSkippedPrim,
     MaliFragPrepassEZSUpdateQd,
     MaliFragPrepassTestQd,
     MaliFragPrepassKillQd,
@@ -416,7 +419,7 @@ typedef enum hwcpipe_counter {
     MaliFragInputPrim,
     MaliFragPrepassPrimRate,
     MaliFragPrepassCullPrimRate,
-    MaliFragPrepassUncullPrimRate,
+    MaliFragPrepassSkipPrimRate,
     MaliFragPrepassWarpRate,
     MaliFragPrepassThread,
     MaliFragMainThread,
@@ -426,7 +429,31 @@ typedef enum hwcpipe_counter {
     MaliEngLSBackpressureRate,
     MaliEngTexBackpressureRate,
     MaliEngVarBackpressureRate,
-    MaliEngZSBackpressureRate
+    MaliEngZSBackpressureRate,
+    MaliEngStarveICacheCy,
+    MaliSCBusRTUL2RdBt,
+    MaliSCBusRTUExtRdBt,
+    MaliRTUStackOverflows,
+    MaliRTUBoxIssue,
+    MaliRTUTriCull,
+    MaliBlendIssueCy,
+    MaliAttrIssueCy,
+    MaliEngRTUBackpressureCy,
+    MaliRTUCacheHit,
+    MaliRTUCacheMiss,
+    MaliRTUNewTraceInstr,
+    MaliRTUResumeTraceInstr,
+    MaliRTUActiveCy,
+    MaliRTUResumeTraceRays,
+    MaliRTUTLASBoxIssue,
+    MaliRTUBLASIssue,
+    MaliRTUPrimCull,
+    MaliRTUBLASCull,
+    MaliEngRTUBackpressureRate,
+    MaliAttrUtil,
+    MaliBlendUtil,
+    MaliSCBusRTUL2RdBy,
+    MaliSCBusRTUExtRdBy
 } hwcpipe_counter;
 
 #endif /* HWCPIPE_COUNTER_H */

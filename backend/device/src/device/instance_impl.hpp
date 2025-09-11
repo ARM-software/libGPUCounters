@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -32,6 +32,7 @@
 #include <device/hwcnt/block_extents.hpp>
 #include <device/hwcnt/block_metadata.hpp>
 #include <device/hwcnt/sampler/kinstr_prfcnt/construct_block_extents.hpp>
+#include <device/hwcnt/sampler/kinstr_prfcnt/construct_clock_extents.hpp>
 #include <device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.hpp>
 #include <device/hwcnt/sampler/manual.hpp>
 #include <device/hwcnt/sampler/vinstr/construct_block_extents.hpp>
@@ -95,6 +96,9 @@ static uint64_t get_warp_width(product_id known_pid, std::error_code &ec) {
     case product_id::g620:
     case product_id::g725:
     case product_id::g625:
+    case product_id::g1_ultra:
+    case product_id::g1_premium:
+    case product_id::g1_pro:
         return 16;
     }
 
@@ -349,6 +353,11 @@ class instance_impl : public instance, private syscall_iface_t {
         return block_extents_;
     }
 
+    hwcnt::clock_extents get_hwcnt_clock_extents() const override {
+        assert(clock_extents_.was_clock_extent_set());
+        return clock_extents_;
+    }
+
     hwcnt::sampler::kinstr_prfcnt::enum_info get_enum_info() const {
         /* The enum info must have been initialized. */
         assert(ei_.num_values != 0);
@@ -516,12 +525,12 @@ class instance_impl : public instance, private syscall_iface_t {
     }
 
     /**
-     * Initialize `block_extents_` field.
+     * Initialize `block/clock_extents_` field.
      *
      * @param[in] iface Syscall iface.
      * @return Error code.
      */
-    std::error_code init_block_extents(const syscall_iface_t &iface) {
+    std::error_code init_extents(const syscall_iface_t &iface) {
         std::error_code ec;
 
         product_id pid = get_product_id();
@@ -542,6 +551,7 @@ class instance_impl : public instance, private syscall_iface_t {
                 return ec;
 
             block_extents_ = construct_block_extents(ei_);
+            clock_extents_ = construct_clock_extents(ei_);
             break;
         }
 
@@ -668,7 +678,7 @@ class instance_impl : public instance, private syscall_iface_t {
         if (ec)
             return ec;
 
-        ec = init_block_extents(iface);
+        ec = init_extents(iface);
         if (ec)
             return ec;
 
@@ -681,6 +691,7 @@ class instance_impl : public instance, private syscall_iface_t {
 
     constants constants_{};
     hwcnt::block_extents block_extents_{};
+    hwcnt::clock_extents clock_extents_{};
     kbase_version_type kbase_version_{};
     hwcnt::backend_type backend_type_{};
     hwcnt::sampler::kinstr_prfcnt::enum_info ei_{};
