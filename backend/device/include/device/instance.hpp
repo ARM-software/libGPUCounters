@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -33,6 +33,7 @@
 #include <device/api.hpp>
 #include <device/constants.hpp>
 #include <device/hwcnt/block_extents.hpp>
+#include <device/hwcnt/clock_extents.hpp>
 
 #include <memory>
 
@@ -77,6 +78,13 @@ class HWCPIPE_DEVICE_API instance {
      * @return The block_extents structure instance.
      */
     virtual hwcnt::block_extents get_hwcnt_block_extents() const = 0;
+
+    /**
+     * Get hardware counters clock's extents.
+     *
+     * @return The clock_extents structure instance.
+     */
+    virtual hwcnt::clock_extents get_hwcnt_clock_extents() const = 0;
 
     /**
      * Create device instance.

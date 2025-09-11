@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -63,6 +63,18 @@ class block_extents {
         static_cast<num_block_types_type>(block_type::last) + 1;
 
     using num_blocks_of_type_type = std::array<uint8_t, num_block_types>;
+
+    using num_block_states_type = std::underlying_type_t<block_state_type>;
+
+    /** Number of block state types. */
+    static const constexpr num_block_states_type num_block_states =
+        static_cast<num_block_states_type>(block_state_type::last) + 1;
+
+    using num_block_state_strings_type = std::array<const char *, num_block_states>;
+
+    static const constexpr num_block_state_strings_type num_block_state_strings = {
+        "on", "off", "available", "unavailable", "normal", "protected",
+    };
 
     /**
      * Construct block extents.

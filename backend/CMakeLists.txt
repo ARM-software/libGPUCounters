@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2022 ARM Limited.
+# Copyright (c) 2021-2024 ARM Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -22,6 +22,7 @@
 # SOFTWARE.
 #
 
+# TODO GPUCORE-30489: Update the version to 3.16.
 cmake_minimum_required(VERSION 3.13.5)
 
 project(hwcpipe2)

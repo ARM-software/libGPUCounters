@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Arm Limited.
+ * Copyright (c) 2024-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -161,7 +161,12 @@ std::pair<std::error_code, product_id> product_id_from_raw_gpu_id(uint64_t raw_g
             return std::make_pair(std::error_code{}, product_id::g725);
         case hash_from_versions(13, 1):
             return std::make_pair(std::error_code{}, product_id::g625);
-
+        case hash_from_versions(14, 0):
+            return std::make_pair(std::error_code{}, product_id::g1_ultra);
+        case hash_from_versions(14, 1):
+            return std::make_pair(std::error_code{}, product_id::g1_premium);
+        case hash_from_versions(14, 3):
+            return std::make_pair(std::error_code{}, product_id::g1_pro);
         // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
         default:
             return std::make_pair(std::make_error_code(std::errc::invalid_argument), product_id{});
@@ -209,6 +214,9 @@ gpu_family get_gpu_family(const product_id pid) {
     case product_id::g620:
     case product_id::g725:
     case product_id::g625:
+    case product_id::g1_ultra:
+    case product_id::g1_premium:
+    case product_id::g1_pro:
         return gpu_family::fifthgen;
     }
     __builtin_unreachable();
@@ -248,6 +256,9 @@ gpu_frontend get_gpu_frontend(const product_id pid) {
     case product_id::g620:
     case product_id::g725:
     case product_id::g625:
+    case product_id::g1_ultra:
+    case product_id::g1_premium:
+    case product_id::g1_pro:
         return gpu_frontend::csf;
     }
     __builtin_unreachable();

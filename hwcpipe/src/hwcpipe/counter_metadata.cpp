@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -9,7 +9,7 @@
 namespace hwcpipe {
 namespace database {
 
-constexpr std::array<counter_metadata, 417> all_counter_metadata{
+constexpr std::array<counter_metadata, 444> all_counter_metadata{
     counter_metadata{"GPU active cycles", "cycles"},
     counter_metadata{"GPU interrupt pending cycles", "cycles"},
     counter_metadata{"Fragment jobs", "jobs"},
@@ -79,6 +79,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Fragments per pixel", "threads"},
     counter_metadata{"Unchanged tile kill percentage", "percent"},
     counter_metadata{"Execution core utilization", "percent"},
+    counter_metadata{"Arithmetic unit issue cycles", "cycles"},
     counter_metadata{"Arithmetic unit utilization", "percent"},
     counter_metadata{"Texture samples", "requests"},
     counter_metadata{"Texture filtering cycles per instruction", "cycles"},
@@ -244,6 +245,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Load/store unit write bytes", "bytes"},
     counter_metadata{"Load/store unit bytes written to L2 per access cycle", "bytes"},
     counter_metadata{"Tile unit write bytes", "bytes"},
+    counter_metadata{"Tile unit bytes written to L2 per pixel", "bytes"},
     counter_metadata{"Warps using more than 32 registers", "warps"},
     counter_metadata{"Full warps", "warps"},
     counter_metadata{"All registers warp percentage", "percent"},
@@ -325,7 +327,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Microcontroller utilization", "percent"},
     counter_metadata{"Command load/store unit utilization", "percent"},
     counter_metadata{"Command execution unit utilization", "percent"},
-    counter_metadata{"GPU active2 cycles", "cycles"},
+    counter_metadata{"GPU active raw cycles", "cycles"},
     counter_metadata{"Narrow arithmetic instructions", "instructions"},
     counter_metadata{"Rasterized coarse quads", "quads"},
     counter_metadata{"Ray tracing triangle batches tested", "batches"},
@@ -341,7 +343,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Ray tracing opaque triangle hits", "tests"},
     counter_metadata{"Ray tracing non-opaque triangle hits", "tests"},
     counter_metadata{"Ray tracing first hit terminations", "rays"},
-    counter_metadata{"Ray tracing ray misses", "rays"},
+    counter_metadata{"Ray tracing triangle test misses", "rays"},
     counter_metadata{"Ray tracing started rays", "rays"},
     counter_metadata{"Ray tracing box tester issue cycles", "cycles"},
     counter_metadata{"Ray tracing triangle tester issue cycles", "cycles"},
@@ -352,6 +354,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Fragment shading rate", "percent"},
     counter_metadata{"Fragment warp occupancy", "percent"},
     counter_metadata{"Narrow arithmetic percentage", "percent"},
+    counter_metadata{"Ray tracing unit issue cycles", "cycles"},
     counter_metadata{"Ray tracing unit utilization", "percent"},
     counter_metadata{"Binning phase work queued cycles", "cycles"},
     counter_metadata{"Binning phase jobs", "jobs"},
@@ -394,7 +397,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Loaded fragment primitives", "primitives"},
     counter_metadata{"Fragment prepass culled primitives", "primitives"},
     counter_metadata{"Loaded fragment prepass primitives", "primitives"},
-    counter_metadata{"Fragment prepass uncullable primitives", "primitives"},
+    counter_metadata{"Fragment prepass skipped primitives", "primitives"},
     counter_metadata{"Fragment prepass early ZS updated quads", "quads"},
     counter_metadata{"Fragment prepass tested quads", "quads"},
     counter_metadata{"Fragment prepass killed quads", "quads"},
@@ -416,7 +419,7 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Input fragment primitives", "primitives"},
     counter_metadata{"Fragment prepass primitive percentage", "percent"},
     counter_metadata{"Fragment prepass primitive culling percentage", "percent"},
-    counter_metadata{"Fragment prepass uncullable primitive percentage", "percent"},
+    counter_metadata{"Fragment prepass skipped primitive percentage", "percent"},
     counter_metadata{"Fragment prepass warp percentage", "percent"},
     counter_metadata{"Fragment prepass threads", "threads"},
     counter_metadata{"Fragment main pass threads", "threads"},
@@ -426,7 +429,31 @@ constexpr std::array<counter_metadata, 417> all_counter_metadata{
     counter_metadata{"Load/store unit backpressure percentage", "percent"},
     counter_metadata{"Texture unit backpressure percentage", "percent"},
     counter_metadata{"Varying unit backpressure percentage", "percent"},
-    counter_metadata{"ZS unit backpressure percentage", "percent"}};
+    counter_metadata{"ZS unit backpressure percentage", "percent"},
+    counter_metadata{"Processing unit I-cache starvation cycles", "cycles"},
+    counter_metadata{"Ray tracing unit read beats from L2 cache", "beats"},
+    counter_metadata{"Ray tracing unit read beats from external memory", "beats"},
+    counter_metadata{"Ray tracing deep traversals", "rays"},
+    counter_metadata{"Ray tracing box tests", "issues"},
+    counter_metadata{"Ray tracing triangle primitive tests", "issues"},
+    counter_metadata{"Blend unit issue cycles", "cycles"},
+    counter_metadata{"Attribute unit issue cycles", "cycles"},
+    counter_metadata{"Ray tracing unit backpressure cycles", "cycles"},
+    counter_metadata{"Ray tracing unit cache hit", "requests"},
+    counter_metadata{"Ray tracing unit cache miss", "requests"},
+    counter_metadata{"Ray tracing new trace messages", "requests"},
+    counter_metadata{"Ray tracing resume trace messages", "requests"},
+    counter_metadata{"Ray tracing unit active cycles", "cycles"},
+    counter_metadata{"Ray tracing resumed rays", "rays"},
+    counter_metadata{"Ray tracing TLAS box tests", "issues"},
+    counter_metadata{"Ray tracing BLAS instances", "issues"},
+    counter_metadata{"Ray tracing culled primitives", "issues"},
+    counter_metadata{"Ray tracing culled BLAS instances", "issues"},
+    counter_metadata{"Ray tracing unit backpressure percentage", "percent"},
+    counter_metadata{"Attribute unit utilization", "percent"},
+    counter_metadata{"Blend unit utilization", "percent"},
+    counter_metadata{"Ray tracing unit read bytes from L2 cache", "bytes"},
+    counter_metadata{"Ray tracing unit read bytes from external memory", "bytes"}};
 
 } // namespace database
 } // namespace hwcpipe

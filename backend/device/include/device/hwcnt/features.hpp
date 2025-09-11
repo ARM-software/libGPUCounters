@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -56,12 +56,19 @@ namespace hwcnt {
 struct features {
     /**
      * True if HWC samples are annotated with the number of
-     * GPU and shader cores cycles since the last sample.
+     * GPU cycles since the last sample.
      *
-     * When true, @ref sample_metadata::gpu_cycle and @ref sample_metadata::sc_cycle
-     * values are set.
+     * When true, @ref sample_metadata::gpu_cycle values are set.
      */
     bool has_gpu_cycle;
+
+    /**
+     * True if HWC samples are annotated with the number of
+     * shader cores cycles since the last sample.
+     *
+     * When true, @ref sample_metadata::sc_cycle values are set.
+     */
+    bool has_sc_cycle;
 
     /** True if @ref block_metadata::state power values are set. */
     bool has_power_states;
