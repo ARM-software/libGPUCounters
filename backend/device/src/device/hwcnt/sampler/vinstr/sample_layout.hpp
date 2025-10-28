@@ -42,7 +42,7 @@ namespace sampler {
 namespace vinstr {
 
 /** Sample layout type. */
-enum class sample_layout_type {
+enum class sample_layout_type : uint8_t {
     /** v4 layout type. */
     v4,
     /** v5 layout or newer.*/

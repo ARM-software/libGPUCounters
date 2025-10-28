@@ -44,7 +44,7 @@ template <typename syscall_iface_t>
 class handle_impl : public handle, private syscall_iface_t {
   public:
     /** Determines how descriptor should be treated. */
-    enum class mode {
+    enum class mode : uint8_t {
         /** The descriptor is closed at destruction time. */
         internal,
         /** the descriptor is kept open at destruction time. */

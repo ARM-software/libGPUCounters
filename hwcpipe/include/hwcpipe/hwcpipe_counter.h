@@ -6,10 +6,11 @@
 
 #ifndef HWCPIPE_COUNTER_H
 #define HWCPIPE_COUNTER_H
+#include <cstdint>
 
 // NOLINTBEGIN(readability-identifier-naming)
 // all possible counters
-typedef enum hwcpipe_counter {
+typedef enum class hwcpipe_counter : uint16_t {
     MaliGPUActiveCy,
     MaliGPUIRQActiveCy,
     MaliFragQueueJob,

@@ -62,7 +62,7 @@ class backend : public detail::backend, public reader, private syscall_iface_t {
     ~backend() override { get_syscall_iface().close(fd_); }
 
     /** Sampler type. */
-    enum class sampler_type {
+    enum class sampler_type : uint8_t {
         /** Manual sampler. */
         manual,
         /** Periodic sampler. */

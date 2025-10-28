@@ -41,7 +41,7 @@ constexpr auto iface_number = 0x80;
 namespace command {
 
 /** Commands describing kbase ioctl interface. */
-enum command_type {
+enum class command_type : uintptr_t {
     /** Check version compatibility between JM kernel and userspace. */
     version_check_jm = _IOWR(iface_number, 0x0, ::hwcpipe::device::ioctl::kbase::version_check),
     /** Check version compatibility between CSF kernel and userspace. */
