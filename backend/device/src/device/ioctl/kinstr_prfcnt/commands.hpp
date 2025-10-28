@@ -41,7 +41,7 @@ constexpr auto iface_number = 0xbf;
 namespace command {
 
 /** Commands describing kinstr_prfcnt ioctl interface. */
-enum command_type {
+enum command_type : uintptr_t {
     /** Issue command. */
     issue_command = _IOW(iface_number, 0x0, ::hwcpipe::device::ioctl::kinstr_prfcnt::control_cmd),
     /** Get sample. */

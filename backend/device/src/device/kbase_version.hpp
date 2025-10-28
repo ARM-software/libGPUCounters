@@ -46,7 +46,7 @@ namespace hwcpipe {
 namespace device {
 
 /** Kbase ioctl interface type. */
-enum class ioctl_iface_type {
+enum class ioctl_iface_type : uint32_t {
     /** Pre R21 release Job manager kernel. */
     jm_pre_r21,
     /** Post R21 release Job manager kernel. */

@@ -41,7 +41,7 @@ constexpr auto iface_number = 0xbe;
 namespace command {
 
 /** Commands describing vinstr ioctl interface. */
-enum command_type {
+enum command_type : uintptr_t {
     /** Get HW version. */
     get_hwver = _IOR(iface_number, 0x0, uint32_t),
     /** Get HWCNT dump buffer size. */
