@@ -1,0 +1,1241 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2019-2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<CounterInfoList>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueJob</MachineName>
+    <SourceName>JS0_JOBS</SourceName>
+    <StableID>8</StableID>
+    <HumanName>Fragment jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Fragment jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of jobs processed by the GPU fragment queue.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the GPU fragment
+      queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueWaitFlushCy</MachineName>
+    <SourceName>JS0_WAIT_FLUSH</SourceName>
+    <StableID>61</StableID>
+    <HumanName>Fragment queue cache flush wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Fragment queue cache flush stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued fragment work is waiting for a cache
+      flush.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has fragment work
+      queued that can not run or retire because of a pending L2 cache flush.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueWaitRdCy</MachineName>
+    <SourceName>JS0_WAIT_READ</SourceName>
+    <StableID>62</StableID>
+    <HumanName>Fragment queue job descriptor read wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Fragment queue descriptor read stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued fragment work is waiting for a
+      descriptor load.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has fragment work
+      queued that can not run because of a pending descriptor load from memory.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueWaitIssueCy</MachineName>
+    <SourceName>JS0_WAIT_ISSUE</SourceName>
+    <StableID>63</StableID>
+    <HumanName>Fragment queue job issue wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Fragment queue job issue stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued fragment work is waiting for an
+      available processor.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has fragment work
+      queued that can not run because all processor resources are busy.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueWaitDepCy</MachineName>
+    <SourceName>JS0_WAIT_DEPEND</SourceName>
+    <StableID>64</StableID>
+    <HumanName>Fragment queue job dependency wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Fragment queue job dependency stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued fragment work is waiting for dependent
+      work to complete.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has fragment work
+      queued that can not run until dependent work has completed.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueWaitFinishCy</MachineName>
+    <SourceName>JS0_WAIT_FINISH</SourceName>
+    <StableID>65</StableID>
+    <HumanName>Fragment queue job finish wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Fragment queue job finish stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when the GPU is waiting for issued fragment work to
+      complete.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has run out of new
+      fragment work to issue, and is waiting for remaining work to complete.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueTask</MachineName>
+    <SourceName>JS1_TASKS</SourceName>
+    <StableID>67</StableID>
+    <HumanName>Non-fragment tasks</HumanName>
+    <GroupName>GPU Tasks</GroupName>
+    <GroupHumanName>Non-fragment tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of non-fragment tasks processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every non-fragment task processed by the GPU.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueJob</MachineName>
+    <SourceName>JS1_JOBS</SourceName>
+    <StableID>66</StableID>
+    <HumanName>Non-fragment jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Non-fragment jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of jobs processed by the GPU non-fragment queue.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the GPU non-fragment
+      queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueWaitFlushCy</MachineName>
+    <SourceName>JS1_WAIT_FLUSH</SourceName>
+    <StableID>69</StableID>
+    <HumanName>Non-fragment queue cache flush wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Non-fragment queue cache flush stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued non-fragment work is waiting for a cache
+      flush.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has non-fragment
+      work queued that can not run or retire because of a pending L2 cache
+      flush.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueWaitRdCy</MachineName>
+    <SourceName>JS1_WAIT_READ</SourceName>
+    <StableID>70</StableID>
+    <HumanName>Non-fragment queue job descriptor read wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Non-fragment queue descriptor read stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number number of cycles when queued non-fragment work is waiting for
+      a descriptor load.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has non-fragment
+      work queued that can not run because of a pending descriptor load from
+      memory.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueWaitIssueCy</MachineName>
+    <SourceName>JS1_WAIT_ISSUE</SourceName>
+    <StableID>71</StableID>
+    <HumanName>Non-fragment queue job issue wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Non-fragment queue job issue stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued non-fragment work is waiting for an
+      available processor.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has non-fragment
+      work queued that can not run because all processor resources are busy.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueWaitDepCy</MachineName>
+    <SourceName>JS1_WAIT_DEPEND</SourceName>
+    <StableID>72</StableID>
+    <HumanName>Non-fragment queue job dependency wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Non-fragment queue job dependency stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued non-fragment work is waiting for
+      dependent work to complete.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has non-fragment
+      work queued that can not run until dependent work has completed.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNonFragQueueWaitFinishCy</MachineName>
+    <SourceName>JS1_WAIT_FINISH</SourceName>
+    <StableID>73</StableID>
+    <HumanName>Non-fragment queue job finish wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Non-fragment queue job finish stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when the GPU is waiting for issued non-fragment work
+      to complete.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has run out of new
+      non-fragment work to issue, and is waiting for remaining work to
+      complete.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueJob</MachineName>
+    <SourceName>JS2_JOBS</SourceName>
+    <StableID>74</StableID>
+    <HumanName>Reserved queue jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Reserved jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of jobs processed by the GPU reserved queue.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the GPU reserved
+      queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueTask</MachineName>
+    <SourceName>JS2_TASKS</SourceName>
+    <StableID>75</StableID>
+    <HumanName>Reserved queue tasks</HumanName>
+    <GroupName>GPU Tasks</GroupName>
+    <GroupHumanName>Reserved tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of reserved tasks processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every reserved task processed by the GPU.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueActiveCy</MachineName>
+    <SourceName>JS2_ACTIVE</SourceName>
+    <StableID>76</StableID>
+    <HumanName>Reserved active cycles</HumanName>
+    <GroupName>GPU Cycles</GroupName>
+    <GroupHumanName>Reserved queue active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when work is queued in the GPU reserved queue.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has any workload
+      present in the reserved processing queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueWaitFlushCy</MachineName>
+    <SourceName>JS2_WAIT_FLUSH</SourceName>
+    <StableID>77</StableID>
+    <HumanName>Reserved queue cache flush wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Reserved queue cache flush stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued reserved work is waiting for a cache
+      flush.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has reserved work
+      queued that can not run or retire because of a pending L2 cache flush.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueWaitRdCy</MachineName>
+    <SourceName>JS2_WAIT_READ</SourceName>
+    <StableID>78</StableID>
+    <HumanName>Reserved queue job descriptor read wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Reserved queue descriptor read stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued reserved work is waiting for a
+      descriptor load.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has reserved work
+      queued that can not run because of a pending descriptor load from memory.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueWaitIssueCy</MachineName>
+    <SourceName>JS2_WAIT_ISSUE</SourceName>
+    <StableID>79</StableID>
+    <HumanName>Reserved queue job issue wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Reserved queue job issue stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued reserved work is waiting for an
+      available processor.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has reserved work
+      queued that can not run because all processor resources are busy.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueWaitDepCy</MachineName>
+    <SourceName>JS2_WAIT_DEPEND</SourceName>
+    <StableID>80</StableID>
+    <HumanName>Reserved queue job dependency wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Reserved queue job dependency stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when queued reserved work is waiting for dependent
+      work to complete.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has reserved work
+      queued that can not run until dependent work is completed.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliResQueueWaitFinishCy</MachineName>
+    <SourceName>JS2_WAIT_FINISH</SourceName>
+    <StableID>81</StableID>
+    <HumanName>Reserved queue job finish wait cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Reserved queue job finish stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when the GPU is waiting for issued reserved work to
+      complete.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments any clock cycle that the GPU has run out of new
+      reserved work to issue, and is waiting for remaining work to complete.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCSDoorbellIRQCy</MachineName>
+    <SourceName>DOORBELL_IRQ_ACTIVE</SourceName>
+    <StableID>364</StableID>
+    <HumanName>Command stream doorbell interrupt pending cycles</HumanName>
+    <GroupName>CSF Interrupt Cycles</GroupName>
+    <GroupHumanName>Doorbell interrupt active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream doorbell has an IRQ pending.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the command stream
+      doorbell IRQ is pending. This interrupt is handled by the GPU MCU
+      firmware.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCS0WaitStallCy</MachineName>
+    <SourceName>CSHWIF0_WAIT_BLOCKED</SourceName>
+    <StableID>13</StableID>
+    <HumanName>Command stream 0 wait stall cycles</HumanName>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <GroupHumanName>CS0 wait stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream interface 0 was blocked because
+      of a scheduling dependency.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when command stream interface 0
+      was blocked due an outstanding scheduling dependency.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCS1WaitStallCy</MachineName>
+    <SourceName>CSHWIF1_WAIT_BLOCKED</SourceName>
+    <StableID>17</StableID>
+    <HumanName>Command stream 1 wait stall cycles</HumanName>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <GroupHumanName>CS1 wait stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream interface 1 was blocked because
+      of a scheduling dependency.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when command stream interface 1
+      was blocked due an outstanding scheduling dependency.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCS2WaitStallCy</MachineName>
+    <SourceName>CSHWIF2_WAIT_BLOCKED</SourceName>
+    <StableID>21</StableID>
+    <HumanName>Command stream 2 wait stall cycles</HumanName>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <GroupHumanName>CS2 wait stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream interface 2 was blocked because
+      of a scheduling dependency.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when command stream interface 2
+      was blocked due an outstanding scheduling dependency.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCS3WaitStallCy</MachineName>
+    <SourceName>CSHWIF3_WAIT_BLOCKED</SourceName>
+    <StableID>25</StableID>
+    <HumanName>Command stream 3 wait stall cycles</HumanName>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <GroupHumanName>CS3 wait stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream interface 3 was blocked because
+      of a scheduling dependency.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when command stream interface 3
+      was blocked due an outstanding scheduling dependency.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCS4WaitStallCy</MachineName>
+    <SourceName>CSHWIF4_WAIT_BLOCKED</SourceName>
+    <StableID>359</StableID>
+    <HumanName>Command stream 4 wait stall cycles</HumanName>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <GroupHumanName>CS4 wait stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream interface 4 was blocked because
+      of a scheduling dependency.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when command stream interface 4
+      was blocked due an outstanding scheduling dependency.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCS5WaitStallCy</MachineName>
+    <SourceName>CSHWIF5_WAIT_BLOCKED</SourceName>
+    <StableID>363</StableID>
+    <HumanName>Command stream 5 wait stall cycles</HumanName>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <GroupHumanName>CS5 wait stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that command stream interface 5 was blocked because
+      of a scheduling dependency.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when command stream interface 5
+      was blocked due an outstanding scheduling dependency.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCompQueueIRQActiveCy</MachineName>
+    <SourceName>ITER_COMP_IRQ_ACTIVE</SourceName>
+    <StableID>27</StableID>
+    <HumanName>Compute queue interrupt pending cycles</HumanName>
+    <GroupName>CSF Interrupt Cycles</GroupName>
+    <GroupHumanName>Compute queue interrupt active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that the compute queue IRQ was pending.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the command stream compute
+      queue has an IRQ pending.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCompQueueJob</MachineName>
+    <SourceName>ITER_COMP_JOB_COMPLETED</SourceName>
+    <StableID>29</StableID>
+    <HumanName>Compute jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Compute jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of compute jobs processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the compute queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCompQueueTask</MachineName>
+    <SourceName>ITER_COMP_TASK_COMPLETED</SourceName>
+    <StableID>30</StableID>
+    <HumanName>Compute tasks</HumanName>
+    <GroupName>GPU Tasks</GroupName>
+    <GroupHumanName>Compute tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of compute tasks processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every compute task processed by the GPU.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliCompQueueDrainStallCy</MachineName>
+    <SourceName>ITER_COMP_EP_DRAIN</SourceName>
+    <StableID>32</StableID>
+    <HumanName>Compute queue endpoint drain stall cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Compute queue endpoint drain stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles the compute queue is waiting for endpoints to drain.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when compute work is queued but
+      cannot start because IDVS work is still active on the shared endpoints.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliVertQueueIRQActiveCy</MachineName>
+    <SourceName>ITER_TILER_IRQ_ACTIVE</SourceName>
+    <StableID>35</StableID>
+    <HumanName>Vertex queue interrupt pending cycles</HumanName>
+    <GroupName>CSF Interrupt Cycles</GroupName>
+    <GroupHumanName>Vertex queue interrupt active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that the vertex queue IRQ was pending.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the command stream vertex
+      queue has an IRQ pending.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliBinningQueueIRQActiveCy</MachineName>
+    <SourceName>ITER_TILER_IRQ_ACTIVE</SourceName>
+    <StableID>447</StableID>
+    <HumanName>Binning phase queue interrupt pending cycles</HumanName>
+    <GroupName>CSF Interrupt Cycles</GroupName>
+    <GroupHumanName>Binning phase queue interrupt active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that the binning phase queue IRQ was pending.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the command stream binning
+      phase queue has an IRQ pending.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliVertQueueJob</MachineName>
+    <SourceName>ITER_TILER_JOB_COMPLETED</SourceName>
+    <StableID>37</StableID>
+    <HumanName>Vertex jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Vertex jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of vertex jobs processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the vertex queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliBinningQueueJob</MachineName>
+    <SourceName>ITER_TILER_JOB_COMPLETED</SourceName>
+    <StableID>448</StableID>
+    <HumanName>Binning phase jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Binning phase jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of binning phase jobs processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the binning phase
+      queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliVertQueueTask</MachineName>
+    <SourceName>ITER_TILER_IDVS_TASK_COMPLETED</SourceName>
+    <StableID>38</StableID>
+    <HumanName>Vertex tasks</HumanName>
+    <GroupName>GPU Tasks</GroupName>
+    <GroupHumanName>Vertex tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of vertex tasks processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every vertex task processed by the GPU.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliBinningQueueTask</MachineName>
+    <SourceName>ITER_TILER_IDVS_TASK_COMPLETED</SourceName>
+    <StableID>449</StableID>
+    <HumanName>Binning phase tasks</HumanName>
+    <GroupName>GPU Tasks</GroupName>
+    <GroupHumanName>Binning phase tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of binning phase tasks processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every binning phase task processed by the
+      GPU.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliTilerQueueDrainStallCy</MachineName>
+    <SourceName>ITER_TILER_EP_DRAIN</SourceName>
+    <StableID>40</StableID>
+    <HumanName>Vertex queue endpoint drain stall cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Vertex queue endpoint drain stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles the vertex queue is waiting for endpoints to drain.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when vertex work is queued but
+      cannot start because compute work is still active on the shared
+      endpoints.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliTilerQueueDrainStallCy</MachineName>
+    <SourceName>ITER_TILER_EP_DRAIN</SourceName>
+    <StableID>40</StableID>
+    <HumanName>Binning phase queue endpoint drain stall cycles</HumanName>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <GroupHumanName>Binning phase queue endpoint drain stalls</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles the binning phase queue is waiting for endpoints to
+      drain.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when binning phase work is
+      queued but cannot start because compute work is still active on the
+      shared endpoints.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueIRQActiveCy</MachineName>
+    <SourceName>ITER_FRAG_IRQ_ACTIVE</SourceName>
+    <StableID>43</StableID>
+    <HumanName>Fragment queue interrupt pending cycles</HumanName>
+    <GroupName>CSF Interrupt Cycles</GroupName>
+    <GroupHumanName>Fragment queue interrupt active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that the fragment queue IRQ was pending.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the command stream
+      fragment queue has an IRQ pending.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMainQueueIRQActiveCy</MachineName>
+    <SourceName>ITER_FRAG_IRQ_ACTIVE</SourceName>
+    <StableID>450</StableID>
+    <HumanName>Main phase queue interrupt pending cycles</HumanName>
+    <GroupName>CSF Interrupt Cycles</GroupName>
+    <GroupHumanName>Main phase queue interrupt active</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles that the main phase queue IRQ was pending.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the command stream main
+      phase queue has an IRQ pending.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliFragQueueJob</MachineName>
+    <SourceName>ITER_FRAG_JOB_COMPLETED</SourceName>
+    <StableID>8</StableID>
+    <HumanName>Fragment jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Fragment jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of fragment jobs processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the fragment queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMainQueueJob</MachineName>
+    <SourceName>ITER_FRAG_JOB_COMPLETED</SourceName>
+    <StableID>452</StableID>
+    <HumanName>Main phase jobs</HumanName>
+    <GroupName>GPU Jobs</GroupName>
+    <GroupHumanName>Main phase jobs</GroupHumanName>
+    <Units>jobs</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of main phase jobs processed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every job processed by the main phase queue.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliGPUIRQ</MachineName>
+    <SourceName>GPU_IRQ_COUNT</SourceName>
+    <StableID>55</StableID>
+    <HumanName>GPU interrupts</HumanName>
+    <GroupName>GPU Messages</GroupName>
+    <GroupHumanName>GPU interrupts</GroupHumanName>
+    <Units>interrupts</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of interrupts raised by the GPU to the CPU.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every interrupt raised by the GPU.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+</CounterInfoList>

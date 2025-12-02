@@ -1,39 +1,44 @@
 # About
 
-libGPUCounters (formerly called HWCPipe) is a utility that allows applications to sample performance
-counters from Arm® Immortalis™ and Arm Mali™ GPUs. This information allows developers to profile and
-optimize their application workload using their existing in-house performance tooling, and gives the
+libGPUCounters (formerly called HWCPipe) is a utility that allows applications
+to sample performance counters from Arm® Immortalis™ and Arm Mali™ GPUs. This
+information allows developers to profile and optimize their application
+workload using their existing in-house performance tooling, and gives the
 ability to display performance data live in the application user interface.
 
-The 2.x release series is a major rewrite of the library, capable of exposing all of the public
-performance counters accessible in the Arm Streamline profiler. This version of the library
-is not API compatible with the 1.x series, and no longer supports Arm CPU performance counters.
+The 2.x release series is a major rewrite of the library, capable of exposing
+all of the public performance counters accessible in the Arm Streamline
+profiler. This version of the library is not API compatible with the 1.x
+series, and no longer supports Arm CPU performance counters.
 
 ## Supported devices
 
-This library aims to support all Arm GPU products from the Mali-T700 series onwards, ensuring
-developers have coverage of the vast majority of smartphones with Arm GPUs that are in use today.
-If you find a device with an Arm GPU which does not work, or gives inaccurate results, please open
-an Issue on the GitHub issue tracker.
+The project aims to support all Arm GPU products from the Mali-G71 series or
+later, covering all Arm GPU architectures since the Bifrost architecture. This
+ensures developers have coverage of the vast majority of smartphones with Arm
+GPUs that are in use today. If you find a device with an Arm GPU which does not
+work, or gives inaccurate results, please open an Issue on the GitHub issue
+tracker.
 
 This library only supports devices using the Arm commercial driver.
 
 ## License
 
-This project is licensed under the MIT license. By downloading any component from this repository
-you acknowledge that you accept terms specified in the [LICENSE.md](LICENSE.md) file.
+This project is licensed under the MIT license. By downloading any component
+from this repository you acknowledge that you accept terms specified in the
+[LICENSE.md](LICENSE.md) file.
 
-# Building
+## Using the library
 
-The library is designed to be embedded into existing CMake build process. Clone the GitHub
-repository and add it as a subdirectory to your `CMakeLists.txt`. The build generates two
-libraries:
+The library is designed to be embedded into existing CMake build process. Clone
+the GitHub repository and add it as a subdirectory to your `CMakeLists.txt`.
+The build generates two libraries:
 
 * `device` is the low-level hardware sampling backend.
 * `hwcpipe` is the high-level query and sampling frontend.
 
-You will need to include both libraries in your application link step. For example, your
-`CMakeLists.txt` could contain:
+You will need to include both libraries in your application link step. For
+example, your `CMakeLists.txt` could contain:
 
 ```cmake
 add_subdirectory(path/to/libGPUCounters)
@@ -44,16 +49,37 @@ target_link_libraries(
         hwcpipe)
 ```
 
-## Building the example
+### Building the example
 
-A small example demonstrating the API usage is provided in the `examples` folder. To build the
-example enable the `HWCPIPE_BUILD_EXAMPLES` CMake build option.
+A small example demonstrating the API usage is provided in the `examples`
+folder. To build the example enable the `HWCPIPE_BUILD_EXAMPLES` CMake build
+option.
 
 ```sh
 cmake -DHWCPIPE_BUILD_EXAMPLES=ON -B build .
 ```
 
-# Support
+## Using the machine readable specification
+
+In addition to the sampling library, this project includes a machine readable
+specification containing the definition of the hardware counters and derived
+expressions for all of the supported GPUs.
+
+The specification defines all the counters and derived expressions for all of
+the supported GPUs, including full documentation for counter groups and
+individual counters. Programmatic access is provided via a Python wrapper,
+allowing third-party tooling to easily integrate Arm GPU data sources.
+
+For more information see the [specification readme](./specification/README.md).
+
+## Counter documentation
+
+Interactive counter documentation for all of the GPU products supported by
+libGPUCounters can be found on the project GitHub Pages site:
+
+* https://arm-software.github.io/libGPUCounters/
+
+## Support
 
 If you have issues with the library itself, please raise them in the project's GitHub issue tracker.
 
@@ -62,6 +88,6 @@ graphics development or technology please submit them on the [Arm Community grap
 
 - - -
 
-_Copyright © 2023-2025, Arm Limited and contributors. All rights reserved._
+_Copyright © 2023-2025, Arm Limited and contributors._
 
-[1]: https://community.arm.com/support-forums/f/graphics-gaming-and-vr-forum/
+[1]: https://community.arm.com/support-forums/f/mobile-graphics-and-gaming-forum

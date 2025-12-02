@@ -10,3 +10,5 @@
 *.py text
 *.sh text
 *.txt text
+*.woff binary
+*.woff2 binary

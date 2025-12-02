@@ -1,0 +1,20 @@
+/*!
+	Lato font.
+*/
+/* Lato (normal, regular) */
+@font-face {
+  font-family: "Lato";
+  font-weight: 400;
+  font-style: normal;
+  text-rendering: optimizeLegibility;
+  src: url("../webfonts/lato-normal.woff2") format("woff2");
+}
+/* Lato (bold, regular) */
+@font-face {
+  font-family: "Lato Bold";
+  font-weight: 600;
+  font-style: normal;
+  text-rendering: optimizeLegibility;
+  src: url("../webfonts/lato-bold.woff2") format("woff2");
+}
+

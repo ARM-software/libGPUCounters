@@ -1,0 +1,386 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2019-2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<CounterInfoList>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliL2CacheFlush</MachineName>
+    <SourceName>CACHE_FLUSH</SourceName>
+    <StableID>82</StableID>
+    <HumanName>L2 cache flush requests</HumanName>
+    <GroupName>GPU Cache Flushes</GroupName>
+    <GroupHumanName>L2 cache flushes</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of GPU L2 cache flushes performed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every L2 cache flush that is performed.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliL2CacheFlushCy</MachineName>
+    <SourceName>CACHE_FLUSH_CYCLES</SourceName>
+    <StableID>83</StableID>
+    <HumanName>L2 cache flush cycles</HumanName>
+    <GroupName>GPU Cache Flush Cycles</GroupName>
+    <GroupHumanName>L2 cache flush</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of cycles spent flushing GPU L2 caches.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every clock cycle when the GPU is flushing
+      the L2 cache.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUL3Rd</MachineName>
+    <SourceName>MMU_TABLE_READS_L3</SourceName>
+    <StableID>85</StableID>
+    <HumanName>MMU L3 table read requests</HumanName>
+    <GroupName>Stage 1 MMU Translations</GroupName>
+    <GroupHumanName>L3 table reads</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of level 3 translation table reads.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a level 3 MMU translation table
+      entry. Each address translation at this level covers a single 4KB page.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUL2Rd</MachineName>
+    <SourceName>MMU_TABLE_READS_L2</SourceName>
+    <SourceAlias>MMU_TABLE_WALK</SourceAlias>
+    <StableID>86</StableID>
+    <HumanName>MMU L2 table read requests</HumanName>
+    <GroupName>Stage 1 MMU Translations</GroupName>
+    <GroupHumanName>L2 table reads</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of level 2 translation table reads.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a level 2 MMU translation table
+      entry. Each address translation at this level covers a 2MB section, which
+      is typically broken down into further into 4KB pages using a subsequent
+      level 3 translation table lookup.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUL3Hit</MachineName>
+    <SourceName>MMU_HIT_L3</SourceName>
+    <StableID>87</StableID>
+    <HumanName>MMU L3 lookup TLB hits</HumanName>
+    <GroupName>Stage 1 MMU Translations</GroupName>
+    <GroupHumanName>L3 table read hits</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of level 3 translation table reads that hit in the main MMU
+      TLB.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a level 3 MMU translation table
+      entry that results in a successful hit in the main MMU's TLB.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUL2Hit</MachineName>
+    <SourceName>MMU_HIT_L2</SourceName>
+    <SourceAlias>MMU_HIT</SourceAlias>
+    <StableID>88</StableID>
+    <HumanName>MMU L2 lookup TLB hits</HumanName>
+    <GroupName>Stage 1 MMU Translations</GroupName>
+    <GroupHumanName>L2 table read hits</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of level 2 translation table reads that hit in the main MMU
+      TLB.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a level 2 MMU translation table
+      entry that results in a successful hit in the main MMU's TLB.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUS2Lookup</MachineName>
+    <SourceName>MMU_S2_REQUESTS</SourceName>
+    <StableID>89</StableID>
+    <HumanName>MMU stage 2 lookup requests</HumanName>
+    <GroupName>Stage 2 MMU Translations</GroupName>
+    <GroupHumanName>MMU lookups</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of main MMU stage 2 address translations performed.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every stage 2 lookup made by the main GPU
+      MMU. Increments only occurs if all lookups in to a local TLB miss.
+
+      Stage 2 address translation is used when the operating system using the
+      GPU is a guest in a virtualized environment. The guest operating system
+      controls the stage 1 MMU, translating virtual addresses into intermediate
+      physical addresses. The hypervisor controls the stage 2 MMU, translating
+      intermediate physical addresses into physical addresses.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUS2L3Rd</MachineName>
+    <SourceName>MMU_S2_TABLE_READS_L3</SourceName>
+    <StableID>90</StableID>
+    <HumanName>MMU stage 2 L3 lookup requests</HumanName>
+    <GroupName>Stage 2 MMU Translations</GroupName>
+    <GroupHumanName>L3 table reads</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of stage 2 level 3 translation table reads.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a stage 2 level 3 MMU
+      translation table entry. Each address translation at this level covers a
+      single 4KB page.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUS2L2Rd</MachineName>
+    <SourceName>MMU_S2_TABLE_READS_L2</SourceName>
+    <StableID>91</StableID>
+    <HumanName>MMU stage 2 L2 lookup requests</HumanName>
+    <GroupName>Stage 2 MMU Translations</GroupName>
+    <GroupHumanName>L2 table reads</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of stage 2 level 2 translation table reads.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a stage 2 level 2 MMU
+      translation table entry. Each address translation at this level covers a
+      2MB section.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUS2L3Hit</MachineName>
+    <SourceName>MMU_S2_HIT_L3</SourceName>
+    <StableID>92</StableID>
+    <HumanName>MMU stage 2 L3 lookup TLB hits</HumanName>
+    <GroupName>Stage 2 MMU Translations</GroupName>
+    <GroupHumanName>L3 table read hits</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of stage 2 level 3 translation table reads that hit in the
+      main MMU TLB.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a stage 2 level 3 MMU
+      translation table entry that results in a successful hit in the main
+      MMU's TLB.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliMMUS2L2Hit</MachineName>
+    <SourceName>MMU_S2_HIT_L2</SourceName>
+    <StableID>93</StableID>
+    <HumanName>MMU stage 2 L2 lookup TLB hits</HumanName>
+    <GroupName>Stage 2 MMU Translations</GroupName>
+    <GroupHumanName>L2 table read hits</GroupHumanName>
+    <Units>requests</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of stage 2 level 2 translation table reads that hit in the
+      main MMU TLB.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every read of a stage 2 level 2 MMU
+      translation table entry that results in a successful hit in the main
+      MMU's TLB.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </CounterInfo>
+</CounterInfoList>

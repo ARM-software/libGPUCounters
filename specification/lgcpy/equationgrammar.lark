@@ -1,0 +1,78 @@
+//
+// Copyright (c) 2019-2025 Arm Limited.
+//
+// SPDX-License-Identifier: MIT
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//
+
+// This file contains the grammar allowed for counter expressions.
+//
+// The grammar processes operators in reverse precedence order so that the
+// higher precedence operators are found closer to the leaves of the tree.
+// This provides the correct pair-wise grouping when walking the tree using
+// bottom-up traversal. Function calls are treated as atoms, as they are
+// effectively self-contained parens groupings with no precedence problems.
+//
+// Lark syntax cheat sheet for maintainers:
+//
+//   - Rules with a name starting with ? are inlined if they only have 1 child.
+//   - Rule options can alias to another name <rule> : <option> -> <alias>
+//
+// Full docs here: https://lark-parser.readthedocs.io/en/latest/
+
+// Entry point for the grammar
+start: operation
+
+// All operations start with add/sub, which has the lowest precedence
+?operation: add
+
+// Add rule handles both + and - as they are same precedence
+?add: mul
+    | add /[+-]/ mul
+
+// Mul rule handles both * and / as they are same precedence
+?mul: atom
+    | mul /[*\/]/ atom
+
+// Neg rule handles unary minus
+neg: "-" atom
+
+// Atoms are indivisible entities from the point of view of operand grouping
+?atom: NUMBER
+     | neg
+     | name
+     | function
+     | "(" operation ")"
+
+name: NAME
+
+// Function rule handles variadic min/max
+function: fname "(" operation ("," operation)+ ")"
+
+?fname: MIN
+      | MAX
+
+MIN: "min"
+MAX: "max"
+
+%import common.CNAME -> NAME
+%import common.NUMBER
+%import common.WS_INLINE
+%ignore WS_INLINE

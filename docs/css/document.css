@@ -1,0 +1,740 @@
+/*
+# Copyright (c) 2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+*/
+
+:root {
+  color-scheme: light dark;
+
+  --title-height: 8.75rem;
+
+  /* Basic colors */
+  --wfr-black-1000: #000000;
+  --wfr-black-900: #030304;
+  --wfr-black-800: #0f1216;
+  --wfr-black-700: #1f2227;
+  --wfr-black-600: #2f333b;
+  --wfr-black-500: #40454f;
+  --wfr-black-400: #505562;
+  --wfr-black-300: #626977;
+  --wfr-black-200: #737a8b;
+  --wfr-black-100: #8a92a5;
+
+  --wfr-white-900: #9ba1b2;
+  --wfr-white-800: #abb1c0;
+  --wfr-white-700: #b8becb;
+  --wfr-white-600: #c6cad5;
+  --wfr-white-500: #d4d7df;
+  --wfr-white-400: #dfe1e7;
+  --wfr-white-300: #e9ebef;
+  --wfr-white-200: #f0f2f4;
+  --wfr-white-100: #fcfcfc;
+  --wfr-white-000: #ffffff;
+
+  --wfr-blue-900: #020d2b;
+  --wfr-blue-850: #03143e;
+  --wfr-blue-800: #031e59;
+  --wfr-blue-700: #04359b;
+  --wfr-blue-600: #0747c9;
+  --wfr-blue-500: #0157ff;
+  --wfr-blue-400: #3c7cff;
+  --wfr-blue-300: #6b9bf8;
+  --wfr-blue-200: #a6c3f7;
+  --wfr-blue-150: #bcd1f6;
+  --wfr-blue-100: #d0def6;
+
+  --wfr-orange-900: #2a1502;
+  --wfr-orange-850: #371d03;
+  --wfr-orange-800: #4e2801;
+  --wfr-orange-700: #7f4300;
+  --wfr-orange-600: #9f5501;
+  --wfr-orange-500: #c0690c;
+  --wfr-orange-400: #db8232;
+  --wfr-orange-300: #f69b4f;
+  --wfr-orange-200: #fcc8a0;
+  --wfr-orange-150: #f6d9c2;
+  --wfr-orange-100: #f9e8db;
+
+  /* If you change these check media queries which can't use vars. */
+  --main-width: calc(56.25rem + (2.25rem + 0.75rem) * 2);
+  --menu-width: 21.875rem;
+
+  --menu-gutter: 2.25rem;
+  --menu-animation-duration: 220ms;
+
+  --menu-hover: light-dark(var(--wfr-blue-300), var(--wfr-blue-800));
+  --menu-active: light-dark(var(--wfr-blue-400), var(--wfr-black-800));
+  --menu-selected: light-dark(var(--wfr-blue-300), var(--wfr-blue-800));
+
+  --menu-background: light-dark(var(--wfr-white-200), var(--wfr-black-800));
+  --menu-scroll-background: light-dark(var(--wfr-white-200), var(--wfr-black-800));
+  --menu-scroll-foreground: light-dark(var(--wfr-white-600), var(--wfr-black-500));
+  --menu-border: light-dark(var(--wfr-white-800), var(--wfr-black-500));
+  --menu-info: light-dark(var(--wfr-black-200), var(--wfr-black-100));
+
+  --main-background: light-dark(var(--wfr-white-100), var(--wfr-black-800));
+  --main-scroll-background: light-dark(var(--wfr-white-100), var(--wfr-black-800));
+  --main-scroll-foreground: light-dark(var(--wfr-white-500), var(--wfr-black-500));
+
+  --filter-background: light-dark(var(--wfr-white-000), var(--wfr-black-800));
+  --filter-border: light-dark(var(--wfr-black-400), var(--wfr-black-600));
+  --filter-background-active: light-dark(var(--wfr-white-000), var(--wfr-black-800));
+  --filter-border-active: light-dark(var(--wfr-blue-500), var(--wfr-blue-500));
+
+  --controls-background: light-dark(var(--wfr-white-300), var(--wfr-black-900));
+  --controls-border: light-dark(var(--wfr-black-400), var(--wfr-black-600));
+  --controls-background-hover: light-dark(var(--wfr-white-100), var(--wfr-black-900));
+  --controls-background-active: light-dark(var(--wfr-blue-200), var(--wfr-blue-800));
+  --controls-border-active: light-dark(var(--wfr-blue-500), var(--wfr-blue-500));
+
+  --switch-checked: light-dark(var(--wfr-blue-600), var(--wfr-blue-600));
+  --switch-not-checked: light-dark(var(--wfr-black-300), var(--wfr-black-500));
+  --switch-light-url: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f0f2f4'/%3e%3c/svg%3e");
+  --switch-dark-url: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%230f1216'/%3e%3c/svg%3e");
+
+  --warning-text: light-dark(var(--wfr-white-200), var(--wfr-white-200));
+  --warning-background: light-dark(var(--wfr-orange-500), var(--wfr-orange-800));
+
+  --text-section-heading: light-dark(var(--wfr-black-700), var(--wfr-white-700));
+  --text-hovered: light-dark(var(--wfr-black-600), var(--wfr-white-000));
+  --text-primary: light-dark(var(--wfr-black-800), var(--wfr-white-200));
+  --text-secondary: light-dark(var(--wfr-black-600), var(--wfr-white-800));
+  --text-tertiary: light-dark(var(--wfr-black-400), var(--wfr-black-200));
+}
+
+/* Page structure styles */
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  color: var(--text-primary);
+  background-color: var(--main-background);
+  font-family: "Lato", sans-serif;
+  font-size: 1.17rem;
+}
+
+h2 {
+  color: var(--text-section-heading);
+  font-feature-settings: 'liga' off, 'clig' off;
+  margin-top: 2.25rem;
+  font-size: 2rem;
+}
+
+.lgc-section:first-of-type > h2 {
+  margin-top: 0;
+}
+
+h3 {
+  margin-top: 2.25rem;
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-family: "Lato Bold", sans-serif;
+  margin-top: 2.25rem;
+  font-size: 1.33rem;
+}
+
+/* Main article styles */
+main {
+  height: 100%;
+  min-width: var(--main-width);
+  max-width: var(--main-width);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  scrollbar-color: var(--main-scroll-foreground) var(--main-scroll-background);
+  scrollbar-width: thin;
+}
+
+main img {
+  display: block;
+  margin: 0 auto;
+  border: 1px solid var(--menu-border);
+}
+
+#lgc-navpin:checked ~ main {
+  position: relative;
+  left: var(--menu-width);
+  margin: 0;
+}
+
+main .lgc-mainpanel {
+  max-width: var(--main-width);
+}
+
+#lgc-navpin:checked ~ main .lgc-mainpanel {
+  max-width: min(calc(100vw - var(--menu-width)), var(--main-width));
+}
+
+#lgc-navpin:not(:checked) ~ main .lgc-mainpanel {
+  max-width: min(calc(100vw - var(--menu-gutter)), var(--main-width));
+}
+
+.lgc-titlepanel {
+  position: fixed;
+  z-index: 990;
+  top: 0;
+  height: var(--title-height);
+  padding-top: 2rem;
+  padding-bottom: 1.9375rem;
+  padding-left: calc(var(--menu-gutter) + 0.75rem);
+  padding-right: calc(var(--menu-gutter) + 0.75rem);
+}
+
+.lgc-titlepanel p {
+  color: var(--text-secondary);
+}
+
+.lgc-filtered-pill {
+  display: none;
+  position: relative;
+  font-weight: normal;
+  text-transform: uppercase;
+  color: var(--warning-text);
+  background-color: var(--warning-background);
+  top: -0.0625rem;
+  right: -0.5rem;
+  padding: 0.1875rem 0.4375rem 0.1875rem 0.4375rem;
+  font-size: 0.5833rem;
+}
+
+.lgc-mainpanel {
+  position: fixed;
+  flex-grow: 1;
+  top: var(--title-height);
+  width: 100%;
+  height: calc(100vh - var(--title-height));
+  padding-left: calc(var(--menu-gutter) + 0.75rem);
+  padding-right: calc(var(--menu-gutter) + 0.75rem);
+  overflow-y: auto;
+}
+
+.lgc-mainpanel .fa-link {
+  font-size: 0.9167rem;
+  padding-left: 0.3125rem;
+}
+
+.lgc-equation p {
+  margin-bottom: 0.25rem;
+}
+
+.lgc-equation pre {
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  padding-left: 0.625rem;
+  white-space: wrap;
+  border: 0.0625rem solid var(--menu-border);
+  border-radius: 0.3125rem;
+}
+
+.lgc-mainpanel code {
+  color: var(--text-secondary);
+}
+
+.lgc-series {
+  padding-left: 0.75rem;
+}
+
+.lgc-footerpanel {
+  flex-grow: 0;
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.833rem;
+  color: var(--text-secondary);
+}
+
+/* Menu styles */
+aside {
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--menu-background);
+  border-width: 0 0.0625rem 0 0;
+  border-style: solid;
+  border-color: var(--menu-border);
+  padding: 1.5rem 0.75rem 0 1rem;
+  scrollbar-color: var(--menu-scroll-foreground) var(--menu-scroll-background);
+  scrollbar-width: thin;
+}
+
+.lgc-menupanel {
+  position: fixed;
+  left: calc(-1 * (var(--menu-width) - var(--menu-gutter)));
+  height: 100%;
+  width: var(--menu-width);
+  transition: left var(--menu-animation-duration) ease;
+}
+
+.lgc-toggle {
+  position: absolute;
+  top: 1.6875rem;
+  right: 0.75rem;
+  inline-size: 1.125rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.lgc-pin {
+  position: absolute;
+  top: 4.25rem;
+  right: 0.75rem;
+  inline-size: 1.125rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+/* Menu styles - manage unhiding when checked  */
+#lgc-navtoggle:checked ~ .lgc-menupanel {
+  left: 0;
+}
+
+#lgc-navtoggle:checked ~ aside .lgc-menuoptions {
+  visibility: visible;
+}
+
+#lgc-navtoggle:checked ~ aside .lgc-toggle {
+  transform: scale(-1, -1) translateX(-0.125rem);
+}
+
+#lgc-navtoggle:not(:checked) ~ aside .lgc-pin {
+  visibility: hidden;
+}
+
+#lgc-navpin:not(:checked) ~ aside .lgc-pin {
+  transform: translateX(-0.125rem);
+}
+
+#lgc-navpin:checked ~ aside .lgc-pin {
+  transform: rotate(20deg) translateX(-0.125rem);
+}
+
+#lgc-navpin:checked ~ aside .lgc-toggle {
+  visibility: hidden;
+}
+
+#lgc-navtoggle:checked ~ aside .lgc-menutree {
+  visibility: visible;
+  overflow-y: auto;
+}
+
+/* Menu styles - manage auto-unhiding when page is wide enough.  */
+@media (min-width: 100rem) {
+
+#lgc-navtoggle:not(:checked) ~ .lgc-menupanel {
+  left: 0;
+}
+
+#lgc-navtoggle:not(:checked) ~ aside .lgc-menuoptions {
+  visibility: visible;
+}
+
+#lgc-navtoggle:not(:checked) ~ aside .lgc-menutree {
+  visibility: visible;
+  overflow-y: auto;
+}
+
+.lgc-toggle {
+  visibility: hidden;
+}
+
+.lgc-pin {
+  visibility: hidden;
+}
+
+}
+
+.lgc-menuoptions {
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+  flex-shrink: 0;
+}
+
+.lgc-menuoptions hr {
+  width: 94%;
+  background-color: var(--menu-border);
+}
+
+/* Menu styles - filter input box. */
+.lgc-filter {
+  height: 1.75rem;
+  margin-right: 1.6875rem;
+  margin-bottom: 0.625rem;
+}
+
+.lgc-filter-input {
+  height: 1.75rem;
+  font-size: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 2rem;
+  color: var(--text-primary);
+  background-color: var(--filter-background);
+  border-color: var(--filter-border);
+}
+
+.lgc-filter-input::placeholder {
+  color: var(--text-primary);
+  opacity: 0.5;
+}
+
+.lgc-filter-input:hover {
+  color: var(--text-primary);
+  background-color: var(--filter-background);
+  border-color: var(--filter-border-active);
+}
+
+.lgc-filter-input:focus {
+  color: var(--text-primary);
+  background-color: var(--filter-background-active);
+  border-color: var(--filter-border-active);
+}
+
+.lgc-filter-input::-webkit-search-cancel-button {
+  filter: grayscale(1);
+  transform: translateX(0.25rem) translateY(0.0625rem);
+}
+
+.lgc-filter-icon {
+  position: absolute;
+  top: 1.9375rem;
+  left: 1.6875rem;
+  font-size: 0.75rem;
+}
+
+.lgc-menu-controls {
+  height: 1.75rem;
+  width: 100%;
+  margin-right: 1.6875rem;
+  margin-bottom: 0.625rem;
+  line-height: 0.95;
+  color: var(--text-secondary);
+  background-color: var(--controls-background);
+  border-color: var(--controls-border);
+}
+
+.lgc-menu-controls:hover {
+  color: var(--text-hovered);
+  background-color: var(--controls-background-hover);
+  border-color: var(--controls-border-active);
+}
+
+.lgc-menu-controls:active,
+.lgc-menu-controls:active:hover {
+  color: var(--text-hovered);
+  background-color: var(--controls-background-active);
+  border-color: var(--controls-border-active);
+}
+
+/* Menu styles - switches. */
+.lgc-menuitem {
+  font-size: 1rem;
+  margin: 0 auto 0.625rem auto;
+}
+
+.lgc-menuitem {
+  font-size: 1rem;
+  margin: 0 auto 0.625rem auto;
+}
+
+
+.lgc-info-icon {
+  font-size: 0.75rem;
+  color: var(--menu-info);
+}
+
+.lgc-advanced-app {
+  display: none;
+}
+
+.lgc-advanced-sys {
+  display: none;
+}
+
+.lgc-equation {
+  display: none;
+}
+
+.lgc-filtered {
+  display: none !important;
+}
+
+.lgc-equation-format-sl {
+  display: none;
+}
+
+.lgc-equation-format-hw {
+  display: none;
+}
+
+/* Menu styles - switches overriding Bootstrap styles. */
+.form-check-input:not(:checked) {
+  background-color: var(--switch-not-checked) !important;
+  border-color: var(--switch-not-checked) !important;
+  box-shadow: 0 0 0 var(--switch-not-checked) !important;
+  background-image: var(--switch-light-url);
+}
+
+.form-check-input:checked {
+  background-color: var(--switch-checked) !important;
+  border-color: var(--switch-checked) !important;
+  box-shadow: 0 0 0 var(--switch-checked) !important;
+  background-image: var(--switch-light-url);
+}
+
+@media (prefers-color-scheme: dark) {
+.form-check-input:not(:checked) {
+  background-image: var(--switch-dark-url);
+}
+
+.form-check-input:checked {
+  background-image: var(--switch-dark-url);
+}
+}
+
+.lgc-menutree {
+  padding-left: 0;
+  padding-right: 0.25rem;
+  flex-grow: 1;
+  flex-shrink: 1;
+  visibility: hidden;
+  overflow-y: hidden;
+}
+
+.lgc-menutree a {
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.lgc-menutree a:hover {
+  text-decoration: none;
+  color: var(--text-hover);
+}
+
+.lgc-menutree ul {
+  list-style-type: none;
+  padding: 0;
+  padding-inline-start: 0;
+}
+
+/* Menu styles - tree hierarchy  - Sections. */
+.lgc-menutree > ul > li:has(> a),
+.lgc-menutree > ul > li > details > summary
+{
+  padding-top: 0.0625rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+
+}
+
+.lgc-menutree > ul > li:has(> a):first-of-type {
+  margin-top: 0;
+}
+
+/* Menu styles - tree hierarchy - Groups. */
+.lgc-menutree > ul > li > details > ul > li > details > summary {
+  padding-top: 0.0625rem;
+  padding-left: 1.25rem;
+  padding-right: 0.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+/* Menu styles - tree hierarchy - Series. */
+.lgc-menutree > ul > li > details > ul > li > details > ul > li {
+  padding-top: 0.0625rem;
+  padding-left: 2rem;
+  padding-right: 0.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+/* Menu styles - tree hierarchy - Generic headings. */
+.lgc-menutree li {
+  border-radius: 0.3125rem;
+}
+
+.lgc-menutree summary {
+  border-radius: 0.3125rem;
+}
+
+
+.lgc-menutree > ul > li:has(> a:hover) {
+  background-color: var(--menu-hover);
+}
+
+.lgc-menutree > ul > li:has(> a:active) {
+  background-color: var(--menu-active);
+}
+
+/* Menu styles - tree hierarchy - Sections. */
+.lgc-menutree > ul > li > details > summary:hover {
+  background-color: var(--menu-hover);
+}
+
+.lgc-menutree > ul > li > details > summary:has(> a:active) {
+  background-color: var(--menu-active);
+}
+
+/* Menu styles - tree hierarchy - Groups. */
+.lgc-menutree > ul > li > details > ul > li > details > summary:hover {
+  background-color: var(--menu-hover);
+}
+
+.lgc-menutree > ul > li > details > ul > li > details > summary:has(> a:active) {
+  background-color: var(--menu-active);
+}
+
+/* Menu styles - tree hierarchy - Series. */
+.lgc-menutree > ul > li > details > ul > li > details > ul > li:hover {
+  background-color: var(--menu-hover);
+}
+
+.lgc-menutree > ul > li > details > ul > li > details > ul > li:has(> a:active) {
+  background-color: var(--menu-active);
+}
+
+.lgc-menutree summary {
+  list-style: none;
+  line-height: 1.5;
+}
+
+.lgc-menutree li {
+  line-height: 1.5;
+}
+
+.lgc-menutree summary::marker {
+  display: none
+}
+
+.lgc-navcontrol label {
+  padding-top: 0.125rem;
+}
+
+.lgc-menutree summary:after {
+  font-family: FontAwesome;
+  content: "\f106";
+  color: var(--text-secondary);
+  transform: rotate(180deg);
+  text-align: right;
+  float: right;
+}
+
+.lgc-menutree details[open] > summary:after {
+  transform: rotate(0deg);
+}
+
+/* Menu styles - manage animations. */
+@keyframes open {
+  0% { opacity: 0 }
+  100% { opacity: 1 }
+}
+
+@keyframes close {
+  0% { opacity: 1 }
+  100% { opacity: 0 }
+}
+
+details[open] > summary~* {
+  animation: open .3s
+}
+
+details.closing > summary~* {
+  animation: close .2s
+}
+
+/* Character format styles */
+a {
+  color: var(--text-secondary);
+}
+
+a:hover {
+  color: var(--text-hovered);
+}
+
+.vh {
+  position:absolute !important;
+  width:0.0625rem;
+  height:0.0625rem;
+  padding:0;
+  margin:-0.0625rem;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+table {
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* Respect user preference for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* Format for printing. */
+@media print {
+  /* Hide menu. */
+  .lgc-no-print, .lgc-no-print * {
+    display: none !important;
+  }
+
+  /* Hide copy links. */
+  .lgc-link-copy {
+    display: none !important;
+  }
+
+  /* Body scrollbar must show for pagination. */
+  body {
+    overflow: visible !important;
+  }
+
+  /* Main content internal scrollbar must not show. */
+  main, main * {
+    overflow: hidden !important;
+  }
+
+  /* Height and position must be set to allow body pagination. */
+  html, html * {
+    height: auto !important;
+    position: relative !important;
+    top: 0 !important;
+  }
+}
