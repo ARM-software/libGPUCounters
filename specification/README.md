@@ -63,7 +63,7 @@ MIT licensed. Not all performance counters are included in the public release.
 The following programmer guides are provided for users and maintainers of the
 library.
 
-* [Python library user Guide](documentation/user_guide.md)
+* [Python library user guide](documentation/user_guide.md)
 * [Performance counter technology guide](documentation/counter_guide.md)
 * [Performance counter terminology guide](documentation/terminology_guide.md)
 
