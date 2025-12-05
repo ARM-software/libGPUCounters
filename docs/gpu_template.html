@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arm {{GPU_NAME}} Performance Counter Reference Guide</title>
+  <link href="./css/lato-font.css" rel="stylesheet">
+  <link href="./css/bootstrap-5.3.8.min.css" rel="stylesheet">
+  <link href="./css/fontawesome-7.1.0.all.min.css" rel="stylesheet">
+  <link href="./css/document.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Side menu -->
+  <input id="lgc-navtoggle" type="checkbox" class="vh" />
+  <input id="lgc-navpin" type="checkbox" class="vh" />
+  <aside class="lgc-menupanel lgc-no-print">
+    <label class="lgc-toggle" for="lgc-navtoggle" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Toggle menu"><i class="fa-solid fa-angles-right"></i></label>
+    <label class="lgc-pin" for="lgc-navpin" data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Pin menu"><i class="fa-solid fa-thumbtack"></i></label>
+    <div class="lgc-menuoptions">
+      <div class="lgc-filter form-group">
+        <i class="lgc-filter-icon fa-solid fa-filter"></i>
+        <input type="search" class="lgc-filter-input rounded-pill form-control form-control-placeholdericon" placeholder="Filter" id="lgc-filterInput" />
+      </div>
+      <div class="lgc-filter form-group">
+        <button class="lgc-menu-controls rounded-pill btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="true" aria-controls="collapseExample">
+          Toggle controls
+        </button>
+      </div>
+      <div class="collapse show" id="collapseExample">
+        <div class="lgc-menuitem form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="lgc-enableAdvancedApp" />
+          <label class="form-check-label" for="enableAdvancedApp">Show advanced for applications</label>
+          <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Show advanced counters for application developers"><i class="lgc-info-icon fa-solid fa-circle-info"></i></span>
+        </div>
+        <div class="lgc-menuitem form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="lgc-enableAdvancedSys" />
+          <label class="form-check-label" for="enableAdvancedSys">Show advanced for systems</label>
+          <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Show advanced counters for system developers"><i class="lgc-info-icon fa-solid fa-circle-info"></i></span>
+        </div>
+        <div class="lgc-menuitem form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="lgc-enableEquations" />
+          <label class="form-check-label" for="enableEquations">Show equations</label>
+          <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Show source equations for derived counters"><i class="lgc-info-icon fa-solid fa-circle-info"></i></span>
+        </div>
+        <p class="lgc-menuitem ">Select counter naming convention:</p>
+        <div class="lgc-menuitem form-check form-switch">
+          <input class="form-check-input" type="radio" name="formatRadios" id="lgc-format-lgc" checked>
+          <label class="form-check-label" for="lgc-format-lgc">libGPUCounters format</label>
+        </div>
+        <div class="lgc-menuitem form-check form-switch">
+          <input class="form-check-input" type="radio" name="formatRadios" id="lgc-format-sl">
+          <label class="form-check-label" for="lgc-format-sl">Streamline format</label>
+        </div>
+        <div class="lgc-menuitem form-check form-switch">
+          <input class="form-check-input" type="radio" name="formatRadios" id="lgc-format-hw">
+          <label class="form-check-label" for="lgc-format-hw">Hardware format</label>
+        </div>
+      </div>
+      <hr class="lgc-menuitem">
+    </div>
+    <!-- Menu is built on the fly on page load -->
+    <div class="lgc-menutree" id="lgc-toc">
+    </div>
+  </aside>
+
+  <!-- Main page content -->
+  <main>
+    <div class="lgc-titlepanel">
+      <h1>Arm {{GPU_NAME_FULL}}</h1>
+      <p><a href="./index.html">Home</a> / Arm {{GPU_NAME}} Performance Counter Reference <span class="lgc-filtered-pill badge rounded-pill">Filtered</span></p>
+    </div>
+    <div class="lgc-mainpanel">
+      <div class="lgc-contentpanel">
+        {{PAGE_CONTENT}}
+      </div>
+      <div class="lgc-footerpanel">
+        <p>{{CONFIDENTIAL}}Copyright &copy; Arm {{COPYRIGHT_YEAR}}</p>
+      </div>
+    </div>
+  </main>
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast hide" role="alert">
+      <div class="toast-header">
+        <strong class="me-auto">Note</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+      </div>
+      <div class="toast-body">
+        <p>Your address selected an advanced counter, so advanced counters have
+           been automatically enabled. They can be disabled in the side menu.</p>
+      </div>
+    </div>
+  </div>
+  <script src="./js/bootstrap-5.3.8.bundle.min.js"></script>
+  <script src="./js/fontawesome-7.1.0.all.min.js"></script>
+  <script src="./js/jquery-3.7.1.min.js"></script>
+  <script src="./js/document.js"></script>
+</body>
+</html>

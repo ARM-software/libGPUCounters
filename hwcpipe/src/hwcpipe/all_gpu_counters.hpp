@@ -7,8 +7,8 @@
 #pragma once
 
 #include "device/product_id.hpp"
-#include "hwcpipe/detail/internal_types.hpp"
 #include "hwcpipe/hwcpipe_counter.h"
+#include "hwcpipe/detail/internal_types.hpp"
 
 #include <unordered_map>
 

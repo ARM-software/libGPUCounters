@@ -1,0 +1,1065 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<GroupInfoList>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the workload processing activity level of the
+      GPU, showing the overall use and when work was running for each of the
+      hardware scheduling queues.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Queued Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the workload scheduling behavior of the GPU
+      queues, showing when queues contained work, including cycles where a
+      queue was stalled and could not start an enqueued workload.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Wait Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the workload scheduling behavior of the GPU
+      queues, showing reasons for any scheduling stalls for each queue.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Jobs</GroupName>
+    <LongDescription>
+      This counter group shows the total number of workload jobs issued to the
+      GPU front-end for each queue. Most jobs will correspond to an API
+      workload, for example a compute dispatch generates a compute job.
+      However, the driver can also generate small house-keeping jobs for each
+      queue, so job counts do not directly correlate with API behavior.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Tasks</GroupName>
+    <LongDescription>
+      This counter group shows the total number of workload tasks issued by the
+      GPU front-end to the processing end-points inside the GPU.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Utilization</GroupName>
+    <LongDescription>
+      This counter group shows the workload processing activity level of the
+      GPU queues, normalized as a percentage of overall GPU activity.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Messages</GroupName>
+    <LongDescription>
+      This counter group shows the total number of control-plane messages
+      issued by the GPU front-end to the processing end-points inside the GPU.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Cache Flushes</GroupName>
+    <LongDescription>
+      This counter group shows the total number of L2 cache and MMU operations
+      performed by the GPU top-level.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>GPU Cache Flush Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the total number of cycles spent performing L2
+      cache and MMU operations by GPU top-level.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>CSF Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the total number of cycles that each of the
+      sub-units inside the command stream front-end was active.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>CSF Stream Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the total number of cycles that each of the
+      command stream interfaces was active.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>CSF Stream Stall Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the total number of cycles that each of the
+      command stream interfaces stalled for any reason.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>CSF Utilization</GroupName>
+    <LongDescription>
+      This counter group shows the use of each of the functional units inside
+      the command stream front-end, relative to their speed-of-light
+      capability.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Accesses</GroupName>
+    <LongDescription>
+      This counter group shows the absolute number of external memory
+      transactions generated by the GPU.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Beats</GroupName>
+    <LongDescription>
+      This counter group shows the absolute amount of external memory data
+      transfer cycles used by the GPU.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Bytes</GroupName>
+    <LongDescription>
+      This counter group shows the absolute amount of external memory traffic
+      generated by the GPU. Absolute measures are the most useful way to check
+      actual bandwidth against a per-frame bandwidth budget.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Bandwidth</GroupName>
+    <LongDescription>
+      This counter group shows the external memory traffic generated by the
+      GPU, presented as a bytes/second rate. Rates are the most useful way to
+      check actual bandwidth against the design limits of a chip, which will
+      usually be specified in bytes/second.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Stall Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the absolute number of external memory interface
+      stalls, which is the number of cycles that the GPU was trying to send
+      data but the external bus could not accept it.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Stall Rate</GroupName>
+    <LongDescription>
+      This counter group shows the percentage of cycles that the GPU was trying
+      to send data, but by the external bus could not accept it.
+
+      A small number of stalls is expected, but sustained periods of with stall
+      rates above 10% might indicate that the GPU is generating more traffic
+      than the downstream memory system can handle efficiently.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Read Latency</GroupName>
+    <LongDescription>
+      This counter group shows the histogram distribution of memory latency for
+      GPU reads.
+
+      GPUs are more tolerant to latency than a CPU, but sustained periods of
+      high latency might indicate that the GPU is generating more traffic than
+      the downstream memory system can handle efficiently.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Outstanding Reads</GroupName>
+    <LongDescription>
+      This counter group shows the histogram distribution of the use of the
+      available pool of outstanding memory read transactions.
+
+      Sustained periods with most read transactions outstanding may indicate
+      that the GPU hardware configuration is running out of outstanding read
+      capacity.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>External Bus Outstanding Writes</GroupName>
+    <LongDescription>
+      This counter group shows the histogram distribution of the use of the
+      available pool of outstanding memory write transactions.
+
+      Sustained periods with most write transactions outstanding may indicate
+      that the GPU hardware configuration is running out of outstanding write
+      capacity.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Stage 1 MMU Translations</GroupName>
+    <LongDescription>
+      This counter group shows the number of stage 1 page table lookups handled
+      by the GPU MMU.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Stage 2 MMU Translations</GroupName>
+    <LongDescription>
+      This counter group shows the number of stage 2 page table lookups handled
+      by the GPU MMU.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>L2 Cache Requests</GroupName>
+    <LongDescription>
+      This counter group shows the total number of requests made into the L2
+      cache from any source. This includes any requests made
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>L2 Cache Lookups</GroupName>
+    <LongDescription>
+      This counter group shows the total number of lookups made into the L2
+      cache from any source.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>L2 Cache Stall Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the total number of stall cycles that impact L2
+      cache lookups.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>L2 Cache Miss Rate</GroupName>
+    <LongDescription>
+      This counter group shows the miss rate in the L2 cache.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Clock Ratio</GroupName>
+    <LongDescription>
+      This counter group gives an estimate of the clock ratio between the
+      shader core and the GPU top-level. In large systems the shader cores will
+      typically be clocked more slowly than the top-level to improve energy
+      efficiency.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the scheduling load on the shader core,
+      indicating which of the shader core front-ends have work scheduled and
+      whether they are running threads on the programmable core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Utilization</GroupName>
+    <LongDescription>
+      This counter group shows the scheduling load on the shader core,
+      normalized against the overall shader core activity.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Unit Utilization</GroupName>
+    <LongDescription>
+      This counter group shows the use of each of the functional units inside
+      the shader core, relative to their speed-of-light capability.
+
+      These units can run in parallel, and well performing content can expect
+      peak load to be above 80% utilization on the most heavily used units. In
+      this scenario reducing use of those units is likely to improve
+      application performance.
+
+      If no unit is heavily loaded, it implies that the shader core is starving
+      for work. This can be because not enough threads are getting spawned by
+      the front-end, or because threads in the core are blocked on memory
+      access. Other counters can help determine which of these situations is
+      occurring.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Backpressure Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the absolute amount of backpressure being
+      generated by functional units that are overloaded and unable to accept
+      more work.
+
+      Backpressure is a strong indicator that a unit is unable to meet
+      requested demand, either due to workload complexity or slow process
+      inside the unit due to cache misses. Reduce the size, or improving the
+      efficiency, of the workload for the impacted unit will improve
+      application performance.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Backpressure Rate</GroupName>
+    <LongDescription>
+      This counter group shows the relative amount of backpressure being
+      generated by functional units that are overloaded and unable to accept
+      more work.
+
+      Backpressure is a strong indicator that a unit is unable to meet
+      requested demand, either due to workload complexity or slow process
+      inside the unit due to cache misses. Reduce the size, or improving the
+      efficiency, of the workload for the impacted unit will improve
+      application performance.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Stall Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles that the shader core is
+      able to accept new warps, but the front-end has no new warp ready to run.
+      This might be because the front-end is a bottleneck, or because the
+      workload requires no warps to be spawned.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core Tasks</GroupName>
+    <LongDescription>
+      This counter group shows the number of tasks processed by the shader
+      cores. Task sizes for compute tasks are variable, so this is not expected
+      to be a useful measure of workload.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment Tiles</GroupName>
+    <LongDescription>
+      This counter group shows the number of fragment tiles processed by the
+      shader cores.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment Primitives</GroupName>
+    <LongDescription>
+      This counter group shows how the fragment front-end handles the incoming
+      primitive stream from the tile list built during the binning phase.
+
+      Large primitives will be read in multiple tiles and will therefore cause
+      multiple increments to these counter values. These counters will not
+      match the input primitive counts passed in by the application.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment Prepass Properties</GroupName>
+    <LongDescription>
+      This counter group shows how the fragment prepass hidden surface removal
+      processed the incoming primitive stream.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment Quads</GroupName>
+    <LongDescription>
+      This counter group shows how the rasterizer turns the incoming primitive
+      stream in to 2x2 sample quads for shading.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment ZS Quads</GroupName>
+    <LongDescription>
+      This counter group shows how the depth (Z) and stencil (Z) test unit
+      handles quads for early and late ZS test and update.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>ZS Unit Test Rate</GroupName>
+    <LongDescription>
+      This counter group shows the relative numbers of quads doing early and
+      late depth (Z) and stencil (Z) testing.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment FPK HSR Quads</GroupName>
+    <LongDescription>
+      This counter group shows how many of the generated quads are eligible to
+      be occluders for the Forward Pixel Kill (FPK) hidden surface removal
+      scheme.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment Shading Rate</GroupName>
+    <LongDescription>
+      This counter group shows the rate of fragment generation relative to the
+      number of covered pixels.
+
+      The fragment shading rate will be lower than 100% if the application is
+      using variable-rate shading to reduce shading rate.
+
+      The fragment shading rate will be higher than 100% if the application is
+      using sample-rate shading to increase shading rate for a multi-sampled
+      render.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Fragment Workload Properties</GroupName>
+    <LongDescription>
+      This counter group shows properties of the fragment front-end workload
+      that can identify specific application optimization opportunities.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Warps</GroupName>
+    <LongDescription>
+      This counter group shows the number of warps created, split by type. This
+      can help you to understand the running workload mix.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Threads</GroupName>
+    <LongDescription>
+      This counter group shows the number of threads created, split by type.
+      This can help you to understand the running workload mix.
+
+      Counters in this group are derived by scaling quad or warp counters, and
+      their counts will include unused thread slots in the coarser granule.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Workload Properties</GroupName>
+    <LongDescription>
+      This counter group shows interesting properties of the running shader
+      code, most of which highlight an interesting optimization opportunity.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core L2 Reads</GroupName>
+    <LongDescription>
+      This counter group shows the number of shader core read transactions
+      served from the L2 cache, broken down by hardware unit inside the shader
+      core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core External Reads</GroupName>
+    <LongDescription>
+      This counter group shows the number of shader core read transactions
+      served from external memory, broken down by hardware unit inside the
+      shader core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core L2 Writes</GroupName>
+    <LongDescription>
+      This counter group shows the number of shader core write transactions,
+      broken down by hardware unit inside the shader core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core L2 Read Bytes</GroupName>
+    <LongDescription>
+      This counter group shows the number of bytes read from the L2 cache by
+      the shader core, broken down by hardware unit inside the shader core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core External Read Bytes</GroupName>
+    <LongDescription>
+      This counter group shows the number of bytes read from external memory by
+      the shader core, broken down by hardware unit inside the shader core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Shader Core L2 Write Bytes</GroupName>
+    <LongDescription>
+      This counter group shows the number of bytes written by the shader core,
+      broken down by hardware unit inside the shader core.
+
+      These writes are written to the L2 memory system, but counters cannot
+      determine if the write was written to the L2 cache or directly to
+      external memory.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Load/Store Unit Bytes/Cycle</GroupName>
+    <LongDescription>
+      This counter group shows the number of bytes accessed in the L2 cache and
+      external memory per load/store cache access cycle. This gives some
+      measure of how effectively the GPU is caching load/store data.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Bytes/Cycle</GroupName>
+    <LongDescription>
+      This counter group shows the number of bytes accessed in the L2 cache and
+      external memory per texture sample. This gives some measure of how
+      effectively the GPU is caching texture data.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tile Unit Bytes/Pixel</GroupName>
+    <LongDescription>
+      This counter group shows the number of bytes written by the tile unit per
+      output pixel. This can be used to determine the efficiency of application
+      render pass store configuration.
+
+      Applications can minimize the number of bytes stored by following best
+      practices:
+
+      * Use the smallest pixel color format that meets your requirements.
+      * Discard transient attachments that are no longer required at the end
+        of each render pass (Vulkan storeOp=DONT_CARE or storeOp=NONE).
+      * Use resolve attachments to resolve multi-sampled data into a single
+        value as part of tile write-back and discard the multi-sampled data so
+        that it is not written back to memory.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Instruction Cache</GroupName>
+    <LongDescription>
+      This counter group monitors the behavior of the instruction cache.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>ALU Instructions</GroupName>
+    <LongDescription>
+      This counter group gives a breakdown of the types of arithmetic
+      instructions being used by the shader program.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>ALU Utilization</GroupName>
+    <LongDescription>
+      This counter group gives a breakdown of the usage of the different
+      arithmetic sub-units, relative to their speed-of-light performance.
+
+      Due to shared issue data paths, it might not be possible for individual
+      ALU units to reach their speed-of-light if the other ALU hardware units
+      are also in use.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>ALU Issues</GroupName>
+    <LongDescription>
+      This counter group gives a breakdown of the usage of the arithmetic
+      instruction issue ports. Issue port contention will usually become a
+      bottleneck before individual functional pipelines, as pipelines often
+      share issue port bandwidth.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>ALU Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      arithmetic and logic unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Attribute Unit Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      attribute unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Attribute Unit Requests</GroupName>
+    <LongDescription>
+      This counter group shows the number of requests made to the attribute
+      unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Blend Unit Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      blend unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Load/Store Unit Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      load/store unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Varying Unit Requests</GroupName>
+    <LongDescription>
+      This counter group shows the number of requests made to the varying
+      interpolation unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Varying Unit Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      varying interpolation unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit CPI</GroupName>
+    <LongDescription>
+      This counter group shows the average cost of texture samples.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Requests</GroupName>
+    <LongDescription>
+      This counter group shows the number of requests made to the texture unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Quads</GroupName>
+    <LongDescription>
+      This counter group shows the number of fragment quads submitted to the
+      texture unit for sampling.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      sub-units inside the texture unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Stall Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of stall cycles when work could not
+      be issued to the sub-units inside the texture unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Usage Rate</GroupName>
+    <LongDescription>
+      This counter group shows the properties of texturing workloads that are
+      being performed.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Utilization</GroupName>
+    <LongDescription>
+      This counter group shows the use of some of the functional units and data
+      paths inside the texture unit, relative to their speed-of-light
+      capability.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Cache Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cache access cycles for the data
+      caches inside the texture unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Cache</GroupName>
+    <LongDescription>
+      This counter group shows the number of cache lines accessed by the data
+      caches inside the texture unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Texture Unit Bus</GroupName>
+    <LongDescription>
+      This counter group shows the number of bus cycles used on the texture
+      unit memory bus connecting the texture unit to the rest of the shader
+      core.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles when work was issued to the
+      ray tracing unit and the various sub-units inside it.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Rays</GroupName>
+    <LongDescription>
+      This counter group shows the number of rays processed by the ray tracing
+      unit, including a breakdown of any interesting ray properties.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Triangle Tests</GroupName>
+    <LongDescription>
+      This counter group shows the histogram of triangle test unit occupancy,
+      which schedules tests on warp-width vectors. Warps with divergent rays
+      will result in tests with a subset of lanes active, which reduces
+      efficiency.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Box Tests</GroupName>
+    <LongDescription>
+      This counter group shows the histogram of bounding box test unit
+      occupancy, which schedules tests on warp-width vectors. Warps with
+      divergent rays will result in tests with a subset of lanes active, which
+      reduces efficiency.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Workload</GroupName>
+    <LongDescription>
+      This counter group shows the number of messages processed by the ray
+      tracing unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Instance Workload</GroupName>
+    <LongDescription>
+      This counter group shows the number of bottom-level acceleration
+      structures processed by the ray tracing unit.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Box Workload</GroupName>
+    <LongDescription>
+      This counter group shows the number of bounding box tests processed by
+      the box test unit, including the split between TLAS and BLAS box tests.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Triangle Workload</GroupName>
+    <LongDescription>
+      This counter group shows the number of triangles processed by the
+      triangle test unit, including key properties of the triangles.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Ray Tracing Unit Cache</GroupName>
+    <LongDescription>
+      This counter group shows the number of acceleration structure node cache
+      hits.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tiler Stall Cycles</GroupName>
+    <LongDescription>
+      This counter group shows the number of cycles that individual sub-units
+      inside the tiler were stalled.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tiler Workload Properties</GroupName>
+    <LongDescription>
+      This counter group shows workload properties of the primitive stream
+      being process by the tiler.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tiler Vertex Cache</GroupName>
+    <LongDescription>
+      This counter group shows the number of accesses made into the vertex
+      position and varying post-transform caches.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tiler L2 Accesses</GroupName>
+    <LongDescription>
+      This counter group shows the number of tiler memory transactions into the
+      L2 memory system.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tiler Shading Requests</GroupName>
+    <LongDescription>
+      This counter group tracks the number of shading requests that are made by
+      the tiler when processing vertex shaders.
+
+      Application vertex shaders are split into two pieces, a position shader
+      that computes the vertex position, and a varying shader that computes the
+      remaining vertex shader outputs. The varying shader is only run if a
+      group contains visible vertices that survive primitive culling.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Tiler Shading Requests</GroupName>
+    <LongDescription>
+      This counter group tracks the number of shading requests that are made by
+      the tiler when processing vertex shaders during binning.
+
+      Application vertex shaders are split into two pieces, a position shader
+      that computes the vertex position, and a varying shader that computes the
+      remaining vertex shader outputs. The varying shader is only run if a
+      group contains visible vertices that survive primitive culling.
+
+      This GPU uses deferred vertex shading and will not varying shader all
+      primitives in the binning phase.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Vertex Cache Hit Rate</GroupName>
+    <LongDescription>
+      This counter group shows the hit rate in the tiler post-transform caches.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Input Primitives</GroupName>
+    <LongDescription>
+      This counter group shows the number of input primitives to the GPU,
+      before any culling is applied.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Visible Primitives</GroupName>
+    <LongDescription>
+      This counter group shows the properties of any visible primitives, after
+      any culling is applied.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Primitive Culling</GroupName>
+    <LongDescription>
+      This counter group shows the absolute number of primitives that are
+      culled by each of the culling stages in the geometry pipeline, and the
+      number of visible primitives that are not culled by any stage.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Primitive Culling Rate</GroupName>
+    <LongDescription>
+      This counter group shows the percentage of the primitives that use each
+      culling stage that are culled by it, and the percentage of primitives
+      that are visible and not culled by any stage.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Geometry Threads</GroupName>
+    <LongDescription>
+      This counter group shows the number of vertex shader threads of each type
+      that are generated during vertex processing.
+
+      All vertices must be position shaded, but only visible vertices will be
+      varying shaded.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Geometry Threads</GroupName>
+    <LongDescription>
+      This counter group shows the number of vertex shader threads of each type
+      that are generated during the binning phase processing.
+
+      All vertices must be position shaded, but only visible vertices of draw
+      calls that are incompatible with deferred vertex shading will be varying
+      shaded.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Geometry Efficiency</GroupName>
+    <LongDescription>
+      This counter group shows the number of vertex shader threads of each type
+      that are generated per primitive during vertex processing. Efficient
+      geometry aims to keep these metrics as low as possible.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Geometry Efficiency</GroupName>
+    <LongDescription>
+      This counter group shows the number of vertex shader threads of each type
+      that are generated per primitive during vertex processing. Efficient
+      geometry aims to keep these metrics as low as possible.
+
+      This GPU has deferred vertex shading which means that most triangles will
+      defer varying shading until the main phase processing, so the number of
+      varying threads per primitive has a different meaning than earlier GPUs
+      without deferred vertex shading.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Output pixels</GroupName>
+    <LongDescription>
+      This counter group shows the total number of output pixels rendered.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Average Workload Cost</GroupName>
+    <LongDescription>
+      This counter group gives the average cycle throughput for the different
+      kinds of workloads the GPU is running.
+
+      When running workloads in parallel the shader core is shared, and these
+      throughput metrics will be impacted by cross-talk across the queues.
+      However, they still a useful tool for managing performance budgets.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Overdraw</GroupName>
+    <LongDescription>
+      This counter group shows the number of fragments rendered per pixel.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Implementation Configuration</GroupName>
+    <LongDescription>
+      This constants group contains symbolic constants that define the
+      configuration of a particular device. These must be populated by the
+      counter sampling runtime tooling.
+    </LongDescription>
+  </GroupInfo>
+  <!-- ==================================================================== -->
+  <GroupInfo>
+    <GroupName>Static Configuration</GroupName>
+    <LongDescription>
+      This constants group contains literal constants that define the static
+      configuration and performance characteristics of this product.
+    </LongDescription>
+  </GroupInfo>
+</GroupInfoList>

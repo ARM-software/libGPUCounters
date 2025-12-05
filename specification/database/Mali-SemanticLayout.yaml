@@ -1,0 +1,613 @@
+#
+# Copyright (c) 2020-2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+---
+- GPU Front-end:
+  - GPU Cycles:
+    - GPU active
+    - GPU active raw
+    - Any queue active
+    - Compute queue active
+    - Non-fragment queue active
+    - Vertex queue active
+    - Fragment queue active
+    - Binning phase queue active
+    - Main phase queue active
+    - Reserved queue active
+    - Tiler active
+    - GPU interrupt active
+  - GPU Queued Cycles:
+    - Compute queued
+    - Vertex queued
+    - Fragment queued
+    - Binning phase queued
+    - Main phase queued
+  - GPU Wait Cycles:
+    - Compute queue endpoint drain stalls
+    - Compute queue endpoint stalls
+    - Non-fragment queue cache flush stalls
+    - Non-fragment queue descriptor read stalls
+    - Non-fragment queue job dependency stalls
+    - Non-fragment queue job finish stalls
+    - Non-fragment queue job issue stalls
+    - Vertex queue endpoint drain stalls
+    - Vertex queue endpoint stalls
+    - Binning phase queue endpoint drain stalls
+    - Binning phase queue endpoint stalls
+    - Fragment queue cache flush stalls
+    - Fragment queue descriptor read stalls
+    - Fragment queue endpoint stalls
+    - Fragment queue job dependency stalls
+    - Fragment queue job finish stalls
+    - Fragment queue job issue stalls
+    - Main phase queue endpoint stalls
+    - Reserved queue cache flush stalls
+    - Reserved queue descriptor read stalls
+    - Reserved queue job dependency stalls
+    - Reserved queue job finish stalls
+    - Reserved queue job issue stalls
+  - GPU Jobs:
+    - Compute jobs
+    - Non-fragment jobs
+    - Vertex jobs
+    - Fragment jobs
+    - Binning phase jobs
+    - Main phase jobs
+    - Reserved jobs
+  - GPU Tasks:
+    - Compute tasks
+    - Non-fragment tasks
+    - Vertex tasks
+    - Fragment tasks
+    - Binning phase tasks
+    - Main phase tasks
+    - Reserved tasks
+  - GPU Utilization:
+    - Compute queue utilization
+    - Non-fragment queue utilization
+    - Vertex queue utilization
+    - Fragment queue utilization
+    - Binning phase queue utilization
+    - Main phase queue utilization
+    - Tiler utilization
+    - Interrupt utilization
+  - GPU Messages:
+    - GPU interrupts
+  - GPU Cache Flushes:
+    - L2 cache flushes
+  - GPU Cache Flush Cycles:
+    - L2 cache flush
+  - CSF Cycles:
+    - CEU active
+    - LSU active
+    - MCU active
+  - CSF Utilization:
+    - CEU utilization
+    - LSU utilization
+    - MCU utilization
+  - CSF Interrupt Cycles:
+    - Doorbell interrupt active
+    - Compute queue interrupt active
+    - Vertex queue interrupt active
+    - Fragment queue interrupt active
+    - Binning phase queue interrupt active
+    - Main phase queue interrupt active
+  - CSF Stream Cycles:
+    - CS0 active
+    - CS1 active
+    - CS2 active
+    - CS3 active
+    - CS4 active
+    - CS5 active
+  - CSF Stream Stall Cycles:
+    - CS0 wait stalls
+    - CS1 wait stalls
+    - CS2 wait stalls
+    - CS3 wait stalls
+    - CS4 wait stalls
+    - CS5 wait stalls
+
+- External Memory System:
+  - External Bus Accesses:
+    - Read transactions
+    - Write transactions
+    - ReadNoSnoop transactions
+    - ReadUnique transactions
+    - Snoop transactions
+    - WriteNoSnoopFull transactions
+    - WriteNoSnoopPartial transactions
+    - WriteSnoopFull transactions
+    - WriteSnoopPartial transactions
+  - External Bus Beats:
+    - Read beats
+    - Write beats
+  - External Bus Bytes:
+    - Read bytes
+    - Write bytes
+  - External Bus Bandwidth:
+    - Read bandwidth
+    - Write bandwidth
+  - External Bus Stall Cycles:
+    - Read stalls
+    - Write stalls
+    - Snoop stalls
+  - External Bus Stall Rate:
+    - Read stall rate
+    - Write stall rate
+  - External Bus Read Latency:
+    - 0-127 cycles
+    - 128-191 cycles
+    - 192-255 cycles
+    - 256-319 cycles
+    - 320-383 cycles
+    - 384+ cycles
+  - External Bus Outstanding Reads:
+    - 0-25% outstanding
+    - 25-50% outstanding
+    - 50-75% outstanding
+    - 75-100% outstanding
+  - External Bus Outstanding Writes:
+    - 0-25% outstanding
+    - 25-50% outstanding
+    - 50-75% outstanding
+    - 75-100% outstanding
+
+- Graphics Geometry Workload:
+  - Input Primitives:
+    - Input primitives
+    - Triangle primitives
+    - Line primitives
+    - Point primitives
+  - Visible Primitives:
+    - Front-facing primitives
+    - Back-facing primitives
+  - Primitive Culling:
+    - Visible primitives
+    - Culled primitives
+    - Facing or XY plane test culled primitives
+    - Z plane test culled primitives
+    - Facing test culled primitives
+    - Frustum test culled primitives
+    - Scissor test culled primitives
+    - Sample test culled primitives
+  - Primitive Culling Rate:
+    - Visible primitive rate
+    - Facing or XY plane culled primitive rate
+    - Z plane culled primitive rate
+    - Facing culled primitive rate
+    - Frustum culled primitive rate
+    - Scissor culled primitive rate
+    - Sample culled primitive rate
+  - Geometry Threads:
+    - Position shading threads
+    - Varying shading threads
+  - Geometry Efficiency:
+    - Position threads/input primitive
+    - Varying threads/visible primitive
+
+- Graphics Fragment Workload:
+  - Output pixels:
+    - Pixels
+  - Overdraw:
+    - Fragments/pixel
+
+- Workload Cost:
+  - Average Workload Cost:
+    - GPU cycles/pixel
+    - Shader cycles/non-fragment thread
+    - Shader cycles/fragment thread
+
+- Shader Core Front-end:
+  - Shader Core Cycles:
+    - Any workload active
+    - Compute or binning phase active
+    - Non-fragment active
+    - Fragment active
+    - Main phase active
+    - Fragment pre-pipe buffer active
+    - Execution core active
+  - Shader Core Utilization:
+    - Compute or binning phase utilization
+    - Non-fragment utilization
+    - Fragment utilization
+    - Main phase utilization
+    - Fragment pre-pipe buffer utilization
+    - Execution core utilization
+  - Shader Clock Ratio:
+    - Shader core clock ratio
+  - Shader Core Tasks:
+    - Non-fragment tasks
+    - Non-main phase tasks
+
+- Shader Core Fragment Front-end:
+  - Fragment Tiles:
+    - Tiles
+    - Killed unchanged tiles
+  - Fragment Primitives:
+    - Input primitives
+    - Loaded primitives
+    - Loaded prepass primitives
+    - Prepass culled primitives
+    - Prepass skipped primitives
+    - Rasterized primitives
+  - Fragment Prepass Properties:
+    - Prepass primitive rate
+    - Prepass warp rate
+    - Culled primitive rate
+    - Skipped primitive rate
+    - Culled quad rate
+    - Main pass stall rate
+  - Fragment Quads:
+    - Rasterized fine quads
+    - Partial rasterized fine quads
+    - Rasterized coarse quads
+    - Shaded coarse quads
+  - Fragment ZS Quads:
+    - Prepass tested quads
+    - Prepass killed quads
+    - Prepass early ZS updated quads
+    - Early ZS tested quads
+    - Early ZS killed quads
+    - Early ZS updated quads
+    - FPK HSR killed quads
+    - Late ZS killed quads
+    - Late ZS tested quads
+  - ZS Unit Test Rate:
+    - Early ZS kill rate
+    - Early ZS test rate
+    - Early ZS update rate
+    - Occluding quad rate
+    - FPK HSR kill rate
+    - Late ZS kill rate
+    - Late ZS test rate
+  - Fragment FPK HSR Quads:
+    - Non-occluding quads
+    - Occluding quads
+  - Fragment Shading Rate:
+    - Shading rate
+  - Fragment Workload Properties:
+    - Partial coverage rate
+    - Unchanged tile kill rate
+
+- Shader Core Programmable Core:
+  - Shader Core Unit Utilization:
+    - Arithmetic unit utilization
+    - Load/store unit utilization
+    - Varying unit utilization
+    - Texture unit utilization
+    - Ray tracing unit utilization
+    - Attribute unit utilization
+    - Blend unit utilization
+  - Shader Core Backpressure Cycles:
+    - Load/store unit backpressure
+    - Varying unit backpressure
+    - Texture unit backpressure
+    - Ray tracing unit backpressure
+    - Attribute unit backpressure
+    - ZS unit backpressure
+    - Blend unit backpressure
+  - Shader Core Backpressure Rate:
+    - Load/store unit rate
+    - Varying unit rate
+    - Texture unit rate
+    - Ray tracing unit rate
+    - Attribute unit rate
+    - ZS unit rate
+    - Blend unit rate
+  - Shader Core Stall Cycles:
+    - Fragment main pass stalls
+    - Execution engine starvation
+    - Execution engine I-cache starvation
+
+- Shader Core Workload:
+  - Shader Warps:
+    - Non-fragment warps
+    - Deferred vertex warps
+    - Fragment warps
+    - Fragment prepass warps
+    - Full warps
+    - Partial fragment warps
+    - All register warps
+  - Shader Threads:
+    - Non-fragment threads
+    - All fragment threads
+    - Fragment prepass threads
+    - Fragment main pass threads
+    - Fragment threads
+  - Shader Workload Properties:
+    - Fragment warp occupancy
+    - Full warp rate
+    - All registers warp rate
+    - Warp divergence rate
+    - Narrow arithmetic rate
+    - Shader blend rate
+
+- Shader Core Arithmetic Unit:
+  - ALU Cycles:
+    - Arithmetic unit issues
+  - Instruction Cache:
+    - I-cache misses
+  - ALU Instructions:
+    - Executed instructions
+    - FMA pipe instructions
+    - CVT pipe instructions
+    - SFU pipe instructions
+    - Diverged instructions
+    - Narrow instructions
+    - Blend shader instructions
+  - ALU Utilization:
+    - FMA pipe utilization
+    - CVT pipe utilization
+    - SFU pipe utilization
+  - ALU Issues:
+    - Any slot issues
+    - Slot 0 issues
+    - Slot 1 issues
+
+- Shader Core Load/store Unit:
+  - Load/Store Unit Cycles:
+    - Load/store unit issues
+    - Reads
+    - Full reads
+    - Partial reads
+    - Writes
+    - Full writes
+    - Partial writes
+    - Atomic accesses
+
+- Shader Core Varying Unit:
+  - Varying Unit Requests:
+    - Interpolation requests
+    - 16-bit interpolation slots
+    - 32-bit interpolation slots
+  - Varying Unit Cycles:
+    - Varying unit issues
+    - 16-bit interpolation issues
+    - 32-bit interpolation issues
+
+- Shader Core Texture Unit:
+  - Texture Unit Requests:
+    - Texture requests
+    - Texture samples
+    - 3D texture requests
+    - Compressed texture requests
+    - Mipmapped texture requests
+    - Trilinear filtered requests
+  - Texture Unit Quads:
+    - Texture requests
+    - Texture issues
+    - Descriptor misses
+    - Mipmapped texture issues
+    - Texture messages
+    - Texture messages with single quad
+    - Trilinear filtered issues
+  - Texture Unit Cycles:
+    - Texture unit clock active
+    - Texture unit issues
+    - Index calculation active
+    - Filtering active
+    - Full bilinear filtering active
+    - Full trilinear filtering active
+  - Texture Unit Stall Cycles:
+    - Texture causing starvation
+    - Coordinate stalls
+    - Descriptor stalls
+    - Fetch queue stalls
+    - Filtering unit stalls
+    - Line fill stalls
+    - Partial data stalls
+  - Texture Unit Usage Rate:
+    - Full speed filter rate
+    - 3D sample rate
+    - Compressed line fetch rate
+    - Compressed sample rate
+    - Mipmapped sample rate
+    - Trilinear sample rate
+  - Texture Unit CPI:
+    - Texture CPI
+  - Texture Unit Utilization:
+    - Cache utilization
+    - Input bus utilization
+    - Output bus utilization
+  - Texture Unit Cache Cycles:
+    - Cache lookup
+    - Cache lookup active
+    - L1 load active
+    - L1 lookup active
+    - L1 output active
+    - Simple load active
+    - Complex load active
+  - Texture Unit Cache:
+    - Line fetches
+    - Compressed line fetches
+  - Texture Unit Bus:
+    - Input beats
+    - Output beats
+
+- Shader Core Ray Tracing Unit:
+  - Ray Tracing Unit Cycles:
+    - Ray tracing unit active
+    - Ray tracing issues
+    - Box tester issues
+    - Triangle tester issues
+  - Ray Tracing Unit Rays:
+    - Started rays
+    - Resumed rays
+    - First hit terminated rays
+    - Deep traversal rays
+    - Triangle misses
+  - Ray Tracing Unit Triangle Tests:
+    - Nodes with 1-4 rays
+    - Nodes with 5-8 rays
+    - Nodes with 9-12 rays
+    - Nodes with 13-16 rays
+  - Ray Tracing Unit Box Tests:
+    - Nodes with 1-4 rays
+    - Nodes with 5-8 rays
+    - Nodes with 9-12 rays
+    - Nodes with 13-16 rays
+  - Ray Tracing Unit Workload:
+    - New ray trace messages
+    - Resumed ray trace messages
+    - Culled primitives
+  - Ray Tracing Unit Instance Workload:
+    - BLAS instances
+    - Culled BLAS instances
+  - Ray Tracing Unit Box Workload:
+    - Box tests
+    - TLAS box tests
+  - Ray Tracing Unit Triangle Workload:
+    - Triangle tests
+    - Opaque triangle hits
+    - Non-opaque triangle hits
+    - Triangle nodes tested
+  - Ray Tracing Unit Cache:
+    - Cache hits
+    - Cache misses
+
+- Shader Core Other Units:
+  - Attribute Unit Cycles:
+    - Attribute unit issues
+  - Attribute Unit Requests:
+    - Attribute requests
+  - Blend Unit Cycles:
+    - Blend unit issues
+
+- Shader Core Memory Access:
+  - Shader Core L2 Reads:
+    - Fragment front-end beats
+    - Load/store unit beats
+    - Texture unit beats
+    - Ray tracing unit beats
+    - Other unit beats
+  - Shader Core External Reads:
+    - Fragment front-end beats
+    - Load/store unit beats
+    - Texture unit beats
+    - Ray tracing unit beats
+  - Shader Core L2 Writes:
+    - Load/store unit beats
+    - Load/store unit write-back beats
+    - Load/store unit other beats
+    - Tile unit beats
+    - Other unit beats
+  - Shader Core L2 Read Bytes:
+    - Fragment front-end bytes
+    - Load/store unit bytes
+    - Texture unit bytes
+    - Ray tracing unit bytes
+  - Shader Core External Read Bytes:
+    - Fragment front-end bytes
+    - Load/store unit bytes
+    - Texture unit bytes
+    - Ray tracing unit bytes
+  - Shader Core L2 Write Bytes:
+    - Load/store unit bytes
+    - Tile unit bytes
+    - Other unit bytes
+  - Load/Store Unit Bytes/Cycle:
+    - L2 read bytes/cy
+    - L2 write bytes/cy
+    - External read bytes/cy
+  - Texture Unit Bytes/Cycle:
+    - L2 read bytes/cy
+    - External read bytes/cy
+  - Tile Unit Bytes/Pixel:
+    - External write bytes/px
+
+- Tiling:
+  - Tiler Stall Cycles:
+    - Position FIFO full stalls
+    - Position shading stalls
+    - Primitive assembly position shading stalls
+    - Varying shading stalls
+  - Tiler Vertex Cache:
+    - Position cache hits
+    - Position cache misses
+    - Varying cache hits
+    - Varying cache misses
+  - Tiler L2 Accesses:
+    - Read beats
+    - Write beats
+  - Tiler Shading Requests:
+    - Position shading requests
+    - Varying shading requests
+    - Partial position shading requests
+    - Partial varying shading requests
+  - Vertex Cache Hit Rate:
+    - Position read hit rate
+    - Varying read hit rate
+  - Tiler Workload Properties:
+    - DVS primitives
+
+- Internal Memory System:
+  - L2 Cache Requests:
+    - Read requests
+    - Write requests
+    - Snoop requests
+    - Clean unique requests
+    - Evict requests
+    - L1 read requests
+    - L1 write requests
+  - L2 Cache Lookups:
+    - Any lookups
+    - Read lookups
+    - Write lookups
+    - External snoop lookups
+  - L2 Cache Stall Cycles:
+    - Read stalls
+    - Write stalls
+    - Snoop stalls
+    - L1 read stalls
+  - L2 Cache Miss Rate:
+    - Read miss rate
+    - Write miss rate
+  - Stage 1 MMU Translations:
+    - MMU lookups
+    - L2 table reads
+    - L2 table read hits
+    - L3 table reads
+    - L3 table read hits
+  - Stage 2 MMU Translations:
+    - MMU lookups
+    - L2 table reads
+    - L2 table read hits
+    - L3 table reads
+    - L3 table read hits
+
+- Constants:
+  - Implementation Configuration:
+    - Shader core count
+    - L2 cache slice count
+    - External bus beat size
+  - Static Configuration:
+    - Fragment queue task size
+    - Main phase queue task size
+    - Tiler shader task thread count
+    - Tile size
+    - Tile storage/pixel
+    - Warp size
+    - Varying slot count
+    - Texture samples/cycle
+    - Texture cycles/sample
+    - Internal bus beat size

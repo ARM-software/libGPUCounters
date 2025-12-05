@@ -1,0 +1,853 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2020-2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<ArchitectureInfoList>
+  <!-- ==================================================================== -->
+  <ArchitectureInfo>
+    <Name>Bifrost</Name>
+    <LongDescription>
+      This guide explains the performance counters for the {{K::GPU_NAME}},
+      which is a member of the Bifrost architecture family.
+
+      This introduction section will explain the high level goals to consider
+      when profiling this GPU. Later sections will explain the available
+      counters for each part of the GPU design.
+
+      ### Profiling GPU scheduling
+
+      The GPU runs workloads that have been submitted by the graphics driver,
+      using scheduling barriers between workloads to ensure they run in the
+      correct order. Workloads are scheduled to run by adding them to the
+      appropriate hardware queue, which will run enqueued workloads in a
+      pipelined FIFO processing order.
+
+      ![Bifrost top-level](./images/bifrost-top-level.svg)
+
+      #### Tile-based rendering
+
+      Arm GPUs are tile-based GPUs, meaning that they process graphics render
+      passes in two distinct phases. The first phase processes geometry to
+      determine which primitives contribute to which screen-space tiles. The
+      second phase renders the output framebuffer tile-by-tile.
+
+      In this design, tiles are small enough to be kept in on-chip tile memory,
+      which makes fragment processing more efficient. However, in this
+      generation of GPUs vertex shaders are processed in their entirety in the
+      first phase with their outputs written back to main memory, and then
+      re-read during the second phase. This makes geometry processing less
+      efficient.
+
+      #### GPU queues
+
+      The GPU front-end in this generation of hardware has two hardware queues:
+
+      * Non-fragment queue
+      * Fragment queue
+
+      The Non-fragment queue is used for all compute-like workloads, including
+      vertex shading and buffer transfers. The Fragment queue is used for all
+      fragment-like workloads, including fragment shading and most image
+      transfers.
+
+      Monitoring your application's queue usage is the first stage of profiling
+      an Arm GPU, as the queue costs give the overall processing cost of each
+      type of workload. In addition you can see if your application is using
+      barriers efficiently, allowing the queues to run their workloads in
+      parallel.
+
+      ### Profiling GPU memory bandwidth
+
+      GPUs are a data-plane processors, so memory access efficiency is an
+      important factor for overall performance.
+
+      ![Bifrost memory system](./images/bifrost-memory-system.svg)
+
+      Memory system performance outside of the GPU cannot be directly observed
+      via GPU performance counters, but the counters can show the performance
+      observed by the GPU on its memory interface.
+
+      #### Reducing bandwidth
+
+      Accessing external DRAM is a very energy-intensive operation, which makes
+      reducing external bandwidth an important optimization goal for mobile
+      devices. Sustained high bandwidth can cause poor performance in
+      main-stream devices, and thermal issues in high-end devices.
+
+      Shader core performance counters can give you more breakdown about which
+      functional units are generating memory traffic, guiding your optimization
+      efforts.
+
+      #### Reducing stalls
+
+      The memory system outside of the GPU is implemented by the chip
+      manufacturer, and designs can vary and have different performance
+      characteristics. Workloads that generate a significant number of memory
+      stall cycles, or that see a large percentage of high latency reads, might
+      be stressing the external memory system beyond its capabilities. Reducing
+      memory bandwidth often gives measurable performance gains in these
+      scenarios.
+
+      ### Profiling shader core usage
+
+      If the GPU queues are scheduling well, the next thing that you will need
+      to profile to determine the processing bottleneck of a workload is your
+      application's use of the shader core.
+
+      The {{K::GPU_NAME}} shader cores use a massively multi-threaded
+      architecture, supporting hundreds of concurrently running threads. A
+      large pool of available threads allows the hardware to fill parallel
+      functional units by switching to any of the available threads if the
+      current thread becomes blocked for any reason.
+
+      ![Bifrost shader core](./images/bifrost-execution-core.svg)
+
+      In this type of architecture, the utilization of the functional units
+      reflects the overall demand of the running shader programs. This is
+      relatively independent of localized hot-spots in shaders that stress a
+      single functional unit, because other threads will be running other parts
+      of the program and will load-balance the hardware. This is quite
+      different to profiling a CPU, where the serial instruction stream means
+      that performance can be very sensitive to both latency and localized
+      hot-spots.
+
+      ### Improve speed-of-light utilization
+
+      For functional unit profiling, we therefore aim for at least 75%
+      utilization of the most heavily used functional unit, relative to its
+      best case 'speed-of-light' performance. This shows that the application
+      has done a good job getting its workload running without problematic
+      stalls.
+
+      In this situation, reducing demand on the most heavily used functional
+      units, either by improving efficiency or reducing size, should improve
+      application performance.
+
+      #### Reduce shader core stalls
+
+      If no functional unit is heavily utilized, the shader core is running out
+      of work to do. This can occur for multiple reasons, and should be avoided
+      if possible.
+
+      The first reason is that the shader is literally running out of threads
+      to run, and the shader core is running with low thread occupancy. GPUs
+      rely on workloads having a lot of threads to fill the capacity of the
+      shader core. You should avoid running small workloads with few threads on
+      the GPU, preferring to use the CPU if possible. Note that some workloads,
+      such as depth shadow maps, may not generate many fragment threads due to
+      their algorithmic design. This is usually unavoidable, but is something
+      to remember when profiling.
+
+      The second reason is that the running shader programs are causing
+      operations to stall by missing in descriptor caches or data caches. GPUs
+      use their thread count to hide the impact and latency of cache misses,
+      but there are limits to the density of misses that can be hidden. In this
+      situation, try to identify which workload is causing stalls and try to
+      minimize them. There are not specific performance counters for every
+      stall reason, so this can take some investigation and experimentation to
+      determine which resource is causing the problem.
+
+      ### Profiling workload
+
+      In addition to profiling use of the hardware, measuring cycles and bytes,
+      Arm GPUs provide many performance counters that can help you to
+      understand the size and characteristics of your workload. These counters
+      gives feedback in the context of API constructs, such as vertices,
+      triangles, and pixels making it easier for developers to understand the
+      feedback.
+
+      ![Bifrost shader core](./images/bifrost-shader-core.svg)
+
+      Supplementing the workload size counters, the Arm GPU also provide
+      counters that indicate areas where content is not following best practice
+      guidelines. Improving these best practice metrics will nearly always
+      improve your application's performance.
+    </LongDescription>
+  </ArchitectureInfo>
+  <!-- ==================================================================== -->
+  <ArchitectureInfo>
+    <Name>Valhall</Name>
+    <LongDescription>
+      This guide explains the performance counters for the {{K::GPU_NAME}},
+      which is a member of the Valhall architecture family.
+
+      This introduction section will explain the high level goals to consider
+      when profiling this GPU. Later sections will explain the available
+      counters for each part of the GPU design.
+
+      ### Profiling GPU scheduling
+
+      The GPU runs workloads that have been submitted by the graphics driver,
+      using scheduling barriers between workloads to ensure they run in the
+      correct order. Workloads are scheduled to run by adding them to the
+      appropriate hardware queue, which will run enqueued workloads in a
+      pipelined FIFO processing order.
+
+      ![Valhall top-level](./images/bifrost-top-level.svg)
+
+      #### Tile-based rendering
+
+      Arm GPUs are tile-based GPUs, meaning that they process graphics render
+      passes in two distinct phases. The first phase processes geometry to
+      determine which primitives contribute to which screen-space tiles. The
+      second phase renders the output framebuffer tile-by-tile.
+
+      In this design, tiles are small enough to be kept in on-chip tile memory,
+      which makes fragment processing more efficient. However, in this
+      generation of GPUs vertex shaders are processed in their entirety in the
+      first phase with their outputs written back to main memory, and then
+      re-read during the second phase. This makes geometry processing less
+      efficient.
+
+      #### GPU queues
+
+      The GPU front-end in this generation of hardware has two hardware queues:
+
+      * Non-fragment queue
+      * Fragment queue
+
+      The Non-fragment queue is used for all compute-like workloads, including
+      vertex shading and buffer transfers. The Fragment queue is used for all
+      fragment-like workloads, including fragment shading and most image
+      transfers.
+
+      Monitoring your application's queue usage is the first stage of profiling
+      an Arm GPU, as the queue costs give the overall processing cost of each
+      type of workload. In addition you can see if your application is using
+      barriers efficiently, allowing the queues to run their workloads in
+      parallel.
+
+      ### Profiling GPU memory bandwidth
+
+      GPUs are a data-plane processors, so memory access efficiency is an
+      important factor for overall performance.
+
+      ![Valhall memory system](./images/bifrost-memory-system.svg)
+
+      Memory system performance outside of the GPU cannot be directly observed
+      via GPU performance counters, but the counters can show the performance
+      observed by the GPU on its memory interface.
+
+      #### Reducing bandwidth
+
+      Accessing external DRAM is a very energy-intensive operation, which makes
+      reducing external bandwidth an important optimization goal for mobile
+      devices. Sustained high bandwidth can cause poor performance in
+      main-stream devices, and thermal issues in high-end devices.
+
+      Shader core performance counters can give you more breakdown about which
+      functional units are generating memory traffic, guiding your optimization
+      efforts.
+
+      #### Reducing stalls
+
+      The memory system outside of the GPU is implemented by the chip
+      manufacturer, and designs can vary and have different performance
+      characteristics. Workloads that generate a significant number of memory
+      stall cycles, or that see a large percentage of high latency reads, might
+      be stressing the external memory system beyond its capabilities. Reducing
+      memory bandwidth often gives measurable performance gains in these
+      scenarios.
+
+      ### Profiling shader core usage
+
+      If the GPU queues are scheduling well, the next thing that you will need
+      to profile to determine the processing bottleneck of a workload is your
+      application's use of the shader core.
+
+      The {{K::GPU_NAME}} shader cores use a massively multi-threaded
+      architecture, supporting hundreds of concurrently running threads. A
+      large pool of available threads allows the hardware to fill parallel
+      functional units by switching to any of the available threads if the
+      current thread becomes blocked for any reason.
+
+      ![Valhall shader core](./images/valhall-execution-core.svg)
+
+      In this type of architecture, the utilization of the functional units
+      reflects the overall demand of the running shader programs. This is
+      relatively independent of localized hot-spots in shaders that stress a
+      single functional unit, because other threads will be running other parts
+      of the program and will load-balance the hardware. This is quite
+      different to profiling a CPU, where the serial instruction stream means
+      that performance can be very sensitive to both latency and localized
+      hot-spots.
+
+      ### Improve speed-of-light utilization
+
+      For functional unit profiling, we therefore aim for at least 75%
+      utilization of the most heavily used functional unit, relative to its
+      best case 'speed-of-light' performance. This shows that the application
+      has done a good job getting its workload running without problematic
+      stalls.
+
+      In this situation, reducing demand on the most heavily used functional
+      units, either by improving efficiency or reducing size, should improve
+      application performance.
+
+      #### Reduce shader core stalls
+
+      If no functional unit is heavily utilized, the shader core is running out
+      of work to do. This can occur for multiple reasons, and should be avoided
+      if possible.
+
+      The first reason is that the shader is literally running out of threads
+      to run, and the shader core is running with low thread occupancy. GPUs
+      rely on workloads having a lot of threads to fill the capacity of the
+      shader core. You should avoid running small workloads with few threads on
+      the GPU, preferring to use the CPU if possible. Note that some workloads,
+      such as depth shadow maps, may not generate many fragment threads due to
+      their algorithmic design. This is usually unavoidable, but is something
+      to remember when profiling.
+
+      The second reason is that the running shader programs are causing
+      operations to stall by missing in descriptor caches or data caches. GPUs
+      use their thread count to hide the impact and latency of cache misses,
+      but there are limits to the density of misses that can be hidden. In this
+      situation, try to identify which workload is causing stalls and try to
+      minimize them. There are not specific performance counters for every
+      stall reason, so this can take some investigation and experimentation to
+      determine which resource is causing the problem.
+
+      ### Profiling workload
+
+      In addition to profiling use of the hardware, measuring cycles and bytes,
+      Arm GPUs provide many performance counters that can help you to
+      understand the size and characteristics of your workload. These counters
+      gives feedback in the context of API constructs, such as vertices,
+      triangles, and pixels making it easier for developers to understand the
+      feedback.
+
+      ![Valhall shader core](./images/valhall-shader-core.svg)
+
+      Supplementing the workload size counters, the Arm GPU also provide
+      counters that indicate areas where content is not following best practice
+      guidelines. Improving these best practice metrics will nearly always
+      improve your application's performance.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </ArchitectureInfo>
+  <!-- ==================================================================== -->
+  <ArchitectureInfo>
+    <Name>Valhall</Name>
+    <LongDescription>
+      This guide explains the performance counters for the {{K::GPU_NAME}},
+      which is a member of the Valhall second generation architecture family.
+
+      This introduction section will explain the high level goals to consider
+      when profiling this GPU. Later sections will explain the available
+      counters for each part of the GPU design.
+
+      ### Profiling GPU scheduling
+
+      The GPU runs workloads that have been submitted by the graphics driver,
+      using scheduling barriers between workloads to ensure they run in the
+      correct order. Workloads are scheduled to run by adding them to the
+      appropriate hardware queue, which will run enqueued workloads in a
+      pipelined FIFO processing order.
+
+      ![Valhall CSF top-level](./images/valhall-csf-top-level.svg)
+
+      #### Tile-based rendering
+
+      Arm GPUs are tile-based GPUs, meaning that they process graphics render
+      passes in two distinct phases. The first phase processes geometry to
+      determine which primitives contribute to which screen-space tiles. The
+      second phase renders the output framebuffer tile-by-tile.
+
+      In this design, tiles are small enough to be kept in on-chip tile memory,
+      which makes fragment processing more efficient. However, in this
+      generation of GPUs vertex shaders are processed in their entirety in the
+      first phase with their outputs written back to main memory, and then
+      re-read during the second phase. This makes geometry processing less
+      efficient.
+
+      #### GPU queues
+
+      The GPU front-end in this generation of hardware has three hardware
+      queues:
+
+      * Compute queue
+      * Vertex and tiling queue
+      * Fragment queue
+
+      The Compute queue is used for all compute-like workloads, including
+      compute shaders, buffer transfers, geometry shaders, and tessellation
+      shaders. The Vertex and tiling queue is used for vertex shading and
+      binning. The Fragment queue is used for all fragment-like workloads,
+      including fragment shading and most image transfers.
+
+      Monitoring your application's queue usage is the first stage of profiling
+      an Arm GPU, as the queue costs give the overall processing cost of each
+      type of workload. In addition you can see if your application is using
+      barriers efficiently, allowing the queues to run their workloads in
+      parallel.
+
+      ### Profiling GPU memory bandwidth
+
+      GPUs are a data-plane processors, so memory access efficiency is an
+      important factor for overall performance.
+
+      ![Valhall memory system](./images/bifrost-memory-system.svg)
+
+      Memory system performance outside of the GPU cannot be directly observed
+      via GPU performance counters, but the counters can show the performance
+      observed by the GPU on its memory interface.
+
+      #### Reducing bandwidth
+
+      Accessing external DRAM is a very energy-intensive operation, which makes
+      reducing external bandwidth an important optimization goal for mobile
+      devices. Sustained high bandwidth can cause poor performance in
+      main-stream devices, and thermal issues in high-end devices.
+
+      Shader core performance counters can give you more breakdown about which
+      functional units are generating memory traffic, guiding your optimization
+      efforts.
+
+      #### Reducing stalls
+
+      The memory system outside of the GPU is implemented by the chip
+      manufacturer, and designs can vary and have different performance
+      characteristics. Workloads that generate a significant number of memory
+      stall cycles, or that see a large percentage of high latency reads, might
+      be stressing the external memory system beyond its capabilities. Reducing
+      memory bandwidth often gives measurable performance gains in these
+      scenarios.
+
+      ### Profiling shader core usage
+
+      If the GPU queues are scheduling well, the next thing that you will need
+      to profile to determine the processing bottleneck of a workload is your
+      application's use of the shader core.
+
+      The {{K::GPU_NAME}} shader cores use a massively multi-threaded
+      architecture, supporting thousands of concurrently running threads. A
+      large pool of available threads allows the hardware to fill parallel
+      functional units by switching to any of the available threads if the
+      current thread becomes blocked for any reason.
+
+      ![Valhall shader core](./images/valhall-execution-core.svg)
+
+      In this type of architecture, the utilization of the functional units
+      reflects the overall demand of the running shader programs. This is
+      relatively independent of localized hot-spots in shaders that stress a
+      single functional unit, because other threads will be running other parts
+      of the program and will load-balance the hardware. This is quite
+      different to profiling a CPU, where the serial instruction stream means
+      that performance can be very sensitive to both latency and localized
+      hot-spots.
+
+      ### Improve speed-of-light utilization
+
+      For functional unit profiling, we therefore aim for at least 75%
+      utilization of the most heavily used functional unit, relative to its
+      best case 'speed-of-light' performance. This shows that the application
+      has done a good job getting its workload running without problematic
+      stalls.
+
+      In this situation, reducing demand on the most heavily used functional
+      units, either by improving efficiency or reducing size, should improve
+      application performance.
+
+      #### Reduce shader core stalls
+
+      If no functional unit is heavily utilized, the shader core is running out
+      of work to do. This can occur for multiple reasons, and should be avoided
+      if possible.
+
+      The first reason is that the shader is literally running out of threads
+      to run, and the shader core is running with low thread occupancy. GPUs
+      rely on workloads having a lot of threads to fill the capacity of the
+      shader core. You should avoid running small workloads with few threads on
+      the GPU, preferring to use the CPU if possible. Note that some workloads,
+      such as depth shadow maps, may not generate many fragment threads due to
+      their algorithmic design. This is usually unavoidable, but is something
+      to remember when profiling.
+
+      The second reason is that the running shader programs are causing
+      operations to stall by missing in descriptor caches or data caches. GPUs
+      use their thread count to hide the impact and latency of cache misses,
+      but there are limits to the density of misses that can be hidden. In this
+      situation, try to identify which workload is causing stalls and try to
+      minimize them. There are not specific performance counters for every
+      stall reason, so this can take some investigation and experimentation to
+      determine which resource is causing the problem.
+
+      ### Profiling workload
+
+      In addition to profiling use of the hardware, measuring cycles and bytes,
+      Arm GPUs provide many performance counters that can help you to
+      understand the size and characteristics of your workload. These counters
+      gives feedback in the context of API constructs, such as vertices,
+      triangles, and pixels making it easier for developers to understand the
+      feedback.
+
+      ![Valhall shader core](./images/valhall-shader-core.svg)
+
+      Supplementing the workload size counters, the Arm GPU also provide
+      counters that indicate areas where content is not following best practice
+      guidelines. Improving these best practice metrics will nearly always
+      improve your application's performance.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+    </SupportedGPUs>
+  </ArchitectureInfo>
+  <!-- ==================================================================== -->
+  <ArchitectureInfo>
+    <Name>Valhall</Name>
+    <LongDescription>
+      This guide explains the performance counters for the {{K::GPU_NAME}},
+      which is a member of the 5th Generation architecture family.
+
+      This introduction section will explain the high level goals to consider
+      when profiling this GPU. Later sections will explain the available
+      counters for each part of the GPU design.
+
+      ### Profiling GPU scheduling
+
+      The GPU runs workloads that have been submitted by the graphics driver,
+      using scheduling barriers between workloads to ensure they run in the
+      correct order. Workloads are scheduled to run by adding them to the
+      appropriate hardware queue, which will run enqueued workloads in a
+      pipelined FIFO processing order.
+
+      ![Valhall CSF top-level](./images/valhall-csf-top-level.svg)
+
+      #### Tile-based rendering
+
+      Arm GPUs are tile-based GPUs, meaning that they process graphics render
+      passes in two distinct phases. The first phase processes geometry to
+      determine which primitives contribute to which screen-space tiles. The
+      second phase renders the output framebuffer tile-by-tile.
+
+      In this design, tiles are small enough to be kept in on-chip tile memory,
+      which makes fragment processing more efficient. However, in this
+      generation of GPUs vertex shaders are processed in their entirety in the
+      first phase with their outputs written back to main memory, and then
+      re-read during the second phase. This makes geometry processing less
+      efficient.
+
+      #### GPU queues
+
+      The GPU front-end in this generation of hardware has three hardware
+      queues:
+
+      * Compute queue
+      * Vertex and tiling queue
+      * Fragment queue
+
+      The Compute queue is used for all compute-like workloads, including
+      compute shaders, buffer transfers, geometry shaders, and tessellation
+      shaders. The Vertex and tiling queue is used for vertex shading and
+      binning. The Fragment queue is used for all fragment-like workloads,
+      including fragment shading and most image transfers.
+
+      Monitoring your application's queue usage is the first stage of profiling
+      an Arm GPU, as the queue costs give the overall processing cost of each
+      type of workload. In addition you can see if your application is using
+      barriers efficiently, allowing the queues to run their workloads in
+      parallel.
+
+      ### Profiling GPU memory bandwidth
+
+      GPUs are a data-plane processors, so memory access efficiency is an
+      important factor for overall performance.
+
+      ![Valhall memory system](./images/bifrost-memory-system.svg)
+
+      Memory system performance outside of the GPU cannot be directly observed
+      via GPU performance counters, but the counters can show the performance
+      observed by the GPU on its memory interface.
+
+      #### Reducing bandwidth
+
+      Accessing external DRAM is a very energy-intensive operation, which makes
+      reducing external bandwidth an important optimization goal for mobile
+      devices. Sustained high bandwidth can cause poor performance in
+      main-stream devices, and thermal issues in high-end devices.
+
+      Shader core performance counters can give you more breakdown about which
+      functional units are generating memory traffic, guiding your optimization
+      efforts.
+
+      #### Reducing stalls
+
+      The memory system outside of the GPU is implemented by the chip
+      manufacturer, and designs can vary and have different performance
+      characteristics. Workloads that generate a significant number of memory
+      stall cycles, or that see a large percentage of high latency reads, might
+      be stressing the external memory system beyond its capabilities. Reducing
+      memory bandwidth often gives measurable performance gains in these
+      scenarios.
+
+      ### Profiling shader core usage
+
+      If the GPU queues are scheduling well, the next thing that you will need
+      to profile to determine the processing bottleneck of a workload is your
+      application's use of the shader core.
+
+      The {{K::GPU_NAME}} shader cores use a massively multi-threaded
+      architecture, supporting thousands of concurrently running threads. A
+      large pool of available threads allows the hardware to fill parallel
+      functional units by switching to any of the available threads if the
+      current thread becomes blocked for any reason.
+
+      ![Valhall shader core](./images/valhall-execution-core-rtu.svg)
+
+      In this type of architecture, the utilization of the functional units
+      reflects the overall demand of the running shader programs. This is
+      relatively independent of localized hot-spots in shaders that stress a
+      single functional unit, because other threads will be running other parts
+      of the program and will load-balance the hardware. This is quite
+      different to profiling a CPU, where the serial instruction stream means
+      that performance can be very sensitive to both latency and localized
+      hot-spots.
+
+      ### Improve speed-of-light utilization
+
+      For functional unit profiling, we therefore aim for at least 75%
+      utilization of the most heavily used functional unit, relative to its
+      best case 'speed-of-light' performance. This shows that the application
+      has done a good job getting its workload running without problematic
+      stalls.
+
+      In this situation, reducing demand on the most heavily used functional
+      units, either by improving efficiency or reducing size, should improve
+      application performance.
+
+      #### Reduce shader core stalls
+
+      If no functional unit is heavily utilized, the shader core is running out
+      of work to do. This can occur for multiple reasons, and should be avoided
+      if possible.
+
+      The first reason is that the shader is literally running out of threads
+      to run, and the shader core is running with low thread occupancy. GPUs
+      rely on workloads having a lot of threads to fill the capacity of the
+      shader core. You should avoid running small workloads with few threads on
+      the GPU, preferring to use the CPU if possible. Note that some workloads,
+      such as depth shadow maps, may not generate many fragment threads due to
+      their algorithmic design. This is usually unavoidable, but is something
+      to remember when profiling.
+
+      The second reason is that the running shader programs are causing
+      operations to stall by missing in descriptor caches or data caches. GPUs
+      use their thread count to hide the impact and latency of cache misses,
+      but there are limits to the density of misses that can be hidden. In this
+      situation, try to identify which workload is causing stalls and try to
+      minimize them. There are not specific performance counters for every
+      stall reason, so this can take some investigation and experimentation to
+      determine which resource is causing the problem.
+
+      ### Profiling workload
+
+      In addition to profiling use of the hardware, measuring cycles and bytes,
+      Arm GPUs provide many performance counters that can help you to
+      understand the size and characteristics of your workload. These counters
+      gives feedback in the context of API constructs, such as vertices,
+      triangles, and pixels making it easier for developers to understand the
+      feedback.
+
+      ![Valhall shader core](./images/valhall-shader-core.svg)
+
+      Supplementing the workload size counters, the Arm GPU also provide
+      counters that indicate areas where content is not following best practice
+      guidelines. Improving these best practice metrics will nearly always
+      improve your application's performance.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </ArchitectureInfo>
+  <!-- ==================================================================== -->
+  <ArchitectureInfo>
+    <Name>5th Generation</Name>
+    <LongDescription>
+      This guide explains the performance counters for the {{K::GPU_NAME}},
+      which is a member of the Valhall second generation architecture family.
+
+      This introduction section will explain the high level goals to consider
+      when profiling this GPU. Later sections will explain the available
+      counters for each part of the GPU design.
+
+      ### Profiling GPU scheduling
+
+      The GPU runs workloads that have been submitted by the graphics driver,
+      using scheduling barriers between workloads to ensure they run in the
+      correct order. Workloads are scheduled to run by adding them to the
+      appropriate hardware queue, which will run enqueued workloads in a
+      pipelined FIFO processing order.
+
+      ![5th Generation top-level](./images/gen5-csf-top-level.svg)
+
+      #### Tile-based rendering
+
+      Arm GPUs are tile-based GPUs, meaning that they process graphics render
+      passes in two distinct phases. The first phase processes geometry to
+      determine which primitives contribute to which screen-space tiles. The
+      second phase renders the output framebuffer tile-by-tile.
+
+      In this design, tiles are small enough to be kept in on-chip tile memory,
+      which makes fragment processing more efficient. This generation of GPUs
+      introduces deferred vertex shading, which means that the first phase only
+      computes the primitive binning metadata. Full vertex shading is deferred
+      to the second main phase. This generation of GPUs is far more bandwidth
+      efficient than earlier Arm GPUs for geometry heavy scenes.
+
+      #### GPU queues
+
+      The GPU front-end in this generation of hardware has three hardware
+      queues:
+
+      * Compute queue
+      * Binning phase queue
+      * Main phase queue
+
+      The Compute queue is used for all compute-like workloads, including
+      compute shaders, buffer transfers, geometry shaders, and tessellation
+      shaders. The Binning phase queue queue is used for computing vertex
+      positions and binning. The Main queue is used for the main render pass
+      processing, including vertex shading and fragment shading, and most image
+      transfers.
+
+      Monitoring your application's queue usage is the first stage of profiling
+      an Arm GPU, as the queue costs give the overall processing cost of each
+      type of workload. In addition you can see if your application is using
+      barriers efficiently, allowing the queues to run their workloads in
+      parallel.
+
+      ### Profiling GPU memory bandwidth
+
+      GPUs are a data-plane processors, so memory access efficiency is an
+      important factor for overall performance.
+
+      ![5th Generation memory system](./images/bifrost-memory-system.svg)
+
+      Memory system performance outside of the GPU cannot be directly observed
+      via GPU performance counters, but the counters can show the performance
+      observed by the GPU on its memory interface.
+
+      #### Reducing bandwidth
+
+      Accessing external DRAM is a very energy-intensive operation, which makes
+      reducing external bandwidth an important optimization goal for mobile
+      devices. Sustained high bandwidth can cause poor performance in
+      main-stream devices, and thermal issues in high-end devices.
+
+      Shader core performance counters can give you more breakdown about which
+      functional units are generating memory traffic, guiding your optimization
+      efforts.
+
+      #### Reducing stalls
+
+      The memory system outside of the GPU is implemented by the chip
+      manufacturer, and designs can vary and have different performance
+      characteristics. Workloads that generate a significant number of memory
+      stall cycles, or that see a large percentage of high latency reads, might
+      be stressing the external memory system beyond its capabilities. Reducing
+      memory bandwidth often gives measurable performance gains in these
+      scenarios.
+
+      ### Profiling shader core usage
+
+      If the GPU queues are scheduling well, the next thing that you will need
+      to profile to determine the processing bottleneck of a workload is your
+      application's use of the shader core.
+
+      The {{K::GPU_NAME}} shader cores use a massively multi-threaded
+      architecture, supporting thousands of concurrently running threads. A
+      large pool of available threads allows the hardware to fill parallel
+      functional units by switching to any of the available threads if the
+      current thread becomes blocked for any reason.
+
+      ![5th Generation core](./images/valhall-execution-core-rtu.svg)
+
+      In this type of architecture, the utilization of the functional units
+      reflects the overall demand of the running shader programs. This is
+      relatively independent of localized hot-spots in shaders that stress a
+      single functional unit, because other threads will be running other parts
+      of the program and will load-balance the hardware. This is quite
+      different to profiling a CPU, where the serial instruction stream means
+      that performance can be very sensitive to both latency and localized
+      hot-spots.
+
+      ### Improve speed-of-light utilization
+
+      For functional unit profiling, we therefore aim for at least 75%
+      utilization of the most heavily used functional unit, relative to its
+      best case 'speed-of-light' performance. This shows that the application
+      has done a good job getting its workload running without problematic
+      stalls.
+
+      In this situation, reducing demand on the most heavily used functional
+      units, either by improving efficiency or reducing size, should improve
+      application performance.
+
+      #### Reduce shader core stalls
+
+      If no functional unit is heavily utilized, the shader core is running out
+      of work to do. This can occur for multiple reasons, and should be avoided
+      if possible.
+
+      The first reason is that the shader is literally running out of threads
+      to run, and the shader core is running with low thread occupancy. GPUs
+      rely on workloads having a lot of threads to fill the capacity of the
+      shader core. You should avoid running small workloads with few threads on
+      the GPU, preferring to use the CPU if possible. Note that some workloads,
+      such as depth shadow maps, may not generate many fragment threads due to
+      their algorithmic design. This is usually unavoidable, but is something
+      to remember when profiling.
+
+      The second reason is that the running shader programs are causing
+      operations to stall by missing in descriptor caches or data caches. GPUs
+      use their thread count to hide the impact and latency of cache misses,
+      but there are limits to the density of misses that can be hidden. In this
+      situation, try to identify which workload is causing stalls and try to
+      minimize them. There are not specific performance counters for every
+      stall reason, so this can take some investigation and experimentation to
+      determine which resource is causing the problem.
+
+      ### Profiling workload
+
+      In addition to profiling use of the hardware, measuring cycles and bytes,
+      Arm GPUs provide many performance counters that can help you to
+      understand the size and characteristics of your workload. These counters
+      gives feedback in the context of API constructs, such as vertices,
+      triangles, and pixels making it easier for developers to understand the
+      feedback.
+
+      ![5th Generation shader core](./images/valhall-shader-core.svg)
+
+      Supplementing the workload size counters, the Arm GPU also provide
+      counters that indicate areas where content is not following best practice
+      guidelines. Improving these best practice metrics will nearly always
+      improve your application's performance.
+    </LongDescription>
+  </ArchitectureInfo>
+</ArchitectureInfoList>

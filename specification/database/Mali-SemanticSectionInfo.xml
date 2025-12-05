@@ -1,0 +1,578 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2025 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<SectionInfoList>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>GPU Front-end</SectionName>
+    <LongDescription>
+      The GPU front-end is the interface between the GPU hardware and the
+      driver. The front-end schedules workloads submitted by the driver on to
+      multiple hardware work queues. Each work queue handles a specific type of
+      workload and is responsible for breaking a workload into smaller tasks
+      that can be dispatched to the shader cores. Work stays at the head of the
+      queue while being processed, so queue activity is a direct way of
+      measuring that the GPU is busy handling a workload.
+
+      In this generation of hardware there are two work queues:
+
+      * Non-fragment queue for compute shaders, vertex shaders, and primitive
+        culling and binning.
+      * Fragment queue for render pass fragment shading.
+
+      It is beneficial to schedule work on multiple queues in parallel, as this
+      can more evenly load balance the hardware. Parallel processing will
+      increase the latency of individual tasks, but usually significantly
+      improves overall throughput.
+
+      Performance counters in this section can show activity on each of the
+      queues, which indicates the complexity and scheduling patterns of
+      submitted workloads.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>GPU Front-end</SectionName>
+    <LongDescription>
+      The GPU front-end is the interface between the GPU hardware and the
+      driver. The front-end schedules command streams submitted by the driver
+      on to multiple hardware work queues. Each work queue handles a specific
+      type of workload and is responsible for breaking a workload into smaller
+      tasks that can be dispatched to the shader cores. Work stays at the head
+      of the queue while being processed, so queue activity is a direct way of
+      measuring that the GPU is busy handling a workload.
+
+      In this generation of hardware there are three work queues:
+
+      * Compute queue for compute shaders and advanced geometry shaders.
+      * Vertex queue for the first phase of a render pass, handling vertex
+        shading, and primitive culling and binning.
+      * Fragment queue for the second phase of a render pass, handling
+        fragment shading.
+
+      It is beneficial to schedule work on multiple queues in parallel, as this
+      can more evenly load balance the hardware. In this generation of hardware
+      the Compute and Vertex queues can run in parallel to the Fragment queue,
+      but serially with respect to each other. Parallel processing will
+      increase the latency of individual tasks, but usually significantly
+      improves overall throughput.
+
+      Performance counters in this section can show activity on each of the
+      queues, which indicates the complexity and scheduling patterns of
+      submitted workloads.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>GPU Front-end</SectionName>
+    <LongDescription>
+      The GPU front-end is the interface between the GPU hardware and the
+      driver. The front-end schedules command streams submitted by the driver
+      on to multiple hardware work queues. Each work queue handles a specific
+      type of workload and is responsible for breaking a workload into smaller
+      tasks that can be dispatched to the shader cores. Work stays at the head
+      of the queue while being processed, so queue activity is a direct way of
+      measuring that the GPU is busy handling a workload.
+
+      In this generation of hardware there are three work queues:
+
+      * Compute queue for compute shaders and advanced geometry shaders.
+      * Binning phase queue for the first phase of a render pass, handling
+        vertex position calculation, and primitive culling and binning.
+      * Main phase queue for the second phase of a render pass, handling any
+        deferred vertex shading and fragment shading.
+
+      It is beneficial to schedule work on multiple queues in parallel, as this
+      can more evenly load balance the hardware. In this generation of hardware
+      the Compute and Binning phase queues can run in parallel to the Main
+      phase queue, but serially with respect to each other. Parallel processing
+      will increase the latency of individual tasks, but usually significantly
+      improves overall throughput.
+
+      Performance counters in this section can show activity on each of the
+      queues, which indicates the complexity and scheduling patterns of
+      submitted workloads.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>External Memory System</SectionName>
+    <LongDescription>
+      The GPU external memory interface connects the GPU to the system DRAM,
+      via an on-chip memory bus. The exact configuration of the memory system
+      outside of the GPU varies from device to device and might include
+      additional levels of system cache before reaching the off-chip memory.
+
+      GPUs are data-plane processors, with workloads that are too large to keep
+      in system cache and that therefore make heavy use of main memory. GPUs
+      are designed to be tolerant of high latency, when compared to a CPU, but
+      poor memory system performance can still reduce GPU efficiency.
+
+      Accessing external DRAM is one of the most energy-intensive operations
+      that the GPU can perform. Reducing memory bandwidth is a key optimization
+      goal for mobile applications, even if not bandwidth limited, ensuring
+      users get long battery life and thermally stable performance.
+
+      Performance counters in this section measure how much memory bandwidth
+      your application uses, as well as stall and latency counters to show how
+      well the memory system is coping with the generated traffic.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Internal Memory System</SectionName>
+    <LongDescription>
+      The GPU internal memory interface connects the processing units, such as
+      the shader cores and the tiler, to the GPU L2 cache.
+
+      Performance counters in this section show reads and writes into the L2
+      cache and how the cache responded to them.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Front-end</SectionName>
+    <LongDescription>
+      The shader core front-ends are the internal interfaces inside the GPU
+      that accept tasks from other parts of the GPU and turn them into shader
+      threads running in the programmable core.
+
+      Each shader core has two front-ends:
+
+      * Non-fragment front-end for all non-fragment tasks, including compute,
+        vertex shading, and advanced geometry.
+      * Fragment front-end for all fragment tasks.
+
+      The front-ends show as active until task processing is complete, so
+      front-end activity is a direct way of measuring that the shader core is
+      busy handling a workload.
+
+      The Execution engine is the programmable core at the heart of the shader
+      core hardware. The Execution engine shows as active if there is at least
+      one thread running, and monitoring its activity is an indirect way of
+      checking that the front-ends are managing to keep the GPU busy.
+
+      Performance counters in this section measure the overall workload
+      scheduling for the shader core, showing how busy the shader core is. Note
+      that front-end counters can tell you that a task was scheduled but cannot
+      tell you how heavily the programmable core is being used.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Front-end</SectionName>
+    <LongDescription>
+      The shader core front-ends are the internal interfaces inside the GPU
+      that accept tasks from other parts of the GPU and turn them into shader
+      threads running in the programmable core.
+
+      Each shader core has two front-ends:
+
+      * Non-fragment front-end for all non-fragment tasks, including compute,
+        vertex shading, and advanced geometry.
+      * Fragment front-end for all fragment tasks.
+
+      The front-ends show as active until task processing is complete, so
+      front-end activity is a direct way of measuring that the shader core is
+      busy handling a workload.
+
+      The Execution core is the programmable core at the heart of the shader
+      core hardware. The Execution core shows as active if there is at least on
+      thread running, and monitoring its activity is an indirect way of
+      checking that the front-ends are managing to keep the GPU busy.
+
+      Performance counters in this section measure the overall workload
+      scheduling for the shader core, showing how busy the shader core is. Note
+      that front-end counters can tell you that a task was scheduled but cannot
+      tell you how heavily the programmable core is being used.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Front-end</SectionName>
+    <LongDescription>
+      The shader core front-ends are the internal interfaces inside the GPU
+      that accept tasks from other parts of the GPU and turn them into shader
+      threads running in the programmable core.
+
+      Each shader core has two front-ends:
+
+      * Compute and Binning phase front-end for tasks including compute,
+        binning-time vertex shading, and advanced geometry.
+      * Main phase front-end for all main phase tasks, including deferred
+        vertex shading, and fragment shading.
+
+      The front-ends show as active until task processing is complete, so
+      front-end activity is a direct way of measuring that the shader core is
+      busy handling a workload.
+
+      The Execution core is the programmable core at the heart of the shader
+      core hardware. The Execution core shows as active if there is at least on
+      thread running, and monitoring its activity is an indirect way of
+      checking that the front-ends are managing to keep the GPU busy.
+
+      Performance counters in this section measure the overall workload
+      scheduling for the shader core, showing how busy the shader core is. Note
+      that front-end counters can tell you that a task was scheduled but cannot
+      tell you how heavily the programmable core is being used.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Fragment Front-end</SectionName>
+    <LongDescription>
+      The shader core fragment front-end is a complex multi-stage pipeline that
+      converts an incoming primitive stream for a screen-space tile into
+      fragment threads that need to be shaded. The fragment front-end handles
+      rasterization, early depth (Z) and stencil (S) testing, and hidden
+      surface removal (HSR).
+
+      Performance counters in this section measure how the incoming stream was
+      turned into quads, and how efficiently those quads interacted with ZS
+      testing and HSR.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Programmable Core</SectionName>
+    <LongDescription>
+      The programmable core is responsible for executing shader programs. This
+      generation of Arm GPUs are warp-based, scheduling multiple threads from
+      the same program in lockstep to improve energy efficiency.
+
+      The programmable core is a massively multi-threaded core, allowing many
+      concurrently resident warps, which provides a level of tolerance to cache
+      misses and data fetch latency. For most applications having more threads
+      resident improves performance, as it increases the number of threads
+      available for latency hiding, but it might decrease performance if the
+      additional threads cause cache thrashing.
+
+      The core is built from a multiple independent hardware units, which can
+      be simultaneously processing workloads from any of the resident threads.
+      The most heavily loaded unit will set the upper bound on performance,
+      with the other units running in parallel to it.
+
+      Performance counters in this section show the overall utilization of the
+      different hardware units, making it easier to identify the units that are
+      likely to be on the critical path.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Programmable Core</SectionName>
+    <LongDescription>
+      The programmable core is responsible for executing shader programs. This
+      generation of Arm GPUs are warp-based, scheduling multiple threads from
+      the same program in lockstep to improve energy efficiency.
+
+      The programmable core is a massively multi-threaded core, allowing many
+      concurrently resident warps, which provides a level of tolerance to cache
+      misses and data fetch latency. For most applications having more threads
+      resident improves performance, as it increases the number of threads
+      available for latency hiding, but it might decrease performance if the
+      additional threads cause cache thrashing.
+
+      The core is built from a multiple independent hardware units, which can
+      be simultaneously processing workloads from any of the resident threads.
+      The most heavily loaded unit will set the upper bound on performance,
+      with the other units running in parallel to it.
+
+      Performance counters in this section show the overall utilization of the
+      different hardware units, as well as any indication of unit backpressure
+      overload, making it easier to identify the units that are on the critical
+      path.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Workload</SectionName>
+    <LongDescription>
+      The programmable core runs the shader program threads that generate the
+      desired application output.
+
+      Performance counters in this section show how the programmable core
+      converts incoming work into the threads and warps running in the shader
+      core, as well as other important properties of the running workload such
+      as warp divergence.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Arithmetic Unit</SectionName>
+    <LongDescription>
+      The arithmetic unit in the shader core processes all the arithmetic and
+      logic operations in the running shader programs.
+
+      Performance counters in this section show how the running programs used
+      the arithmetic units, which may indicate the type of operations that are
+      consuming the most performance.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Load/store Unit</SectionName>
+    <LongDescription>
+      The load/store unit in the shader core handles all generic read/write
+      data access, including access to vertex attributes, buffers, images,
+      workgroup local storage, and program stack.
+
+      Performance counters in this section show the breakdown of performed
+      load/store cache accesses, showing whether accesses are using an entire
+      cache line or just using part of one.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Varying Unit</SectionName>
+    <LongDescription>
+      The varying unit in the shader core handles all vertex data interpolation
+      in fragment shaders.
+
+      Performance counters in this section show the breakdown of performed
+      interpolation operations.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Texture Unit</SectionName>
+    <LongDescription>
+      The texture unit in the shader core handles all read-only texture access
+      and filtering.
+
+      Performance counters in this section show the breakdown of performed
+      texturing operations, and use of sub-units inside the texturing hardware.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Ray Tracing Unit</SectionName>
+    <LongDescription>
+      The ray tracing unit in the shader core handles in the shader core
+      handles hardware accelerated bounding box and triangle intersection
+      testing.
+
+      Performance counters in this section show the breakdown of performed
+      intersections tests texturing operations, and use of sub-units inside the
+      texture unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G715</GPU>
+      <GPU>Mali-G720</GPU>
+      <GPU>Mali-G725</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Ray Tracing Unit</SectionName>
+    <LongDescription>
+      The ray tracing unit in the shader core handles in acceleration structure
+      traversal, as well bounding box and triangle intersection testing.
+
+      Performance counters in this section show the breakdown of performed ray
+      tracing operations, and use of sub-units inside the ray tracing unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Other Units</SectionName>
+    <LongDescription>
+      In addition to the main units, covered in earlier sections, the shader
+      core has several other units that can be measured.
+
+      Performance counters in this section show the workload on these other
+      units.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Shader Core Memory Access</SectionName>
+    <LongDescription>
+      GPUs are data-plane processors, so understanding your memory bandwidth
+      and where it is coming from is a critical piece of knowledge when trying
+      to improve performance.
+
+      Performance counters in this section show the breakdown of memory
+      accesses by shader core hardware unit, showing the total amount of read
+      and write bandwidth being generated by the shader core.
+
+      Read bandwidth is split to show how much was provided by the GPU L2 cache
+      and how much was provided by the external memory system. Write bandwidth
+      does not have an equivalent split, and it is not possible to tell from
+      the counters if a write went to L2 or directly to external memory.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Tiling</SectionName>
+    <LongDescription>
+      The tiler hardware orchestrates vertex shading, and binning primitives
+      into the tile lists read during fragment shading.
+
+      Performance counters in this section show how the tiler processed the
+      binning-time vertex and primitive workload.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G31</GPU>
+      <GPU>Mali-G51</GPU>
+      <GPU>Mali-G52</GPU>
+      <GPU>Mali-G71</GPU>
+      <GPU>Mali-G72</GPU>
+      <GPU>Mali-G76</GPU>
+      <GPU>Mali-G77</GPU>
+      <GPU>Mali-G78</GPU>
+      <GPU>Mali-G710</GPU>
+      <GPU>Mali-G715</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Tiling</SectionName>
+    <LongDescription>
+      The tiler hardware orchestrates vertex shading, and binning primitives
+      into the tile lists read during fragment shading.
+
+      Performance counters in this section show how the tiler processed the
+      binning phase vertex and primitive workload.
+
+      This GPU uses deferred vertex shading, so the binning phase vertex
+      shading tracked by the tiler performance counters includes only the
+      position shader. Varying shading is deferred until the main phase of
+      render pass processing for most draw calls.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali-G725</GPU>
+      <GPU>Mali G1</GPU>
+    </SupportedGPUs>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Graphics Geometry Workload</SectionName>
+    <LongDescription>
+      Graphics workloads using the rasterization pipeline pass inputs to the
+      GPU as a geometry stream. Vertices in this stream are position shaded,
+      assembled into primitives, and then passed through a culling pipeline
+      before being passed to the Arm GPU binning unit.
+
+      Performance counters in this section show how the input geometry is
+      processed, indicating the overall complexity of the geometry workload and
+      how it is processed by the primitive culling stages.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Graphics Fragment Workload</SectionName>
+    <LongDescription>
+      Graphics workloads using the rasterization pipeline are rendered into the
+      framebuffer to create output images.
+
+      Performance counters in this section show the workload complexity of your
+      fragment rendering.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Workload Cost</SectionName>
+    <LongDescription>
+      Workload cost metrics give an average throughput per item of work
+      processed by the GPU.
+
+      Performance counters in this section can be used to track average
+      performance against budget, and to monitor the impact of application
+      changes over time.
+    </LongDescription>
+  </SectionInfo>
+  <!-- ==================================================================== -->
+  <SectionInfo>
+    <SectionName>Constants</SectionName>
+    <LongDescription>
+      Arm GPUs are configurable, with variable performance across products, and
+      variable configurations across devices.
+
+      This section lists useful symbolic configuration and constant values that
+      can be used in expressions to compute derived counters. Note that
+      configuration values must be provided by a run-time tool that can query
+      the actual implementation configuration of the target device.
+    </LongDescription>
+  </SectionInfo>
+</SectionInfoList>
