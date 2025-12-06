@@ -731,10 +731,9 @@
 
       The Compute queue is used for all compute-like workloads, including
       compute shaders, buffer transfers, geometry shaders, and tessellation
-      shaders. The Binning phase queue queue is used for computing vertex
-      positions and binning. The Main queue is used for the main render pass
-      processing, including vertex shading and fragment shading, and most image
-      transfers.
+      shaders. The Binning phase queue is used for computing vertex positions
+      and binning. The Main queue is used for the main render pass processing,
+      including vertex shading and fragment shading, and most image transfers.
 
       Monitoring your application's queue usage is the first stage of profiling
       an Arm GPU, as the queue costs give the overall processing cost of each
