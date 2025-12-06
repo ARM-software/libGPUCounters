@@ -80,7 +80,7 @@
 
       ### Profiling GPU memory bandwidth
 
-      GPUs are a data-plane processors, so memory access efficiency is an
+      GPUs are data-plane processors, so memory access efficiency is an
       important factor for overall performance.
 
       ![Bifrost memory system](./images/bifrost-memory-system.svg)
@@ -180,10 +180,10 @@
 
       ![Bifrost shader core](./images/bifrost-shader-core.svg)
 
-      Supplementing the workload size counters, the Arm GPU also provide
-      counters that indicate areas where content is not following best practice
+      Supplementing the workload size counters, Arm GPUs also provide counters
+      that indicate areas where content is not following best practice
       guidelines. Improving these best practice metrics will nearly always
-      improve your application's performance.
+      improve your application's performance or energy efficiency.
     </LongDescription>
   </ArchitectureInfo>
   <!-- ==================================================================== -->
@@ -241,7 +241,7 @@
 
       ### Profiling GPU memory bandwidth
 
-      GPUs are a data-plane processors, so memory access efficiency is an
+      GPUs are data-plane processors, so memory access efficiency is an
       important factor for overall performance.
 
       ![Valhall memory system](./images/bifrost-memory-system.svg)
@@ -341,10 +341,10 @@
 
       ![Valhall shader core](./images/valhall-shader-core.svg)
 
-      Supplementing the workload size counters, the Arm GPU also provide
-      counters that indicate areas where content is not following best practice
+      Supplementing the workload size counters, Arm GPUs also provide counters
+      that indicate areas where content is not following best practice
       guidelines. Improving these best practice metrics will nearly always
-      improve your application's performance.
+      improve your application's performance or energy efficiency.
     </LongDescription>
     <SupportedGPUs>
       <GPU>Mali-G77</GPU>
@@ -409,7 +409,7 @@
 
       ### Profiling GPU memory bandwidth
 
-      GPUs are a data-plane processors, so memory access efficiency is an
+      GPUs are data-plane processors, so memory access efficiency is an
       important factor for overall performance.
 
       ![Valhall memory system](./images/bifrost-memory-system.svg)
@@ -509,10 +509,10 @@
 
       ![Valhall shader core](./images/valhall-shader-core.svg)
 
-      Supplementing the workload size counters, the Arm GPU also provide
-      counters that indicate areas where content is not following best practice
+      Supplementing the workload size counters, Arm GPUs also provide counters
+      that indicate areas where content is not following best practice
       guidelines. Improving these best practice metrics will nearly always
-      improve your application's performance.
+      improve your application's performance or energy efficiency.
     </LongDescription>
     <SupportedGPUs>
       <GPU>Mali-G710</GPU>
@@ -576,7 +576,7 @@
 
       ### Profiling GPU memory bandwidth
 
-      GPUs are a data-plane processors, so memory access efficiency is an
+      GPUs are data-plane processors, so memory access efficiency is an
       important factor for overall performance.
 
       ![Valhall memory system](./images/bifrost-memory-system.svg)
@@ -676,10 +676,10 @@
 
       ![Valhall shader core](./images/valhall-shader-core.svg)
 
-      Supplementing the workload size counters, the Arm GPU also provide
-      counters that indicate areas where content is not following best practice
+      Supplementing the workload size counters, Arm GPUs also provide counters
+      that indicate areas where content is not following best practice
       guidelines. Improving these best practice metrics will nearly always
-      improve your application's performance.
+      improve your application's performance or energy efficiency.
     </LongDescription>
     <SupportedGPUs>
       <GPU>Mali-G715</GPU>
@@ -744,7 +744,7 @@
 
       ### Profiling GPU memory bandwidth
 
-      GPUs are a data-plane processors, so memory access efficiency is an
+      GPUs are data-plane processors, so memory access efficiency is an
       important factor for overall performance.
 
       ![5th Generation memory system](./images/bifrost-memory-system.svg)
@@ -844,10 +844,10 @@
 
       ![5th Generation shader core](./images/valhall-shader-core.svg)
 
-      Supplementing the workload size counters, the Arm GPU also provide
-      counters that indicate areas where content is not following best practice
+      Supplementing the workload size counters, Arm GPUs also provide counters
+      that indicate areas where content is not following best practice
       guidelines. Improving these best practice metrics will nearly always
-      improve your application's performance.
+      improve your application's performance or energy efficiency.
     </LongDescription>
   </ArchitectureInfo>
 </ArchitectureInfoList>
