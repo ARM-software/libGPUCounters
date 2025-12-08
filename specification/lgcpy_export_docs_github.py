@@ -491,11 +491,17 @@ def populate_counter_reference_template(
         project_name = product.project_name.title()
         gpu_name_full = f'{gpu_name_full} ({project_name})'
 
+    gpu_name_tm = gpu_name.replace('Mali', 'Mali™')
+    gpu_name_tm = gpu_name_tm.replace('Immortalis', 'Immortalis™')
+
     document = document.replace('{{CONFIDENTIAL}}',
                                 '' if release else 'CONFIDENTIAL ')
 
     document = document.replace('{{GPU_NAME_FULL}}',
                                 gpu_name_full)
+
+    document = document.replace('{{GPU_NAME_TM}}',
+                                gpu_name_tm)
 
     document = document.replace('{{GPU_NAME}}',
                                 gpu_name)
