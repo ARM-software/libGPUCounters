@@ -236,6 +236,10 @@ main .lgc-mainpanel {
   padding-left: 0.3125rem;
 }
 
+.alert p {
+  margin: 0;
+}
+
 .lgc-equation p {
   margin-bottom: 0.25rem;
 }

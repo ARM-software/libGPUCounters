@@ -29,8 +29,11 @@
   <ArchitectureInfo>
     <Name>Bifrost</Name>
     <LongDescription>
-      This guide explains the performance counters for the {{K::GPU_NAME}},
-      which is a member of the Bifrost architecture family.
+      Arm GPUs provide a wide range of performance counters. You can use them
+      to understand your application's performance characteristics, and to find
+      behavioral inefficiencies to optimize. This guide explains the
+      performance counters for the {{K::GPU_NAME}}, which is a member of the
+      Bifrost architecture family.
 
       This introduction section will explain the high level goals to consider
       when profiling this GPU. Later sections will explain the available
@@ -190,8 +193,11 @@
   <ArchitectureInfo>
     <Name>Valhall</Name>
     <LongDescription>
-      This guide explains the performance counters for the {{K::GPU_NAME}},
-      which is a member of the Valhall architecture family.
+      Arm GPUs provide a wide range of performance counters. You can use them
+      to understand your application's performance characteristics, and to find
+      behavioral inefficiencies to optimize. This guide explains the
+      performance counters for the {{K::GPU_NAME}}, which is a member of the
+      Valhall architecture family.
 
       This introduction section will explain the high level goals to consider
       when profiling this GPU. Later sections will explain the available
@@ -355,8 +361,11 @@
   <ArchitectureInfo>
     <Name>Valhall</Name>
     <LongDescription>
-      This guide explains the performance counters for the {{K::GPU_NAME}},
-      which is a member of the Valhall second generation architecture family.
+      Arm GPUs provide a wide range of performance counters. You can use them
+      to understand your application's performance characteristics, and to find
+      behavioral inefficiencies to optimize. This guide explains the
+      performance counters for the {{K::GPU_NAME}}, which is a member of the
+      Valhall second generation architecture family.
 
       This introduction section will explain the high level goals to consider
       when profiling this GPU. Later sections will explain the available
@@ -522,8 +531,11 @@
   <ArchitectureInfo>
     <Name>Valhall</Name>
     <LongDescription>
-      This guide explains the performance counters for the {{K::GPU_NAME}},
-      which is a member of the 5th Generation architecture family.
+      Arm GPUs provide a wide range of performance counters. You can use them
+      to understand your application's performance characteristics, and to find
+      behavioral inefficiencies to optimize. This guide explains the
+      performance counters for the {{K::GPU_NAME}}, which is a member of the
+      5th Generation architecture family.
 
       This introduction section will explain the high level goals to consider
       when profiling this GPU. Later sections will explain the available
@@ -689,8 +701,11 @@
   <ArchitectureInfo>
     <Name>5th Generation</Name>
     <LongDescription>
-      This guide explains the performance counters for the {{K::GPU_NAME}},
-      which is a member of the Valhall second generation architecture family.
+      Arm GPUs provide a wide range of performance counters. You can use them
+      to understand your application's performance characteristics, and to find
+      behavioral inefficiencies to optimize. This guide explains the
+      performance counters for the {{K::GPU_NAME}}, which is a member of the
+      Valhall second generation architecture family.
 
       This introduction section will explain the high level goals to consider
       when profiling this GPU. Later sections will explain the available
