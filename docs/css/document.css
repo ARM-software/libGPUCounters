@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -185,11 +185,12 @@ main .lgc-mainpanel {
 }
 
 #lgc-navpin:checked ~ main .lgc-mainpanel {
-  max-width: min(calc(100vw - var(--menu-width)), var(--main-width));
+  max-width: min(calc(100dvw - var(--menu-width)), var(--main-width));
+  padding-left: 0.75rem;
 }
 
 #lgc-navpin:not(:checked) ~ main .lgc-mainpanel {
-  max-width: min(calc(100vw - var(--menu-gutter)), var(--main-width));
+  max-width: min(calc(100dvw), var(--main-width));
 }
 
 .lgc-titlepanel {
@@ -225,9 +226,9 @@ main .lgc-mainpanel {
   flex-grow: 1;
   top: var(--title-height);
   width: 100%;
-  height: calc(100vh - var(--title-height));
+  height: calc(100% - var(--title-height));
   padding-left: calc(var(--menu-gutter) + 0.75rem);
-  padding-right: calc(var(--menu-gutter) + 0.75rem);
+  padding-right: 0.75rem;
   overflow-y: auto;
 }
 
