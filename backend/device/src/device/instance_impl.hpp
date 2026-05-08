@@ -67,9 +67,11 @@ static uint64_t get_warp_width(product_id known_pid, std::error_code &ec) {
     case product_id::t720:
     case product_id::t760:
     case product_id::t820:
+    case product_id::t830:
+    case product_id::t860:
+    case product_id::t880:
         return 1;
     case product_id::g31:
-    case product_id::g68:
     case product_id::g51:
     case product_id::g71:
     case product_id::g72:
@@ -79,26 +81,23 @@ static uint64_t get_warp_width(product_id known_pid, std::error_code &ec) {
         return 8;
     case product_id::g57:
     case product_id::g57_2:
+    case product_id::g68:
     case product_id::g77:
     case product_id::g78:
+    case product_id::g78ae:
     case product_id::g310:
     case product_id::g510:
     case product_id::g610:
-    case product_id::g710:
     case product_id::g615:
-    case product_id::g715:
-        return 16;
-    case product_id::t830:
-    case product_id::t860:
-    case product_id::t880:
-    case product_id::g78ae:
-    case product_id::g720:
     case product_id::g620:
-    case product_id::g725:
     case product_id::g625:
-    case product_id::g1_ultra:
-    case product_id::g1_premium:
+    case product_id::g710:
+    case product_id::g715:
+    case product_id::g720:
+    case product_id::g725:
     case product_id::g1_pro:
+    case product_id::g1_premium:
+    case product_id::g1_ultra:
         return 16;
     }
 
