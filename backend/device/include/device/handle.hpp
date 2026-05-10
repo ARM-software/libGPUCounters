@@ -32,6 +32,7 @@
 
 #include <device/api.hpp>
 
+#include <cstdint>
 #include <memory>
 
 namespace hwcpipe {

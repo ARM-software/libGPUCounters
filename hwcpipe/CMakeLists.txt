@@ -20,6 +20,11 @@ target_compile_options(hwcpipe
             -Wswitch-enum
 )
 
+set_target_properties(hwcpipe PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION ${PROJECT_VERSION_MAJOR}
+)
+
 if(HWCPIPE_PIC)
     set_target_properties(hwcpipe PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
@@ -31,4 +36,13 @@ target_include_directories(hwcpipe
 
 target_link_libraries(hwcpipe
     PUBLIC device
+)
+
+install(TARGETS hwcpipe
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+)
+
+install(DIRECTORY include/
+    DESTINATION include
 )

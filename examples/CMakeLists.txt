@@ -12,6 +12,11 @@ target_link_libraries(api-example
     PRIVATE hwcpipe
 )
 
+install(PROGRAMS $<TARGET_FILE:api-example>
+    DESTINATION bin
+    RENAME hwcpipe-api-example
+)
+
 target_compile_options(api-example
     PRIVATE -Werror
             -Wswitch-default
