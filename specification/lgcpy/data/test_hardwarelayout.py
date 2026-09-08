@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -29,7 +29,6 @@ do not check the validity of the data in the hardware layout database.
 '''
 
 import pathlib
-import sys
 import unittest
 
 from .hardwarelayout import HardwareBlockType, HardwareLayout, HardwareLayouts
@@ -49,6 +48,7 @@ class HardwareLayoutTestSuite(unittest.TestCase):
             'Shader Core',
             'Memory System',
             'Tiler',
+            'Neural Accelerator'
         ]
 
         for xml_string in valid_xml_strings:
@@ -99,16 +99,5 @@ class HardwareLayoutTestSuite(unittest.TestCase):
         HardwareLayouts.from_files()
 
 
-def main() -> int:
-    '''
-    The main function.
-
-    Returns:
-        Process return code.
-    '''
-    results = unittest.main(exit=False)
-    return 0 if results.result.wasSuccessful() else 1
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    unittest.main()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Arm Limited.
+ * Copyright (c) 2021-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -44,6 +44,7 @@ namespace hwcnt {
  * annotation meta-data, and some of them don't. This structure lists
  * which features are supported.
  *
+ * @parblock
  * @par Example
  * @code
  * // Check the feature before accessing gpu_cycle
@@ -52,6 +53,7 @@ namespace hwcnt {
  * else
  *     printf("No GPU Timestamp data!\n");
  * @endcode
+ * @endparblock
  */
 struct features {
     /**
@@ -64,11 +66,26 @@ struct features {
 
     /**
      * True if HWC samples are annotated with the number of
+     * core group cycles since the last sample.
+     *
+     * When true, @ref sample_metadata::cg_cycle values are set.
+     */
+    bool has_cg_cycle;
+    /**
+     * True if HWC samples are annotated with the number of
      * shader cores cycles since the last sample.
      *
      * When true, @ref sample_metadata::sc_cycle values are set.
      */
     bool has_sc_cycle;
+
+    /**
+     * True if HWC samples are annotated with the number of
+     * shader cores cycles since the last sample.
+     *
+     * When true, @ref sample_metadata::ne_cycle values are set.
+     */
+    bool has_ne_cycle;
 
     /** True if @ref block_metadata::state power values are set. */
     bool has_power_states;

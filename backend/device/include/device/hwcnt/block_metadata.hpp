@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2025 Arm Limited.
+ * Copyright (c) 2021-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -45,8 +45,10 @@ class reader;
 enum class block_type : uint8_t {
     /** Front End. */
     fe,
+    /** Geometry*/
+    geometry,
     /** Tiler. */
-    tiler,
+    tiler = geometry,
     /** Memory System. */
     memory,
     /** Shader Core. */
@@ -55,10 +57,12 @@ enum class block_type : uint8_t {
     firmware,
     /** Firmware command stream group. */
     csg,
+    /** Neural accelerator. */
+    neural_accelerator,
     /** First block type. */
     first = fe,
     /** Last block type. */
-    last = csg,
+    last = neural_accelerator,
 };
 
 enum class block_state_type : uint8_t {

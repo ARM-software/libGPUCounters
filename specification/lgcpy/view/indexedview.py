@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -86,7 +86,10 @@ class IndexedView:
         '''
         Eagerly resolve all resolved equations ahead of time.
         '''
-        for counter in self.by_stable_id.values():
+        # Iterate by machine name as stable id may not exist initially when
+        # adding new counters to the database XML because we use the validation
+        # script to set it to a free ID
+        for counter in self.by_machine_name.values():
             counter.resolve_equation(self)
 
     def get_by_stable_id(self, key: int) -> Optional[CounterView]:
@@ -175,8 +178,8 @@ class IndexedView:
         '''
         filtered_view = IndexedView(self.gpu, self.key)
 
-        # Iterate by Stable ID as all counters are in that map
-        for counter in self.by_stable_id.values():
+        # Iterate by machine name as all counters are in that map
+        for counter in self.by_machine_name.values():
             if not counter.is_visible(max_visibility):
                 continue
 

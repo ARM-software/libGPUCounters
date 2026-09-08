@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -26,7 +26,7 @@
 
 #include "print.hpp"
 
-#include <debug/ostream_indent.hpp>
+#include <device/logging/ostream_indent.hpp>
 
 #include <cassert>
 
@@ -77,7 +77,7 @@ inline std::ostream &operator<<(std::ostream &os, const uk_hwcnt_reader_setup &v
               << debug::indent << ".buffer_count = " << value.buffer_count << ",\n" //
               << debug::indent << ".jm_bm = " << value.jm_bm << ",\n" //
               << debug::indent << ".shader_bm = " << value.shader_bm << ",\n" //
-              << debug::indent << ".tiler_bm = " << value.tiler_bm << ",\n" //
+              << debug::indent << ".geometry_bm = " << value.geometry_bm << ",\n" //
               << debug::indent << ".mmu_l2_bm = " << value.mmu_l2_bm << ",\n" //
               << debug::indent << ".fd = " << value.fd << ",\n" //
               << debug::indent_level::pop //

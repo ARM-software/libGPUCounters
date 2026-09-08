@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2025 Arm Limited.
+# Copyright (c) 2019-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -45,9 +45,10 @@ def resolve_doc_to_text(document: str, index_view: IndexedView) -> str:
     entry with the appropriate string for the current product. Supported
     symbolic references are:
 
-    -  {{K:GPU_NAME}}: Insert GPU product name.
-    -  {{C:<MachineName>}}: Insert human name of <MachineName> counter.
-    -  {{C:<MachineName>.equation}}: Insert equation of <MachineName> counter.
+    -  {{K::GPU_NAME}}: Insert GPU product name.
+    -  {{C::<MachineName>}}: Insert human name of <MachineName> counter.
+    -  {{C::<MachineName>.equation}}: Insert equation of <MachineName> counter.
+    -  {{C::<MachineName>.literal}}: Insert equation of <MachineName> counter.
 
     It is likely that web-based documentation may want something more nuanced,
     such as also injecting hyperlinks to cross-reference counters, but this
@@ -71,7 +72,8 @@ def resolve_doc_to_text(document: str, index_view: IndexedView) -> str:
         assert ref_type in ('C', 'K'), f'Bad reference type {pattern}'
 
         ref_name, _, ref_part = reference.partition('.')
-        assert ref_part in ('', 'equation'), f'Bad reference part {pattern}'
+        assert ref_part in ('', 'equation', 'literal'), \
+            f'Bad reference part {pattern}'
 
         # Literal constant reference
         if ref_type == 'K':
@@ -87,7 +89,7 @@ def resolve_doc_to_text(document: str, index_view: IndexedView) -> str:
                 return counter.human_name
 
             # Equation postfix returns the equation value
-            if ref_part == 'equation':
+            if ref_part in ('equation', 'literal'):
                 expression = eu.equation_ast_to_string(counter.equation_ast)
                 return str(expression)
 
@@ -105,9 +107,12 @@ def resolve_doc_to_hyperlink(document: str, index_view: IndexedView) -> str:
     entry with the appropriate string for the current product. Supported
     symbolic references are:
 
-    -  {{K:GPU_NAME}}: Insert GPU product name.
-    -  {{C:<MachineName>}}: Insert human name of <MachineName> counter.
-    -  {{C:<MachineName>.equation}}: Insert equation of <MachineName> counter.
+    -  {{K::GPU_NAME}}: Insert GPU product name.
+    -  {{C::<MachineName>}}: Insert human name of <MachineName> counter.
+    -  {{C::<MachineName>.equation}}: Insert equation of <MachineName> counter
+       with a hyperlink to the counter.
+    -  {{C::<MachineName>.literal}}: Insert equation of <MachineName> counter
+       as literal plain text without a hyperlink.
 
     It is likely that web-based documentation may want something more nuanced,
     such as also injecting hyperlinks to cross-reference counters, but this
@@ -131,7 +136,8 @@ def resolve_doc_to_hyperlink(document: str, index_view: IndexedView) -> str:
         assert ref_type in ('C', 'K'), f'Bad reference type {pattern}'
 
         ref_name, _, ref_part = reference.partition('.')
-        assert ref_part in ('', 'equation'), f'Bad reference part {pattern}'
+        assert ref_part in ('', 'equation', 'literal'), \
+            f'Bad reference part {pattern}'
 
         # Literal constant reference
         if ref_type == 'K':
@@ -153,6 +159,11 @@ def resolve_doc_to_hyperlink(document: str, index_view: IndexedView) -> str:
                 label = eu.equation_ast_to_string(counter.equation_ast)
                 link = f'<a href="#{counter.get_anchor()}">{label}</a>'
                 return link
+
+            # Literal postfix returns the equation value without a link
+            if ref_part == 'literal':
+                label = eu.equation_ast_to_string(counter.equation_ast)
+                return label
 
             # Should never reach this ...
             assert False

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -41,30 +41,54 @@ namespace device {
 
 using handle_impl_type = handle_impl<syscall::iface>;
 
+/*
+ * DRM drivers that support the DRIVER_RENDER feature get allocated two driver nodes under
+ * `/dev/dri/`: one control node with an ID of 0-64, and a render node with an ID of 124-188.
+ * HWCPipe2 uses the render node to call IOCTLs.
+ */
+constexpr auto dri_render_node_start = 128;
+
 handle::~handle() = default;
 
 handle::handle_ptr handle::create(uint32_t instance_number) {
     std::string device_path("/dev/mali" + std::to_string(instance_number));
     int fd = handle_impl_type::open(device_path.c_str());
 
-    if (fd < 0)
-        return nullptr;
+    if (fd < 0) {
+        device_path = "/dev/dri/renderD" + std::to_string(dri_render_node_start + instance_number);
+        fd = handle_impl_type::open(device_path.c_str(), O_RDWR);
+        if (fd < 0)
+            return nullptr;
+        return handle::handle_ptr(
+            new handle_impl_type(fd, handle_impl_type::mode::external, handle_impl_type::type::panthor));
+    }
 
-    return handle::handle_ptr(new handle_impl_type(fd, handle_impl_type::mode::internal));
+    return handle::handle_ptr(
+        new handle_impl_type(fd, handle_impl_type::mode::internal, handle_impl_type::type::kbase));
 }
 
 handle::handle_ptr handle::create(const char *device_path) {
+    assert(device_path != nullptr);
+
+    std::string path{device_path};
+    enum handle_impl_type::type const driver_type = [](const std::string &path) {
+        if (path.find("/dev/dri/renderD1"))
+            return handle_impl_type::type::panthor;
+        return handle_impl_type::type::kbase;
+    }(path);
+
     int fd = handle_impl_type::open(device_path);
 
     if (fd < 0)
         return nullptr;
 
-    return handle::handle_ptr(new handle_impl_type(fd, handle_impl_type::mode::internal));
+    return handle::handle_ptr(new handle_impl_type(fd, handle_impl_type::mode::internal, driver_type));
 }
 
 handle::handle_ptr handle::from_external_fd(int fd) {
     assert(fd >= 0);
-    return handle::handle_ptr(new handle_impl_type(fd, handle_impl_type::mode::external));
+    return handle::handle_ptr(
+        new handle_impl_type(fd, handle_impl_type::mode::external, handle_impl_type::type::kbase));
 }
 
 } // namespace device

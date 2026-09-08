@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -28,8 +28,11 @@
 
 #pragma once
 
+#include <cstdint>
 #include <cstdio>
 #include <exception>
+#include <type_traits>
+#include <utility>
 
 #include <dlfcn.h>
 
@@ -74,7 +77,7 @@ class libmali {
         /** Close function type. */
         using close_type = int (*)(int fd);
         /** Ioctl function type. */
-        using ioctl_type = int (*)(int fd, int request, ...);
+        using ioctl_type = int (*)(int fd, unsigned long request, void *arg);
         /** Mmap function type. */
         using mmap_type = void *(*)(void *addr, size_t len, int prot, int flags, int fd, off_t off);
         /** Munmap function type. */
@@ -125,7 +128,10 @@ class libmali {
 
     template <typename request_t, typename... args_t>
     static auto ioctl(int fildes, request_t request, args_t &&...args) {
-        return loader::instance().ioctl(fildes, static_cast<int>(request), std::forward<args_t>(args)...);
+        static_assert(sizeof...(args_t) <= 1, "mali_ioctl accepts exactly one optional argument");
+
+        return loader::instance().ioctl(fildes, static_cast<unsigned long>(request),
+                                        convert_ioctl_arg(std::forward<args_t>(args)...));
     }
 
     template <typename... args_t>
@@ -136,6 +142,27 @@ class libmali {
     template <typename... args_t>
     static auto munmap(args_t &&...args) {
         return loader::instance().munmap(std::forward<args_t>(args)...);
+    }
+
+  private:
+    static void *convert_ioctl_arg() { return nullptr; }
+
+    template <typename arg_t>
+    static void *convert_ioctl_arg(arg_t &&arg) {
+        using arg_decay = typename std::decay<arg_t>::type;
+        return convert_ioctl_arg_impl(std::forward<arg_t>(arg), std::is_pointer<arg_decay>{});
+    }
+
+    template <typename arg_t>
+    static void *convert_ioctl_arg_impl(arg_t &&arg, std::true_type) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast, cppcoreguidelines-pro-type-reinterpret-cast)
+        return const_cast<void *>(reinterpret_cast<const void *>(arg));
+    }
+
+    template <typename arg_t>
+    static void *convert_ioctl_arg_impl(arg_t &&arg, std::false_type) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        return reinterpret_cast<void *>(static_cast<uintptr_t>(arg));
     }
 };
 

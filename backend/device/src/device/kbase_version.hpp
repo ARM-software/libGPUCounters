@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -28,6 +28,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <iostream>
 #include <utility>
 
 /* Some old versions of <sys/types.h> header define major and minor macros.
@@ -45,14 +46,16 @@
 namespace hwcpipe {
 namespace device {
 
-/** Kbase ioctl interface type. */
+/** Kernel ioctl interface type. */
 enum class ioctl_iface_type {
-    /** Pre R21 release Job manager kernel. */
+    /** Pre R21 release Job manager kernel, kbase driver. */
     jm_pre_r21,
-    /** Post R21 release Job manager kernel. */
+    /** Post R21 release Job manager kernel, kbase driver. */
     jm_post_r21,
-    /** CSF kernel. */
-    csf
+    /** CSF kernel, kbase driver. */
+    csf,
+    /** CSF kernel, panthor driver */
+    panthor,
 };
 
 /** Check version compatibility between kernel and userspace. */
@@ -71,6 +74,7 @@ class kbase_version {
         , type_(type) {}
 
     kbase_version() = default;
+    ~kbase_version() = default;
     kbase_version(const kbase_version &) = default;
     kbase_version &operator=(const kbase_version &) = default;
 
@@ -118,6 +122,10 @@ inline bool operator>(const kbase_version &lhs, const kbase_version &rhs) {
 inline bool operator>=(const kbase_version &lhs, const kbase_version &rhs) {
     assert(lhs.type() == rhs.type());
     return std::make_pair(lhs.major(), lhs.minor()) >= std::make_pair(rhs.major(), rhs.minor());
+}
+
+inline std::ostream &operator<<(std::ostream &os, const kbase_version &version) {
+    return os << "(" << version.major() << "," << version.minor() << ")";
 }
 
 } // namespace device

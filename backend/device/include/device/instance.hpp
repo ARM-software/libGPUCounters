@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Arm Limited.
+ * Copyright (c) 2021-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -32,6 +32,7 @@
 
 #include <device/api.hpp>
 #include <device/constants.hpp>
+#include <device/error.hpp>
 #include <device/hwcnt/block_extents.hpp>
 #include <device/hwcnt/clock_extents.hpp>
 
@@ -45,17 +46,20 @@ class handle;
 /**
  * Mali device driver instance.
  *
+ * @parblock
  * @par Example
  * @code
  * namespace dev = hwcpipe::device;
  * // Create an instance for /dev/mali
  * auto hndl = dev::handle::create();
  * // Create a device to serve this instance.
- * auto instance = dev::instance::create(*hndl);
+ * std::error_code ec;
+ * auto instance = dev::instance::create(*hndl, ec);
  * // Print GPU id
  * const dev::constants c = instance->get_constants();
  * printf("GPU id = %lu\n", c.gpu_id);
  * @endcode
+ * @endparblock
  */
 class HWCPIPE_DEVICE_API instance {
   public:
@@ -91,9 +95,23 @@ class HWCPIPE_DEVICE_API instance {
      *
      * The @p hndl object must outlive the instance created.
      *
-     * @param[in] hndl    Device handle.
-     * @return The device instance created, nullptr if failed.
+     * @param[in] hndl      Device handle.
+     * @param[out] ec       Return error code.
+     * @return              The device instance created, nullptr if failed.
      */
+    static instance_ptr create(handle &hndl, std::error_code &ec);
+
+    /**
+     * Create device instance.
+     *
+     * @deprecated in favour of @ref create(handle&, std::error_code&).
+     *
+     * The @p hndl object must outlive the instance created.
+     *
+     * @param[in] hndl      Device handle.
+     * @return              The device instance created, nullptr if failed.
+     */
+    [[deprecated("Please use the function instance::create(handle&, std::error_code&)")]]
     static instance_ptr create(handle &hndl);
 };
 

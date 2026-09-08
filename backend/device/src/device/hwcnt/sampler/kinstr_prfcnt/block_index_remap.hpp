@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-/** @file metadata_parser.hpp */
+/** @file block_index_remap.hpp */
 
 #pragma once
 
+#include <device/error.hpp>
 #include <device/hwcnt/block_metadata.hpp>
 #include <device/shader_core_bitset.hpp>
 
@@ -47,7 +48,7 @@ namespace kinstr_prfcnt {
  * hardware counters block `block_metadata::block_idx` is set to the
  * shader core index rather to an index of the counters block. For example,
  * if `core_mask` is `0b1011`, the indices will be 0, 1, and 3. This class
- * re-enumerates the shader cores counters blocks s.t. the indexes are
+ * re-enumerates the shader cores counters blocks s.t. the indices are
  * contiguous.
  */
 class block_index_remap {
@@ -84,8 +85,12 @@ class block_index_remap {
         if (type != block_type::core)
             return std::make_pair(std::error_code{}, index);
 
-        if (index >= map_.size() || map_[index] == invalid_index)
-            return std::make_pair(std::make_error_code(std::errc::invalid_argument), index_type{});
+        if (index >= map_.size() || map_[index] == invalid_index) {
+            std::error_code ec =
+                HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::sampler_invalid_sc_remap, "Remapping shader core %d which is %s",
+                                        static_cast<int>(index), map_[index] == invalid_index ? "invalid" : "valid");
+            return std::make_pair(ec, index_type{});
+        }
 
         return std::make_pair(std::error_code{}, map_[index]);
     }

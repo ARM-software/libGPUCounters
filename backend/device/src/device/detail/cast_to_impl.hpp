@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -27,12 +27,26 @@
 #pragma once
 
 #include <device/handle_impl.hpp>
+#include <device/instance_backend_type.hpp>
 #include <device/instance_impl.hpp>
+#include <device/instance_impl_panthor.hpp>
 #include <device/syscall/iface.hpp>
 
 namespace hwcpipe {
 namespace device {
 namespace detail {
+
+/** @return instance downcasted to its implementation type. */
+inline auto &cast_to_impl_backend_type(instance &inst) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+    return static_cast<instance_backend_type &>(inst);
+}
+
+/** @return instance downcasted to its implementation type. */
+inline auto &cast_to_impl_backend_type(const instance &inst) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+    return static_cast<const instance_backend_type &>(inst);
+}
 
 /** @return instance downcasted to its implementation type. */
 inline auto &cast_to_impl(instance &inst) {
@@ -44,6 +58,18 @@ inline auto &cast_to_impl(instance &inst) {
 inline auto &cast_to_impl(const instance &inst) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
     return static_cast<const instance_impl<syscall::iface> &>(inst);
+}
+
+/** @return instance downcasted to its implementation type. */
+inline auto &cast_to_impl_panthor(instance &inst) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+    return static_cast<instance_impl_panthor<syscall::iface> &>(inst);
+}
+
+/** @return instance downcasted to its implementation type. */
+inline auto &cast_to_impl_panthor(const instance &inst) {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
+    return static_cast<const instance_impl_panthor<syscall::iface> &>(inst);
 }
 
 /** @return handle downcasted to its implementation type. */

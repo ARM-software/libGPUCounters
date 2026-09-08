@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -42,7 +42,7 @@ namespace sampler {
 /**
  * Hardware counters sampler memory mapping.
  *
- * RAII class to map `size` bytes of read only memory in constructor,
+ * RAII class to map `size` bytes of memory in constructor,
  * and unmap it in destructor.
  *
  * @par Example
@@ -85,13 +85,35 @@ class mapped_memory : private syscall_iface_t {
      *
      * @param[in] fd     File descriptor to map.
      * @param[in] size   Mapping size.
+     * @param[in] offset Offset to use from BO_MMAP_OFFSET.
      * @param[out] ec    Error code.
      * @param[in] iface  Syscall iface (testing only).
+     * @param[in] flags  Flags passed to the mmap call
      */
-    explicit mapped_memory(int fd, size_t size, std::error_code &ec, const syscall_iface_t &iface)
+    explicit mapped_memory(int fd, size_t size, off_t offset, std::error_code &ec, const syscall_iface_t &iface,
+                           int flags = PROT_READ)
         : syscall_iface_t(iface)
         , size_(size) {
-        std::tie(ec, data_) = get_syscall_iface().mmap(nullptr, size_, PROT_READ, MAP_PRIVATE, fd, 0);
+        std::tie(ec, data_) = get_syscall_iface().mmap(nullptr, size_, flags, MAP_SHARED, fd, offset);
+
+        if (ec)
+            data_ = nullptr;
+    }
+
+    /**
+     * Memory mapping constructor.
+     *
+     * @param[in] fd     File descriptor to map.
+     * @param[in] size   Mapping size.
+     * @param[out] ec    Error code.
+     * @param[in] iface  Syscall iface (testing only).
+     * @param[in] flags  Flags passed to the mmap call
+     */
+    explicit mapped_memory(int fd, size_t size, std::error_code &ec, const syscall_iface_t &iface,
+                           int flags = PROT_READ)
+        : syscall_iface_t(iface)
+        , size_(size) {
+        std::tie(ec, data_) = get_syscall_iface().mmap(nullptr, size_, flags, MAP_PRIVATE, fd, 0);
 
         if (ec)
             data_ = nullptr;
@@ -106,7 +128,7 @@ class mapped_memory : private syscall_iface_t {
     operator bool() const { return data_ != nullptr; }
 
     /** @return base address of mapped memory. */
-    const void *data() const { return data_; }
+    void *data() const { return data_; }
     /** @return size of the memory mapping. */
     size_t size() const { return size_; }
 

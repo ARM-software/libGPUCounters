@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="170"
+   viewBox="0 0 170 160"
+   height="160"
+   version="1.1"
+   id="svg33"
+   sodipodi:docname="submission-simple-jm.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview33"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="3.8874118"
+     inkscape:cx="-23.280271"
+     inkscape:cy="85.918348"
+     inkscape:window-width="3424"
+     inkscape:window-height="1353"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer4"
+     showgrid="true">
+    <inkscape:grid
+       id="grid33"
+       units="px"
+       originx="-5"
+       originy="-5"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Background"
+     style="display:inline"
+     transform="translate(-5,-5)">
+    <rect
+       width="170"
+       x="5"
+       fill="#ffffff"
+       y="5"
+       height="160"
+       id="rect1"
+       style="fill:#111111;stroke-width:1.13003"
+       inkscape:label="Background" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Frontend"
+     style="display:inline"
+     transform="translate(-5,-5)">
+    <path
+       d="M 15.000003,65.000001 H 164.5 V 104.99801 H 15.000003 Z"
+       stroke="#333e48"
+       id="shape4"
+       fill="#002b49"
+       stroke-width="0.831827"
+       fill-rule="nonzero"
+       style="fill:#0870b8;stroke:#606060;stroke-width:0.999999;stroke-dasharray:none" />
+    <path
+       d="M 15,15 H 165 V 55.000003 H 15 Z"
+       stroke="#333e48"
+       id="shape54"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="fill:#0870b8;stroke:#606060;stroke-width:0.999998;stroke-dasharray:none" />
+    <path
+       d="m 90,55.000005 v 10"
+       stroke="#333e48"
+       id="shape57"
+       stroke-width="1.98011"
+       fill="none"
+       style="fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 90,105 v 10"
+       stroke="#333e48"
+       id="shape58"
+       stroke-width="1.98011"
+       fill="none"
+       style="fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="90.087891"
+       y="32.179317"
+       id="text51"><tspan
+         sodipodi:role="line"
+         id="tspan51"
+         x="90.087891"
+         y="32.179317"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none">Job Manager</tspan><tspan
+         sodipodi:role="line"
+         x="90.087891"
+         y="44.779316"
+         id="tspan52"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none">Front-end</tspan><tspan
+         sodipodi:role="line"
+         x="90.087891"
+         y="57.379318"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan1" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="89.518555"
+       y="82.114243"
+       id="text51-2"><tspan
+         sodipodi:role="line"
+         x="89.518555"
+         y="82.114243"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan2">Hardware</tspan><tspan
+         sodipodi:role="line"
+         x="89.518555"
+         y="94.714241"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan5">Queue</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Tiler"
+     transform="translate(-5,-5)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="130.30455"
+       y="147.61771"
+       id="text56-1"><tspan
+         sodipodi:role="line"
+         x="130.30455"
+         y="147.61771"
+         id="tspan57-9">Tiler</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Shader Core"
+     transform="translate(-5,-5)">
+    <path
+       d="m 15,115 h 149.8 v 40 H 15 Z"
+       stroke="#333e48"
+       id="shape7"
+       fill="#00c1de"
+       stroke-width="0.866667"
+       fill-rule="nonzero"
+       style="fill:#7354c5;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="89.838478"
+       y="132.18839"
+       id="text51-2-4-7"><tspan
+         sodipodi:role="line"
+         x="89.838478"
+         y="132.18839"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan3">Processing</tspan><tspan
+         sodipodi:role="line"
+         x="89.838478"
+         y="144.78839"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan4">Endpoint</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Neural Engine"
+     transform="translate(-5,-5)" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Connectors"
+     transform="translate(-5,-5)" />
+</svg>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -21,7 +21,7 @@ namespace database {
  */
 using gpu_counters_map = std::unordered_map<hwcpipe_counter, detail::counter_definition>;
 
-extern const std::unordered_map<device::product_id, gpu_counters_map> all_gpu_counters;
+extern const std::unordered_map<device::product_id, const gpu_counters_map *> all_gpu_counters;
 
 } // namespace database
 } // namespace hwcpipe

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -31,6 +31,7 @@
 #pragma once
 
 #include <device/hwcnt/blocks_view.hpp>
+#include <device/logging/logger.hpp>
 
 #include <cassert>
 #include <cstdint>
@@ -61,12 +62,17 @@ class reader;
 struct sample_flags {
     /**
      * The counters sample period was not met because of the counters ring buffer
-     * overflow. The sample period is stretched for this sample. The value is
-     * undefined if @ref features::has_stretched_flag is false.
+     * overflow. The sample period is stretched for this sample. To avoid
+     * stretched samples, read samples faster or decrease the sampling rate.
+     * The value is undefined if @ref features::has_stretched_flag is false.
      */
     uint32_t stretched : 1;
 
-    /** This sample has had an error condition for sample duration. */
+    /**
+     * This sample has had an error condition for sample duration. Data is lost
+     * when this flag is set. To recover, stop and start the sampler again; the
+     * first valid sample is the start sample of the new start request.
+     */
     uint32_t error : 1;
 };
 
@@ -94,10 +100,20 @@ struct sample_metadata {
     uint64_t gpu_cycle;
 
     /**
+     * Core group cycles elapsed since the last sample was taken.
+     * The value is undefined if @ref features::has_cg_cycle is false.
+     */
+    uint64_t cg_cycle;
+    /**
      * Shader cores cycles elapsed since the last sample was taken.
-     * The value is undefined if @ref features::has_gpu_cycle is false.
+     * The value is undefined if @ref features::has_sc_cycle is false.
      */
     uint64_t sc_cycle;
+    /**
+     * Neural accelerators clock cycles elapsed since the last sample was taken.
+     * The value is undefined if @ref features::has_ne_cycle is false.
+     */
+    uint64_t ne_cycle;
 };
 
 /**
@@ -126,6 +142,16 @@ class sample {
         : reader_(reader)
         , ec_(ec) {
         ec_ = reader_.get_sample(metadata_, sample_hndl_);
+        if (!ec_) {
+            if (metadata_.flags.error) {
+                HWCPIPE_LOG_INFO(
+                    "Sample error reported by kernel; data may be lost. Stop and restart the sampler to recover.");
+            }
+            if (metadata_.flags.stretched) {
+                HWCPIPE_LOG_INFO(
+                    "Sample period stretched due to ring buffer overflow; reduce sampling rate or read faster.");
+            }
+        }
     }
 
     /**
@@ -136,6 +162,7 @@ class sample {
      * if the failure occurred, use the error code passed to this sample at
      * construction time.
      *
+     * @parblock
      * @par Example
      * @code
      * std::error_code ec;
@@ -145,6 +172,7 @@ class sample {
      * if (!ec)
      *     puts("The sample was created and destroyed successfully.");
      * @endcode
+     * @endparblock
      */
     ~sample() {
         if (!ec_)

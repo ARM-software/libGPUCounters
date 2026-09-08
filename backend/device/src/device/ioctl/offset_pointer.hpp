@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -47,7 +47,8 @@ namespace ioctl {
  * device memory. Usually, base address is the address returned from `mmap` function
  * (assuming the last argument was set to zero).
  *
- * @par Example:
+ * @par Example
+ * Example usage:
  * @code
  * struct my_struct {
  *     int filed0;

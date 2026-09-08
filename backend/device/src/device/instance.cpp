@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -30,9 +30,11 @@
 
 #include "handle_impl.hpp"
 #include "instance_impl.hpp"
+#include "instance_impl_panthor.hpp"
 #include "syscall/iface.hpp"
 
 #include <device/detail/cast_to_impl.hpp>
+#include <device/error.hpp>
 
 #include <memory>
 
@@ -42,18 +44,37 @@ namespace hwcpipe {
 namespace device {
 
 using handle_impl_type = handle_impl<syscall::iface>;
-using instance_impl_type = instance_impl<syscall::iface>;
+using instance_impl_kbase_type = instance_impl<syscall::iface>;
+using instance_impl_panthor_type = instance_impl_panthor<syscall::iface>;
 
 instance::~instance() = default;
 
-instance::instance_ptr instance::create(handle &hndl) {
+instance::instance_ptr instance::create(handle &hndl, std::error_code &ec) {
     const auto &hndl_impl = detail::cast_to_impl(hndl);
 
-    auto result = std::make_unique<instance_impl_type>(hndl_impl.fd());
-    if (!result || !result->valid())
-        return {};
+    switch (hndl_impl.type()) {
+    case handle_impl_type::type::kbase: {
+        auto result = std::make_unique<instance_impl_kbase_type>(hndl_impl.fd(), ec);
+        if (!result || !result->valid())
+            return {};
 
-    return result;
+        return result;
+    }
+    case handle_impl_type::type::panthor: {
+        auto result = std::make_unique<instance_impl_panthor_type>(hndl_impl.fd(), ec);
+        if (!result || !result->valid())
+            return {};
+
+        return result;
+    }
+    }
+    __builtin_unreachable();
+    return {};
+}
+
+instance::instance_ptr instance::create(handle &hndl) {
+    std::error_code ec{};
+    return create(hndl, ec);
 }
 
 } // namespace device

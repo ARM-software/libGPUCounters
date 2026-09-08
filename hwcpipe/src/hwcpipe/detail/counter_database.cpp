@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -28,7 +28,7 @@ gpu_counter_view<counter_database> counter_database::get_counters_for_gpu(device
         return {*this, {}, {}};
     }
 
-    const auto &counters_map = it->second;
+    const auto &counters_map = *it->second;
     return {*this, counters_map.cbegin(), counters_map.cend()};
 }
 
@@ -52,8 +52,8 @@ counter_definition counter_database::get_counter_def(device::product_id id, hwcp
         return {};
     }
 
-    auto counter_address_it = it->second.find(counter);
-    if (counter_address_it == it->second.end()) {
+    auto counter_address_it = it->second->find(counter);
+    if (counter_address_it == it->second->end()) {
         ec = make_error_code(errc::invalid_counter_for_device);
         return {};
     }

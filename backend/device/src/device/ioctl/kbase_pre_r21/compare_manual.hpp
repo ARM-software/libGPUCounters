@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -54,7 +54,7 @@ bool operator==(const uk_hwcnt_reader_setup &lhs, const uk_hwcnt_reader_setup &r
            && (lhs.buffer_count == rhs.buffer_count) //
            && (lhs.jm_bm == rhs.jm_bm)               //
            && (lhs.shader_bm == rhs.shader_bm)       //
-           && (lhs.tiler_bm == rhs.tiler_bm)         //
+           && (lhs.geometry_bm == rhs.geometry_bm)   //
            && (lhs.mmu_l2_bm == rhs.mmu_l2_bm)       //
            && (lhs.fd == rhs.fd);                    //
 }

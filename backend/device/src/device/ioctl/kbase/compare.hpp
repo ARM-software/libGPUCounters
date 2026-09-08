@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -102,7 +102,7 @@ inline bool operator==(const hwcnt_reader_setup &lhs, const hwcnt_reader_setup &
             && lhs.buffer_count == rhs.buffer_count //
             && lhs.fe_bm == rhs.fe_bm //
             && lhs.shader_bm == rhs.shader_bm //
-            && lhs.tiler_bm == rhs.tiler_bm //
+            && lhs.geometry_bm == rhs.geometry_bm //
             && lhs.mmu_l2_bm == rhs.mmu_l2_bm //
         ;
 }

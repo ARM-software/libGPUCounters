@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -331,8 +331,8 @@ struct hwcnt_reader_setup {
     uint32_t fe_bm;
     /** Counters selection bitmask (Shader). */
     uint32_t shader_bm;
-    /** Counters selection bitmask (Tiler). */
-    uint32_t tiler_bm;
+    /** Counters selection bitmask (Geometry). */
+    uint32_t geometry_bm;
     /** Counters selection bitmask (MMU_L2). */
     uint32_t mmu_l2_bm;
 };

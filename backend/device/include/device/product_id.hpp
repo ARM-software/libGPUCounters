@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -31,6 +31,8 @@
 #pragma once
 
 #include <cstdint>
+#include <iostream>
+#include <string>
 #include <system_error>
 #include <utility>
 
@@ -38,7 +40,7 @@ namespace hwcpipe {
 namespace device {
 
 /**
- * List of all GPU product IDs
+ * List of all GPU product IDs.
  */
 enum class product_id {
     /* Midgard */
@@ -78,6 +80,9 @@ enum class product_id {
     g1_ultra,
     g1_premium,
     g1_pro,
+    g2_ultra,
+    g2_premium,
+    g2_pro,
 };
 
 /** GPU Family. */
@@ -123,6 +128,87 @@ gpu_family get_gpu_family(product_id pid);
  * @return job front-end type of the product.
  */
 gpu_frontend get_gpu_frontend(product_id pid);
+
+/**
+ * Get the string value of the product_id for logging.
+ *
+ * @param[in] id        Product ID.
+ * @return std::string  Product name.
+ */
+inline std::string product_id_name(const product_id id) {
+    switch (id) {
+    case product_id::t60x:
+        return "t60x";
+    case product_id::t62x:
+        return "t62x";
+    case product_id::t720:
+        return "t720";
+    case product_id::t760:
+        return "t760";
+    case product_id::t820:
+        return "t820";
+    case product_id::t830:
+        return "t830";
+    case product_id::t860:
+        return "t860";
+    case product_id::t880:
+        return "t880";
+    case product_id::g31:
+        return "tDVx";
+    case product_id::g51:
+        return "tSIx";
+    case product_id::g52:
+        return "tGOx";
+    case product_id::g71:
+        return "tMIx";
+    case product_id::g72:
+        return "tHEx";
+    case product_id::g76:
+        return "tNOx";
+    case product_id::g57:
+        return "tNAx";
+    case product_id::g57_2:
+        return "g57_2";
+    case product_id::g68:
+        return "tBEx"; /* little lBEx */
+    case product_id::g77:
+        return "tTRx";
+    case product_id::g78:
+        return "tBEx";
+    case product_id::g78ae:
+        return "tBAx";
+    case product_id::g310:
+        return "tVAx";
+    case product_id::g510:
+        return "tGRx";
+    case product_id::g610:
+        return "tODx"; /* little lODx */
+    case product_id::g615:
+        return "tTUx"; /* little lTUx */
+    case product_id::g710:
+        return "tODx";
+    case product_id::g715:
+        return "tTUx";
+    case product_id::g720:
+    case product_id::g620: /* little lTIx */
+        return "tTIx";
+    case product_id::g725:
+    case product_id::g625: /* little lKRx */
+        return "tKRx";
+    case product_id::g1_ultra:
+    case product_id::g1_premium:
+    case product_id::g1_pro: /* little tDRx */
+        return "tDRx";
+    case product_id::g2_ultra:
+        return "iMAx";
+    case product_id::g2_premium:
+        return "tMAx";
+    case product_id::g2_pro:
+        return "lMAx";
+    default:
+        return "Unknown product id (" + std::to_string(static_cast<int>(id)) + ")";
+    }
+}
 
 } // namespace device
 } // namespace hwcpipe

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -31,6 +31,8 @@
 #include <device/detail/cast_to_impl.hpp>
 #include <device/hwcnt/sampler/kinstr_prfcnt/backend_wa.hpp>
 #include <device/hwcnt/sampler/kinstr_prfcnt/setup.hpp>
+#include <device/hwcnt/sampler/panthor/backend.hpp>
+#include <device/hwcnt/sampler/panthor/setup.hpp>
 #include <device/hwcnt/sampler/vinstr/backend.hpp>
 #include <device/hwcnt/sampler/vinstr/setup.hpp>
 #include <device/kbase_version.hpp>
@@ -52,9 +54,34 @@ struct configuration;
 namespace detail {
 
 using instance_impl_type = instance_impl<syscall::iface>;
+using instance_impl_panthor_type = instance_impl_panthor<syscall::iface>;
+using panthor_backend = panthor::backend<syscall::iface>;
 using kinstr_backend = kinstr_prfcnt::backend<syscall::iface>;
 using kinstr_backend_wa = kinstr_prfcnt::backend_wa<syscall::iface>;
 using vinstr_backend = vinstr::backend<syscall::iface>;
+
+/** Create panthor backend if possible.
+ *
+ * @param inst             Instance implementation reference.
+ * @param[in] period_ns    Period in nanoseconds between samples taken. Zero for manual context.
+ * @param[in] config       Which counters to enable on per-block basis.
+ * @param[in] config_len   Len of @p config array.
+ * @return backend pointer, if created.
+ */
+static std::unique_ptr<detail::backend> panthor_backend_create(const instance_impl_panthor_type &inst,
+                                                               uint64_t period_ns, const configuration *config,
+                                                               size_t config_len) {
+    std::error_code ec;
+    panthor_backend::args_type args{};
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    std::tie(ec, args) = panthor::setup(inst, period_ns, config, config + config_len);
+
+    if (ec)
+        return nullptr;
+
+    return std::make_unique<panthor_backend>(std::move(args), syscall::iface{});
+}
 
 /** Create kinstr_prfcnt backend if possible.
  *
@@ -107,16 +134,17 @@ backend::~backend() = default;
 
 std::unique_ptr<detail::backend> backend::create(const instance &inst, uint64_t period_ns, const configuration *config,
                                                  size_t config_len) {
-    const auto &inst_impl = hwcpipe::device::detail::cast_to_impl(inst);
-
-    switch (inst_impl.backend_type()) {
+    switch (get_backend_type(inst)) {
     case backend_type::vinstr:
     case backend_type::vinstr_pre_r21:
-        return vinstr_backend_create(inst_impl, period_ns, config, config_len);
+        return vinstr_backend_create(hwcpipe::device::detail::cast_to_impl(inst), period_ns, config, config_len);
     case backend_type::kinstr_prfcnt:
     case backend_type::kinstr_prfcnt_wa:
     case backend_type::kinstr_prfcnt_bad:
-        return kinstr_prfcnt_backend_create(inst_impl, period_ns, config, config_len);
+        return kinstr_prfcnt_backend_create(hwcpipe::device::detail::cast_to_impl(inst), period_ns, config, config_len);
+    case backend_type::panthor:
+        return panthor_backend_create(hwcpipe::device::detail::cast_to_impl_panthor(inst), period_ns, config,
+                                      config_len);
     }
 
     return nullptr;

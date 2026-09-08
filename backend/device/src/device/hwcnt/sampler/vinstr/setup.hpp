@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -27,6 +27,7 @@
 #include "backend_args.hpp"
 #include "convert.hpp"
 
+#include <device/detail/translate_ioctl_error.hpp>
 #include <device/hwcnt/backend_type.hpp>
 #include <device/hwcnt/block_metadata.hpp>
 #include <device/hwcnt/sampler/filefd_guard.hpp>
@@ -90,7 +91,7 @@ inline auto reader_setup(const instance_t &instance, ioctl::kbase::hwcnt_reader_
         setup_args.buffer_count, //
         setup_args.fe_bm,        //
         setup_args.shader_bm,    //
-        setup_args.tiler_bm,     //
+        setup_args.geometry_bm,  //
         setup_args.mmu_l2_bm,    //
         -1,
     };
@@ -145,7 +146,7 @@ auto setup(const instance_t &instance, uint64_t period_ns, const configuration *
     for (; setup_args.buffer_count > 1; setup_args.buffer_count >>= 1) {
         std::tie(ec, vinstr_fd) = detail::reader_setup(instance, setup_args, iface);
 
-        if (ec != std::errc::not_enough_memory)
+        if (ec != hwcpipe::device::detail::translate_ioctl_error(std::errc::not_enough_memory))
             break;
     }
 

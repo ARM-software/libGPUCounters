@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -32,6 +32,7 @@
 
 #include <device/api.hpp>
 
+#include <cstdint>
 #include <memory>
 
 namespace hwcpipe {
@@ -56,12 +57,14 @@ namespace device {
  * or provided externally. While opened descriptors are closed automatically
  * at the destruction time, the external ones will remain open.
  *
+ * @parblock
  * @par Example
  * @code
  * namespace dev = hwcpipe::device;
  * // Create a handle for /dev/mali
  * auto hdnl = dev::handle::create();
  * @endcode
+ * @endparblock
  *
  * To call device functions one should create an @ref instance.
  */

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -66,6 +66,7 @@ import xml.etree.ElementTree as et
 
 from .. import gpuutils as gu
 from .. import xmlutils as xu
+from .semanticlayout import SemanticLayout
 
 
 class SemanticGroupInfo:
@@ -210,7 +211,7 @@ class SemanticGroupInfos:
 
             # Fall back to default if no exact match
             if not info.gpu_support:
-                assert not default
+                assert not default, f'Two defaults for {group}'
                 default = info
 
         if not default:
@@ -243,6 +244,22 @@ class SemanticGroupInfos:
             document = xu.add_copyright_to_xml_str(document, self.copyright)
 
         return document
+
+    def reorder(self, layout: SemanticLayout) -> None:
+        '''
+        Reorder database entries in to match the passed layout.
+
+        :Args:
+            layout: The semantic layout to match.
+        '''
+        new_groups: dict[str, list[SemanticGroupInfo]] = {}
+
+        for layout_grp in layout.iter_groups():
+            name = layout_grp.name
+            infos = self.groups[name]
+            new_groups[name] = infos
+
+        self.groups = new_groups
 
     def to_file(self) -> None:
         '''
@@ -509,6 +526,22 @@ class SemanticSectionInfos:
             document = xu.add_copyright_to_xml_str(document, self.copyright)
 
         return document
+
+    def reorder(self, layout: SemanticLayout) -> None:
+        '''
+        Reorder database entries in to match the passed layout.
+
+        :Args:
+            layout: The semantic layout to match.
+        '''
+        new_sections: dict[str, list[SemanticSectionInfo]] = {}
+
+        for layout_sec in layout.iter_sections():
+            name = layout_sec.name
+            infos = self.sections[name]
+            new_sections[name] = infos
+
+        self.sections = new_sections
 
     def to_file(self) -> None:
         '''

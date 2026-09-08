@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -28,13 +28,13 @@ These tests aim to sense check the implementation of the Python code, and
 do not check the validity of the data in the counter info database.
 '''
 
-import sys
 import unittest
 
 from ..data.productinfo import ProductInfos
 from ..data.counterinfo import CounterInfos
 from ..data.counterinfo import CounterVisibility as CVisibility
 from ..data.hardwarelayout import HardwareLayouts
+from ..database import CounterDatabase
 from .indexedview import IndexedView
 
 
@@ -106,17 +106,19 @@ class IndexedViewTestSuite(unittest.TestCase):
             count = len(filtered_view.by_stable_id)
             print(f'Test filtered {gpu} has {count} counters')
 
+    def test_ambiguous_index_resolve(self):
+        '''
+        Test the IndexedView can resolve equations.
+        '''
+        db = CounterDatabase.get_indexed_view_for('Mali-G720')
 
-def main() -> int:
-    '''
-    The main function.
+        # Test that we return the primary block index if multiple aliases exist
+        counter = db.get_by_source_name('CACHE_FLUSH')
+        self.assertEqual(counter.block_index, 13)
 
-    Returns:
-        Process return code.
-    '''
-    results = unittest.main(exit=False)
-    return 0 if results.result.wasSuccessful() else 1
+        counter = db.get_by_source_name('CACHE_FLUSH_CYCLES')
+        self.assertEqual(counter.block_index, 12)
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    unittest.main()

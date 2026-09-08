@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -23,6 +23,8 @@
  */
 
 #pragma once
+
+#include <device/error.hpp>
 
 #include <system_error>
 #include <tuple>
@@ -82,7 +84,7 @@ inline std::error_code wait_for_sample(int fd, syscall_iface_t &&iface = {}) {
         return ec;
 
     if (!ready)
-        return std::make_error_code(std::errc::timed_out);
+        return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::sampler_timeout, "fd (%i) not ready.", fd);
 
     return {};
 }

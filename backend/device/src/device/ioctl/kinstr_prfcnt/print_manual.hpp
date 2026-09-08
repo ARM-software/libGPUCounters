@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -26,7 +26,7 @@
 
 #include "print.hpp"
 
-#include <debug/ostream_indent.hpp>
+#include <device/logging/ostream_indent.hpp>
 
 #include <cassert>
 
@@ -67,6 +67,8 @@ inline std::ostream &operator<<(std::ostream &os, const enum_item &value) {
         os << debug::indent << ".u.sample_info = " << value.u.sample_info << ",\n";
         printed = true;
         break;
+    default:
+        break;
     }
 
     if (!printed) {
@@ -100,6 +102,8 @@ inline std::ostream &operator<<(std::ostream &os, const metadata_item &value) {
     case metadata_item::item_type::sample:
         os << debug::indent << ".u.sample_md = " << value.u.sample_md << ",\n";
         printed = true;
+        break;
+    default:
         break;
     }
 
@@ -136,6 +140,8 @@ inline std::ostream &operator<<(std::ostream &os, const request_item &value) {
         os << debug::indent << ".u.req_scope = " << value.u.req_scope << ",\n";
         printed = true;
         break;
+    default:
+        break;
     }
 
     if (!printed) {
@@ -162,6 +168,8 @@ inline std::ostream &operator<<(std::ostream &os, const request_item::request_mo
     case request_item::request_mode::sampling_mode::manual:
         os << debug::indent << ".mode_config = {},\n";
         printed = true;
+        break;
+    default:
         break;
     }
 

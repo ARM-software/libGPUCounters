@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="280"
+   viewBox="0 0 280 430"
+   height="430"
+   version="1.1"
+   id="svg33"
+   sodipodi:docname="shader-core.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview33"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="1.9437059"
+     inkscape:cx="224.82825"
+     inkscape:cy="194.21663"
+     inkscape:window-width="2523"
+     inkscape:window-height="1094"
+     inkscape:window-x="880"
+     inkscape:window-y="146"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer2"
+     showgrid="true">
+    <inkscape:grid
+       id="grid33"
+       units="px"
+       originx="-5"
+       originy="-5"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Background"
+     style="display:inline"
+     transform="translate(-5,-5)">
+    <rect
+       width="280"
+       x="5"
+       fill="#ffffff"
+       y="5"
+       height="430"
+       id="rect1"
+       style="fill:#ffffff;stroke-width:1.13003"
+       inkscape:label="Background" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Main Phase Front-end"
+     style="display:inline"
+     transform="translate(-5,-5)">
+    <path
+       d="M 150,15 H 274.5 V 260.00001 H 150 Z"
+       stroke="#333e48"
+       id="shape2"
+       fill="#e5eceb"
+       stroke-width="0.727828"
+       fill-rule="nonzero"
+       style="fill:#d8d8d8;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="M 211.01657,69.500005 V 270.50098"
+       stroke="#333e48"
+       id="shape57-1-6-8-9-3"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#6a6a6a;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="M 160,54.84125 H 264.99999 V 69.5 H 160 Z"
+       stroke="#333e48"
+       id="shape54"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="fill:#2f7faf;stroke:#6a6a6a;stroke-width:0.999999;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="212.30208"
+       y="65.92585"
+       id="text51"><tspan
+         sodipodi:role="line"
+         x="212.30208"
+         y="65.92585"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan3">Tile List Reader</tspan><tspan
+         sodipodi:role="line"
+         x="212.30208"
+         y="77.125885"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan2" /></text>
+    <path
+       d="m 159.5,135 h 104.99999 v 15 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.65625"
+       y="145.80844"
+       id="text51-8"><tspan
+         sodipodi:role="line"
+         x="211.65625"
+         y="145.80844"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7">Frag Prepass HSR</tspan></text>
+    <path
+       d="M 159.50001,215 H 264.5 v 15 H 159.50001 Z"
+       stroke="#333e48"
+       id="shape54-4-79"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:0.999998;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.63022"
+       y="226.31772"
+       id="text51-8-3"><tspan
+         sodipodi:role="line"
+         x="211.63022"
+         y="226.31772"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-19">FPK HSR</tspan></text>
+    <path
+       d="m 159.0426,235.05047 h 104.99999 v 15 H 159.0426 Z"
+       stroke="#333e48"
+       id="shape54-4-79-5"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#765db8;stroke:#6a6a6a;stroke-width:0.999998;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.17281"
+       y="246.36819"
+       id="text51-8-3-0"><tspan
+         sodipodi:role="line"
+         x="211.17281"
+         y="246.36819"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-19-2">Frag Warp Issue</tspan></text>
+    <path
+       d="m 159.5,195 h 104.99999 v 15 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4-7"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.85677"
+       y="205.26042"
+       id="text51-8-6"><tspan
+         sodipodi:role="line"
+         x="211.85677"
+         y="205.26042"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-8">Early ZS</tspan></text>
+    <path
+       d="m 159.5,175 h 104.99999 v 15 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4-1"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.50781"
+       y="186.25522"
+       id="text51-8-7"><tspan
+         sodipodi:role="line"
+         x="211.50781"
+         y="186.25522"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-1">Rasterizer</tspan></text>
+    <path
+       d="m 159.5,115 h 104.99999 v 15 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4-7-7"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.85677"
+       y="125.26043"
+       id="text51-8-6-9"><tspan
+         sodipodi:role="line"
+         x="211.85677"
+         y="125.26043"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-8-5">Early ZS</tspan></text>
+    <path
+       d="M 159.5,95.000001 H 264.49999 V 110 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4-1-4"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.50781"
+       y="106.25523"
+       id="text51-8-7-3"><tspan
+         sodipodi:role="line"
+         x="211.50781"
+         y="106.25523"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-1-1">Rasterizer</tspan></text>
+    <path
+       d="m 159.5,74.999999 h 104.99999 v 15 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4-1-4-3"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#765db8;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.95572"
+       y="86.317719"
+       id="text51-8-7-3-4"><tspan
+         sodipodi:role="line"
+         x="211.95572"
+         y="86.317719"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-1-1-1">DVS Warp Issue</tspan></text>
+    <path
+       d="m 159.5,155 h 104.99999 v 15 H 159.5 Z"
+       stroke="#333e48"
+       id="shape54-4-1-4-3-8"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#765db8;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.96353"
+       y="166.31772"
+       id="text51-8-7-3-4-7"><tspan
+         sodipodi:role="line"
+         x="211.96353"
+         y="166.31772"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-1-1-1-4">DVS Warp Issue</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.3333px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#606060;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="158.51042"
+       y="32.385864"
+       id="text51-0"><tspan
+         sodipodi:role="line"
+         x="158.51042"
+         y="32.385864"
+         id="tspan52-6"
+         style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#6a6a6a;stroke:none">Main Phase</tspan><tspan
+         sodipodi:role="line"
+         x="158.51042"
+         y="46.38583"
+         style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#6a6a6a;stroke:none"
+         id="tspan10">Front-end</tspan></text>
+    <path
+       d="m 150.59095,320.09096 h 124.5 v 104.90905 h -124.5 z"
+       stroke="#333e48"
+       id="shape2-5"
+       fill="#e5eceb"
+       stroke-width="0.727828"
+       fill-rule="nonzero"
+       style="display:inline;fill:#d8d8d8;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="m 211.01659,310.00896 v 60.14981"
+       stroke="#333e48"
+       id="shape57-1-6-8-9-3-4"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#6a6a6a;stroke-width:1.99998;stroke-dasharray:none" />
+    <path
+       d="M 160.00001,330 H 265 v 14.65875 H 160.00001 Z"
+       stroke="#333e48"
+       id="shape54-2"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#b26a98;stroke:#6a6a6a;stroke-width:0.999999;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="212.30208"
+       y="341.08459"
+       id="text51-09"><tspan
+         sodipodi:role="line"
+         x="212.30208"
+         y="341.08459"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan3-7">Tile Memory</tspan><tspan
+         sodipodi:role="line"
+         x="212.30208"
+         y="352.28464"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan2-3" /></text>
+    <path
+       d="M 159.50001,370.15875 H 264.5 v 15 H 159.50001 Z"
+       stroke="#333e48"
+       id="shape54-4-1-4-7"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.50783"
+       y="381.41397"
+       id="text51-8-7-3-7"><tspan
+         sodipodi:role="line"
+         x="211.50783"
+         y="381.41397"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-1-1-3">FB Compression</tspan></text>
+    <path
+       d="M 159.50001,350.15875 H 264.5 v 15 H 159.50001 Z"
+       stroke="#333e48"
+       id="shape54-4-1-4-3-3"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#2f7faf;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="211.95573"
+       y="361.47647"
+       id="text51-8-7-3-4-5"><tspan
+         sodipodi:role="line"
+         x="211.95573"
+         y="361.47647"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-1-1-1-9">CRC Check</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.3333px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#606060;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="159.02899"
+       y="403.02893"
+       id="text51-0-82"><tspan
+         sodipodi:role="line"
+         x="159.02899"
+         y="403.02893"
+         id="tspan52-6-6"
+         style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#6a6a6a;stroke:none">Main Phase</tspan><tspan
+         sodipodi:role="line"
+         x="159.02899"
+         y="417.0289"
+         style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#6a6a6a;stroke:none"
+         id="tspan10-6">Back-end</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Non-main Phase Front-end"
+     transform="translate(-5,-5)">
+    <path
+       d="M 15.5,194.99999 H 140 V 260 H 15.5 Z"
+       stroke="#333e48"
+       id="shape2-0"
+       fill="#e5eceb"
+       stroke-width="0.727828"
+       fill-rule="nonzero"
+       style="display:inline;fill:#d8d8d8;stroke:#6a6a6a;stroke-width:0.999999;stroke-dasharray:none" />
+    <path
+       d="M 25.00001,235 H 130 v 15 H 25.00001 Z"
+       stroke="#333e48"
+       id="shape54-4-79-5-4"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="display:inline;fill:#765db8;stroke:#6a6a6a;stroke-width:0.999998;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="77.130203"
+       y="246.31772"
+       id="text51-8-3-0-4"><tspan
+         sodipodi:role="line"
+         x="77.130203"
+         y="246.31772"
+         style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan7-19-2-6">Warp Issue</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:13.3333px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#606060;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="24.010422"
+       y="212.38585"
+       id="text51-0-8"><tspan
+         sodipodi:role="line"
+         x="24.010422"
+         y="212.38585"
+         id="tspan52-6-4"
+         style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#6a6a6a;stroke:none">Non-main Phase</tspan><tspan
+         sodipodi:role="line"
+         x="24.010422"
+         y="226.38582"
+         style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#6a6a6a;stroke:none"
+         id="tspan10-0">Front-end</tspan></text>
+    <path
+       d="m 75,249.99802 v 20.00196"
+       stroke="#333e48"
+       id="shape57-1-6-8-9"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#6a6a6a;stroke-width:2;stroke-dasharray:none" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Shader Core"
+     transform="translate(-5,-5)">
+    <path
+       d="m 15,269.99103 h 260 v 40.01792 H 15 Z"
+       stroke="#333e48"
+       id="shape5"
+       fill="#11809f"
+       stroke-width="0.848755"
+       fill-rule="nonzero"
+       style="fill:#765db8;stroke:#6a6a6a;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="142.43848"
+       y="287.92169"
+       id="text51-2-4-9"><tspan
+         sodipodi:role="line"
+         x="142.43848"
+         y="287.92169"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan55-1-1">Programmable</tspan><tspan
+         sodipodi:role="line"
+         x="142.43848"
+         y="300.5217"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
+         id="tspan63">Core</tspan></text>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -13,6 +13,7 @@
 #include <device/hwcnt/block_extents.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 
 namespace hwcpipe {
@@ -23,8 +24,10 @@ using sample_values_type = device::hwcnt::sample_values_type;
 class block_extents_mock {
   public:
     MOCK(sample_values_type, values_type, ());
+    MOCK(uint8_t, num_blocks_of_type, (device::hwcnt::block_type type) const);
 };
 MOCK_DEFAULT_RET(sample_values_type, block_extents_mock, values_type, sample_values_type::uint32);
+MOCK_DEFAULT_RET(uint8_t, block_extents_mock, num_blocks_of_type, 0);
 
 class instance_mock {
   public:
@@ -32,7 +35,7 @@ class instance_mock {
 
     static bool return_valid_instance;
 
-    static instance_ptr create(handle_mock &hndl) {
+    static instance_ptr create(handle_mock &hndl, std::error_code& ec) {
         if (!return_valid_instance) {
             return_valid_instance = true;
             return nullptr;

@@ -22,6 +22,9 @@ of the GPU functionality. These blocks include:
 * _Shader cores_ which implements the programmable core that processes all
    types of application shader workload. There may be multiple shader core
    block instances in a design.
+* _Neural accelerators_ which implements the neural hardware that processes all
+  types of application data graph workload. There may be multiple neural
+  accelerator block instances in a design.
 * _L2 cache slices_ which implement the GPU L2 cache and MMU. There is only a
   single MMU, which is reported in block instance zero, but may be multiple
   cache slice instances in a design.
@@ -75,6 +78,7 @@ must be resolved to a concrete value by the tooling at run-time when the
 target device and measurement methodology is known. These constants are:
 
 * `MALI_CONFIG_SHADER_CORE_COUNT`: Number of shader cores.
+* `MALI_CONFIG_NEURAL_ACCELERATOR_COUNT`: Number of neural accelerators.
 * `MALI_CONFIG_L2_CACHE_COUNT`: Number of L2 cache slices.
 * `MALI_CONFIG_EXT_BUS_BYTE_SIZE`: Width of GPU external bus interface in bits.
 * `MALI_CONFIG_TIME_SPAN`: Time span represented by a counter sample.
@@ -115,7 +119,6 @@ scaling of parts of each expression. However, user applications computing their
 own derived expressions by hand must be aware of block cardinality differences
 and apply any scaling that is needed.
 
-
 ### Counter clock domains
 
 Arm GPUs can have multiple clock domains, with blocks of each type running at a
@@ -129,6 +132,8 @@ The clock domains are:
 * The _GPU front-end_ and _Tiler_ block types are in the top-level clock
   domain.
 * The _Shader core_ block type is in the shader code clock domain.
+* The _Neural accelerator_ block type is in the neural accelerator clock
+  domain.
 
 When computing derived expressions with counters from multiple block types,
 beware that clock scaling may mean that results are hard to interpret. Taking
@@ -150,6 +155,27 @@ run-time due to dynamic voltage and frequency scaling (DVFS) power management.
 There is therefore no way to effectively correct for this effect using static
 scaling factors.
 
+## Counter complexity
+
+Counter definitions include a visibility level, which can be used to filter
+counters for a specific audience.
+
+_Novice counters_ are counters that are intended for application developers,
+and that are easy to consume without a deep background in GPU architecture.
+Some high-level knowledge of Arm GPUs is still needed, for example to
+understand how a driver for tile-based hardware schedules work, but most data
+is grounded in general API concepts and commonly used graphics concepts.
+
+_Advanced application counters_ are counters that are intended for application
+developers, and that require more knowledge of Arm GPU architecture to
+interpret. Some of these counters give alternative views to the Novice
+counters, for example giving the absolute value when the Novice counter only
+returned a percentage.
+
+_Advanced system counters_ are counters that are intended for system
+integrators and the Arm technical support team. These counters are not usually
+useful for application developers and require a lot of system knowledge, or Arm
+GPU knowledge, to interpret correctly.
 - - -
 
 _Copyright © 2025, Arm Limited._

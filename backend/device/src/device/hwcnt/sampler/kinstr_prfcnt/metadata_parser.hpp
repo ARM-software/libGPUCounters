@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -32,8 +32,10 @@
 #include <device/detail/enum_operators.hpp>
 #include <device/hwcnt/block_extents.hpp>
 #include <device/hwcnt/block_metadata.hpp>
+#include <device/hwcnt/detail/to_str.hpp>
 #include <device/hwcnt/sample.hpp>
 #include <device/hwcnt/sampler/kinstr_prfcnt/convert.hpp>
+#include <device/ioctl/kinstr_prfcnt/print.hpp>
 
 #include <tuple>
 #include <utility>
@@ -43,6 +45,8 @@ namespace device {
 namespace hwcnt {
 namespace sampler {
 namespace kinstr_prfcnt {
+
+using hwcpipe::device::hwcnt::detail::to_str;
 
 /** Metadata parser. */
 class metadata_parser {
@@ -79,7 +83,8 @@ class metadata_parser {
      */
     std::error_code on_item(const ioctl::kinstr_prfcnt::metadata_item::sample_metadata &metadata) {
         if (sample_parsed_)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::meta_sample_already_parsed, "Metadata already parsed: %s",
+                                           to_str(metadata).c_str());
 
         result_.user_data = metadata.user_data;
         result_.flags = convert(metadata.flags);
@@ -100,18 +105,29 @@ class metadata_parser {
      */
     std::error_code on_item(const ioctl::kinstr_prfcnt::metadata_item::clock_metadata &metadata) {
         if (clock_parsed_)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::meta_clock_already_parsed, "Clock metadata already parsed: %s",
+                                           to_str(metadata).c_str());
 
         static constexpr size_t gpu_cycle_idx = 0;
-        static constexpr size_t sc_cycle_idx = 1;
+        static constexpr size_t cg_cycle_idx = 1;
+        static constexpr size_t sc_cycle_idx = 2;
+        static constexpr size_t ne_cycle_idx = 3;
 
         if (metadata.num_domains > gpu_cycle_idx) {
             result_.gpu_cycle = metadata.cycles[gpu_cycle_idx];
+            result_.cg_cycle = metadata.cycles[gpu_cycle_idx];
             result_.sc_cycle = metadata.cycles[gpu_cycle_idx];
+            result_.ne_cycle = metadata.cycles[gpu_cycle_idx];
         }
 
+        if (metadata.num_domains > cg_cycle_idx) {
+            result_.cg_cycle = metadata.cycles[cg_cycle_idx];
+        }
         if (metadata.num_domains > sc_cycle_idx) {
             result_.sc_cycle = metadata.cycles[sc_cycle_idx];
+        }
+        if (metadata.num_domains > ne_cycle_idx) {
+            result_.ne_cycle = metadata.cycles[ne_cycle_idx];
         }
 
         clock_parsed_ = true;
@@ -139,7 +155,8 @@ class metadata_parser {
 
         /* Invalid block type. */
         if (block_type_underlying >= num_blocks_of_type_.size())
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::meta_invalid_block_type, "Block type = (%s)",
+                                           to_str(type).c_str());
 
         uint8_t block_index = metadata.block_idx;
         if (remap_ != nullptr)
@@ -150,12 +167,17 @@ class metadata_parser {
 
         /* Invalid block index. */
         if (num_blocks_of_type_[block_type_underlying] != block_index)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::meta_invalid_block_index, "Block type = (%s) Block index = %u",
+                                           to_str(type).c_str(), static_cast<int>(block_index));
 
         /* Too many blocks of this type. */
         num_blocks_of_type_[block_type_underlying]++;
         if (num_blocks_of_type_[block_type_underlying] > extents_.num_blocks_of_type(type))
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::meta_invalid_num_blocks,
+                                           "Block type (%s) has (%u) ) blocks > Expected number of blocks (%u)",
+                                           to_str(type).c_str(),
+                                           static_cast<int>(num_blocks_of_type_[block_type_underlying]),
+                                           static_cast<int>(extents_.num_blocks_of_type(type)));
 
         ++num_blocks_;
 
@@ -179,10 +201,14 @@ class metadata_parser {
      */
     std::error_code on_done() {
         if (!sample_parsed_ || !clock_parsed_)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::parser_not_done, "These are not parsed: (%s %s)",
+                                           sample_parsed_ ? "" : "sample_metadata, ",
+                                           clock_parsed_ ? ")" : "clock_metadata)");
 
         if (num_blocks_ != extents_.num_blocks())
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::parser_not_done,
+                                           "Number of parsed blocks (%u) != Number of expected blocks (%u)",
+                                           static_cast<int>(num_blocks_), static_cast<int>(extents_.num_blocks()));
 
         return std::error_code{};
     }

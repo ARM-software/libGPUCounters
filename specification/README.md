@@ -69,4 +69,4 @@ library.
 
 - - -
 
-_Copyright © 2019-2025, Arm Limited._
+_Copyright © 2019-2026, Arm Limited._

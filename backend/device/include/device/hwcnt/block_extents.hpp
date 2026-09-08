@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024 Arm Limited.
+ * Copyright (c) 2021-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -31,10 +31,12 @@
 #pragma once
 
 #include <device/hwcnt/block_metadata.hpp>
+#include <device/hwcnt/detail/to_str.hpp>
 
 #include <array>
 #include <cassert>
 #include <cstddef>
+#include <string>
 #include <type_traits>
 
 namespace hwcpipe {
@@ -104,6 +106,18 @@ class block_extents {
             result = static_cast<uint8_t>(result + num_blocks);
 
         return result;
+    }
+
+    /** @return string representation of block extents. */
+    explicit operator std::string() const {
+        std::string block_types_str =
+            "Counters/Block=" + std::to_string(counters_per_block()) + ", Blocks=" + std::to_string(num_blocks());
+        if (num_blocks())
+            block_types_str += ":";
+        for (size_t i = 0; i < num_block_types; ++i)
+            block_types_str +=
+                " '" + detail::to_str(block_type(i)) + "=" + std::to_string(num_blocks_of_type_[i]) + "'";
+        return block_types_str;
     }
 
     /**

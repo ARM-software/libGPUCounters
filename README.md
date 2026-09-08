@@ -58,6 +58,11 @@ option.
 ```sh
 cmake -DHWCPIPE_BUILD_EXAMPLES=ON -B build .
 ```
+### Include logs from github/backend (hwcpipe)
+
+To get the logs streamed from github/backend (hwcpipe) , the following option needs to be added to cmake
+
+```-DHWCPIPE_LOGGER_ENABLED=ON```
 
 ## Using the machine readable specification
 
@@ -88,6 +93,6 @@ graphics development or technology please submit them on the [Arm Community grap
 
 - - -
 
-_Copyright © 2023-2025, Arm Limited and contributors._
+_Copyright © 2023-2026, Arm Limited and contributors._
 
 [1]: https://community.arm.com/support-forums/f/mobile-graphics-and-gaming-forum

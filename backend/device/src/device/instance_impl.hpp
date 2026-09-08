@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -24,10 +24,12 @@
 
 #pragma once
 
+#include "detail/get_warp_width.hpp"
 #include "ioctl/kbase_pre_r21/types.hpp"
 #include "kbase_version.hpp"
 
 #include <device/constants.hpp>
+#include <device/error.hpp>
 #include <device/hwcnt/backend_type.hpp>
 #include <device/hwcnt/block_extents.hpp>
 #include <device/hwcnt/block_metadata.hpp>
@@ -37,6 +39,7 @@
 #include <device/hwcnt/sampler/manual.hpp>
 #include <device/hwcnt/sampler/vinstr/construct_block_extents.hpp>
 #include <device/instance.hpp>
+#include <device/instance_backend_type.hpp>
 #include <device/ioctl/kbase/commands.hpp>
 #include <device/ioctl/kbase/types.hpp>
 #include <device/ioctl/kbase_pre_r21/commands.hpp>
@@ -56,59 +59,14 @@
 namespace hwcpipe {
 namespace device {
 
-using properties = std::vector<unsigned char>;
+using properties_type = std::vector<unsigned char>;
 
 namespace detail {
-
-static uint64_t get_warp_width(product_id known_pid, std::error_code &ec) {
-    switch (known_pid) {
-    case product_id::t60x:
-    case product_id::t62x:
-    case product_id::t720:
-    case product_id::t760:
-    case product_id::t820:
-    case product_id::t830:
-    case product_id::t860:
-    case product_id::t880:
-        return 1;
-    case product_id::g31:
-    case product_id::g51:
-    case product_id::g71:
-    case product_id::g72:
-        return 4;
-    case product_id::g52:
-    case product_id::g76:
-        return 8;
-    case product_id::g57:
-    case product_id::g57_2:
-    case product_id::g68:
-    case product_id::g77:
-    case product_id::g78:
-    case product_id::g78ae:
-    case product_id::g310:
-    case product_id::g510:
-    case product_id::g610:
-    case product_id::g615:
-    case product_id::g620:
-    case product_id::g625:
-    case product_id::g710:
-    case product_id::g715:
-    case product_id::g720:
-    case product_id::g725:
-    case product_id::g1_pro:
-    case product_id::g1_premium:
-    case product_id::g1_ultra:
-        return 16;
-    }
-
-    ec = std::make_error_code(std::errc::not_supported);
-    return 0;
-}
 
 /** Decoder for a kbase GPU props buffer. */
 class prop_decoder {
   public:
-    explicit prop_decoder(properties buffer) noexcept
+    explicit prop_decoder(properties_type buffer) noexcept
         : reader_{std::move(buffer)} {}
 
     std::tuple<constants, product_id> operator()(std::error_code &ec) noexcept {
@@ -256,7 +214,9 @@ class prop_decoder {
 #define ERROR_IF_READER_SIZE_LT(x)                                                                                     \
     do {                                                                                                               \
         if (reader_.size() < (x)) {                                                                                    \
-            ec = std::make_error_code(std::errc::protocol_error);                                                      \
+            ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::prop_reader_invalid_data,                                       \
+                                         "Size of data in reader (%u) < requested (%lu)",                              \
+                                         static_cast<int>(reader_.size()), static_cast<unsigned long>(x));             \
             return {};                                                                                                 \
         }                                                                                                              \
     } while (0)
@@ -289,7 +249,7 @@ class prop_decoder {
     /* Reads values out of the KBASE_IOCTL_GET_GPUPROPS data buffer */
     class prop_reader {
       public:
-        explicit prop_reader(properties buffer) noexcept
+        explicit prop_reader(properties_type buffer) noexcept
             : buffer_{std::move(buffer)}
             , data_{buffer_.data()}
             , size_{buffer_.size()} {}
@@ -312,7 +272,7 @@ class prop_decoder {
             return ret;
         }
 
-        properties const buffer_;
+        properties_type const buffer_;
         unsigned char const *data_;
         std::size_t size_;
     } reader_;
@@ -327,15 +287,22 @@ bool is_version_set(const version_t &version) {
 
 /** Mali device driver instance implementation. */
 template <typename syscall_iface_t>
-class instance_impl : public instance, private syscall_iface_t {
+class instance_impl : public instance_backend_type, private syscall_iface_t {
     using kbase_version_type = ::hwcpipe::device::kbase_version;
 
   public:
-    instance_impl(int fd, const syscall_iface_t &iface = {})
+    instance_impl(int fd, std::error_code &ec, const syscall_iface_t &iface = {})
         : syscall_iface_t(iface)
         , fd_(fd) {
-        std::error_code ec = init(iface);
+        ec = init(iface);
         valid_ = !ec;
+
+        if (valid_) {
+            HWCPIPE_LOG_INFO("Instance initialized with data: %s", get_description().c_str());
+            return;
+        }
+
+        HWCPIPE_LOG_ERROR("Instance failed to initialize with data: %s", get_description().c_str());
     }
 
     ~instance_impl() override = default;
@@ -380,8 +347,6 @@ class instance_impl : public instance, private syscall_iface_t {
     int fd() const { return fd_; }
 
     kbase_version_type kbase_version() const { return kbase_version_; }
-
-    hwcnt::backend_type backend_type() const { return backend_type_; }
 
   private:
     /** @return Syscall iface reference. */
@@ -429,7 +394,7 @@ class instance_impl : public instance, private syscall_iface_t {
     }
 
     /** Get the raw properties buffer as it's returned from the kernel. */
-    properties props_post_r21(int fd, std::error_code &ec) {
+    properties_type props_post_r21(int fd, std::error_code &ec) {
         int ret = 0;
 
         ioctl::kbase::get_gpuprops get_props = {};
@@ -438,7 +403,7 @@ class instance_impl : public instance, private syscall_iface_t {
             return {};
 
         get_props.size = static_cast<uint32_t>(ret);
-        properties buffer(static_cast<std::size_t>(ret));
+        properties_type buffer(static_cast<std::size_t>(ret));
         get_props.buffer.reset(buffer.data());
         std::tie(ec, ret) = get_syscall_iface().ioctl(fd, ioctl::kbase::command::get_gpuprops, &get_props);
         if (ec)
@@ -449,7 +414,10 @@ class instance_impl : public instance, private syscall_iface_t {
 
     /** Get CSF firmware version. It returns 0 for JM GPUs. */
     uint64_t get_fw_version() {
-        if (kbase_version_.type() != ioctl_iface_type::csf)
+        auto const version_type = kbase_version_.type();
+
+        assert(version_type != ioctl_iface_type::panthor);
+        if (version_type != ioctl_iface_type::csf)
             return 0;
 
         int ret = 0;
@@ -470,14 +438,16 @@ class instance_impl : public instance, private syscall_iface_t {
         get_syscall_iface().ioctl(fd_, ioctl::kbase_pre_r21::command::version_check, &version_check_args);
 
         if (!detail::is_version_set(version_check_args))
-            return std::make_error_code(std::errc::not_supported);
+            return std::make_error_code(hwcpipe_errc::invalid_kernel_version);
 
         kbase_version_ =
             kbase_version_type(version_check_args.major, version_check_args.minor, ioctl_iface_type::jm_pre_r21);
 
         constexpr kbase_version_type legacy_min_version{10, 2, ioctl_iface_type::jm_pre_r21};
         if (kbase_version_ < legacy_min_version)
-            return std::make_error_code(std::errc::not_supported);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::invalid_kernel_version,
+                                           "Kbase version (%u, %u) < legacy min version (10,2)",
+                                           version_check_args.major, version_check_args.minor);
 
         return {};
     }
@@ -494,7 +464,7 @@ class instance_impl : public instance, private syscall_iface_t {
         get_syscall_iface().ioctl(fd_, command, &version_check_args);
 
         if (!detail::is_version_set(version_check_args))
-            return std::make_error_code(std::errc::not_supported);
+            return std::make_error_code(hwcpipe_errc::invalid_kernel_version);
 
         kbase_version_ = kbase_version_type(version_check_args.major, version_check_args.minor, iface_type);
 
@@ -519,7 +489,7 @@ class instance_impl : public instance, private syscall_iface_t {
         product_id known_pid = get_product_id();
 
         auto available_types = hwcnt::backend_type_discover(kbase_version_, known_pid);
-        std::tie(ec, backend_type_) = hwcnt::backend_type_select(available_types);
+        std::tie(ec, this->backend_type_) = hwcnt::backend_type_select(available_types);
         return ec;
     }
 
@@ -534,7 +504,7 @@ class instance_impl : public instance, private syscall_iface_t {
 
         product_id pid = get_product_id();
 
-        switch (backend_type_) {
+        switch (this->backend_type_) {
         case hwcnt::backend_type::vinstr:
         case hwcnt::backend_type::vinstr_pre_r21: {
             block_extents_ = hwcnt::sampler::vinstr::construct_block_extents(pid, constants_.num_l2_slices,
@@ -552,6 +522,9 @@ class instance_impl : public instance, private syscall_iface_t {
             block_extents_ = construct_block_extents(ei_);
             clock_extents_ = construct_clock_extents(ei_);
             break;
+        case hwcnt::backend_type::panthor:
+            ec = std::make_error_code(std::errc::not_supported);
+            break;
         }
 
         return ec;
@@ -568,7 +541,7 @@ class instance_impl : public instance, private syscall_iface_t {
      * @return Error code if an unexpected error happened.
      */
     std::error_code backend_type_fixup() {
-        if (backend_type_ != hwcnt::backend_type::kinstr_prfcnt)
+        if (this->backend_type_ != hwcnt::backend_type::kinstr_prfcnt)
             return {};
 
         /* Testing with core configuration to potentially trigger the core mapping bug. */
@@ -580,7 +553,9 @@ class instance_impl : public instance, private syscall_iface_t {
         hwcnt::sampler::manual sampler{*this, &config_core, 1};
 
         if (!sampler)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::failed_to_create_sampler,
+                                           "Sampler failed to initialize with configuration: (%s)",
+                                           std::string(config_core).c_str());
 
         std::error_code ec;
 
@@ -597,7 +572,7 @@ class instance_impl : public instance, private syscall_iface_t {
 
         hwcnt::sample sample(sampler.get_reader(), ec);
         if (ec)
-            backend_type_ = hwcnt::backend_type::kinstr_prfcnt_wa;
+            this->backend_type_ = hwcnt::backend_type::kinstr_prfcnt_wa;
 
         return {};
     }
@@ -622,9 +597,9 @@ class instance_impl : public instance, private syscall_iface_t {
             std::tie(ec, std::ignore) = get_syscall_iface().ioctl(fd_, ioctl::kbase::command::set_flags, &flags);
         }
 
-        static const std::error_code eperm = std::make_error_code(std::errc::operation_not_permitted);
-        static const std::error_code einval = std::make_error_code(std::errc::invalid_argument);
-        static const std::error_code efault = std::make_error_code(std::errc::bad_address);
+        static const std::error_code eperm = std::make_error_code(hwcpipe_errc::ioctl_operation_not_permitted);
+        static const std::error_code einval = std::make_error_code(hwcpipe_errc::ioctl_invalid_argument);
+        static const std::error_code efault = std::make_error_code(hwcpipe_errc::ioctl_bad_address);
 
         /* Set_flags may fail with eperm if context has been already initialized. */
         if (ec == eperm)
@@ -688,11 +663,16 @@ class instance_impl : public instance, private syscall_iface_t {
         return {};
     }
 
+    std::string get_description() const {
+        return "Product:{" + product_id_name(pid_) + "}\nBackend:{" + backend_type_name(backend_type_) +
+               "}\nConstants:" + hwcpipe::device::get_constants_str(constants_) + "\nBlock extents: (" +
+               std::string(block_extents_) + ")\nClock extents: (" + std::string(clock_extents_) + ")";
+    }
+
     constants constants_{};
     hwcnt::block_extents block_extents_{};
     hwcnt::clock_extents clock_extents_{};
     kbase_version_type kbase_version_{};
-    hwcnt::backend_type backend_type_{};
     hwcnt::sampler::kinstr_prfcnt::enum_info ei_{};
     product_id pid_{};
 

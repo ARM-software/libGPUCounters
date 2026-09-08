@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -141,13 +141,13 @@ class sample_layout {
 
         constexpr uint32_t num_shader_cores = 4;
 
-        /* Populate tiler block. */
-        constexpr size_t offset_tiler{static_cast<size_t>(offset_sc + block_size * num_shader_cores)};
-        if (extents.num_blocks_of_type(block_type::tiler) != 0)
-            push_back({block_type::tiler, 0, offset_tiler});
+        /* Populate geometry block. */
+        constexpr size_t offset_geometry{static_cast<size_t>(offset_sc + block_size * num_shader_cores)};
+        if (extents.num_blocks_of_type(block_type::geometry) != 0)
+            push_back({block_type::geometry, 0, offset_geometry});
 
         /* Populate memory block. */
-        constexpr size_t offset_memory{offset_tiler + block_size};
+        constexpr size_t offset_memory{offset_geometry + block_size};
         if (extents.num_blocks_of_type(block_type::memory) != 0) {
             assert(extents.num_blocks_of_type(block_type::memory) == 1);
             push_back({block_type::memory, 0, offset_memory});
@@ -168,13 +168,13 @@ class sample_layout {
         if (extents.num_blocks_of_type(block_type::fe) != 0)
             push_back({block_type::fe, 0, offset_fe});
 
-        /* Populate tiler block. */
-        constexpr size_t offset_tiler{offset_fe + block_size};
-        if (extents.num_blocks_of_type(block_type::tiler) != 0)
-            push_back({block_type::tiler, 0, offset_tiler});
+        /* Populate geometry block. */
+        constexpr size_t offset_geometry{offset_fe + block_size};
+        if (extents.num_blocks_of_type(block_type::geometry) != 0)
+            push_back({block_type::geometry, 0, offset_geometry});
 
         /* Populate memory block. */
-        constexpr size_t offset_memory{offset_tiler + block_size};
+        constexpr size_t offset_memory{offset_geometry + block_size};
         if (extents.num_blocks_of_type(block_type::memory) != 0) {
             assert(extents.num_blocks_of_type(block_type::memory) == num_l2_slices);
 
@@ -215,12 +215,12 @@ class sample_layout {
 
     /** Max number of front end blocks. */
     static constexpr size_t max_blocks_fe = 1;
-    /** Max number of tiler blocks. */
-    static constexpr size_t max_blocks_tiler = 1;
+    /** Max number of geometry blocks. */
+    static constexpr size_t max_blocks_geometry = 1;
     /** Max number of memory blocks. */
     static constexpr size_t max_blocks_memory = 16;
     /** Max number of blocks. */
-    static constexpr size_t max_blocks = max_blocks_fe + max_blocks_tiler + max_blocks_memory + max_shader_cores;
+    static constexpr size_t max_blocks = max_blocks_fe + max_blocks_geometry + max_blocks_memory + max_shader_cores;
     /** Counters value type. */
     using counter_value_type = uint32_t;
     /** Number of counters per block. */

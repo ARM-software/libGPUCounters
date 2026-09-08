@@ -171,7 +171,13 @@ main {
 main img {
   display: block;
   margin: 0 auto;
-  border: 1px solid var(--menu-border);
+}
+
+main picture {
+  display: block;
+  margin: 0 auto;
+  margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 #lgc-navpin:checked ~ main {

@@ -28,7 +28,6 @@
 
 #include <cassert>
 #include <cstddef>
-#include <cstdint>
 #include <iterator>
 #include <type_traits>
 
@@ -138,6 +137,21 @@ class strided_array_iterator {
 
     reference operator*() const { return *ptr_; }
     pointer operator->() { return ptr_; }
+
+    /**
+     * Get a pointer to the data at the end of a chosen element.
+     *
+     * @param[in] idx    The index of the element in the strided array.
+     */
+    unsigned char *field_end(difference_type idx) {
+        auto ptr = advance(idx);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto *addr = reinterpret_cast<unsigned char *>(ptr);
+
+        difference_type size = sizeof(reference);
+
+        return addr + size;
+    }
 
   private:
     pointer advance(difference_type diff) const {

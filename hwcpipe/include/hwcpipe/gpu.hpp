@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -81,9 +81,10 @@ class gpu {
     device::product_id id_{};
 
     void fetch_device_info(device::handle &handle) {
-        auto instance = device::instance::create(handle);
+        std::error_code ec;
+        auto instance = device::instance::create(handle, ec);
 
-        if (!instance) {
+        if (ec || !instance) {
             valid_ = false;
             return;
         }

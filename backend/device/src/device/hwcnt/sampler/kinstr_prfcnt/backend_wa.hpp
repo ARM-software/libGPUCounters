@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -28,6 +28,7 @@
 
 #include "backend.hpp"
 
+#include <device/error.hpp>
 #include <device/hwcnt/sampler/discard_impl.hpp>
 #include <device/hwcnt/sampler/poll.hpp>
 #include <device/hwcnt/sampler/queue.hpp>
@@ -139,10 +140,11 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
         std::lock_guard<std::recursive_mutex> lock(access_);
 
         if (sampler_type() != super::sampler_type::manual)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::sampler_invalid_type, "Requesting periodic in manual sampler");
 
         if (num_buffers_ <= 1)
-            return std::make_error_code(std::errc::operation_not_permitted);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::invalid_buffer_size,
+                                           "number of buffers in HWCNT ring buffer = %" PRIu64, num_buffers_);
 
         auto ec = super::request_sample(user_data);
 
@@ -220,7 +222,8 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
      */
     std::error_code start_manual(uint64_t user_data) {
         if (num_buffers_ == 0)
-            return std::make_error_code(std::errc::operation_not_permitted);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::backend_start_invalid_buffer_size,
+                                           "number of buffers in HWCNT ring buffer == 0");
 
         return super::start(user_data);
     }
@@ -279,7 +282,7 @@ class backend_wa_impl : public backend_base_t, private timestamp_iface_t {
      */
     std::error_code start_periodic(uint64_t user_data) {
         if (sessions_.full())
-            return std::make_error_code(std::errc::operation_not_permitted);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::sampler_max_sessions, "HWCNT ring buffer is full");
 
         const auto begin_ts = this->clock_gettime();
         session_type session{session_nr(), user_data, begin_ts};

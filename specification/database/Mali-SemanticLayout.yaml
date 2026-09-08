@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2025 Arm Limited.
+# Copyright (c) 2020-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -33,6 +33,7 @@
     - Fragment queue active
     - Binning phase queue active
     - Main phase queue active
+    - Neural queue active
     - Reserved queue active
     - Tiler active
     - GPU interrupt active
@@ -42,6 +43,7 @@
     - Fragment queued
     - Binning phase queued
     - Main phase queued
+    - Neural queued
   - GPU Wait Cycles:
     - Compute queue endpoint drain stalls
     - Compute queue endpoint stalls
@@ -61,6 +63,7 @@
     - Fragment queue job finish stalls
     - Fragment queue job issue stalls
     - Main phase queue endpoint stalls
+    - Neural queue endpoint stalls
     - Reserved queue cache flush stalls
     - Reserved queue descriptor read stalls
     - Reserved queue job dependency stalls
@@ -74,6 +77,7 @@
     - Binning phase jobs
     - Main phase jobs
     - Reserved jobs
+    - Neural jobs
   - GPU Tasks:
     - Compute tasks
     - Non-fragment tasks
@@ -81,6 +85,7 @@
     - Fragment tasks
     - Binning phase tasks
     - Main phase tasks
+    - Neural tasks
     - Reserved tasks
   - GPU Utilization:
     - Compute queue utilization
@@ -89,12 +94,17 @@
     - Fragment queue utilization
     - Binning phase queue utilization
     - Main phase queue utilization
+    - Neural queue utilization
     - Tiler utilization
     - Interrupt utilization
+  - GPU Clock Ratios:
+    - Shader core clock ratio
+    - Neural accelerator clock ratio
   - GPU Messages:
     - GPU interrupts
   - GPU Cache Flushes:
     - L2 cache flushes
+    - MMU flushes
   - GPU Cache Flush Cycles:
     - L2 cache flush
   - CSF Cycles:
@@ -105,13 +115,14 @@
     - CEU utilization
     - LSU utilization
     - MCU utilization
-  - CSF Interrupt Cycles:
+  - CSF Queue Interrupt Cycles:
     - Doorbell interrupt active
     - Compute queue interrupt active
     - Vertex queue interrupt active
     - Fragment queue interrupt active
     - Binning phase queue interrupt active
     - Main phase queue interrupt active
+    - Neural queue interrupt active
   - CSF Stream Cycles:
     - CS0 active
     - CS1 active
@@ -184,20 +195,24 @@
   - Primitive Culling:
     - Visible primitives
     - Culled primitives
-    - Facing or XY plane test culled primitives
-    - Z plane test culled primitives
-    - Facing test culled primitives
-    - Frustum test culled primitives
-    - Scissor test culled primitives
-    - Sample test culled primitives
+    - Facing or XY plane culled primitives
+    - Z plane culled primitives
+    - Frustum culled primitives
+    - Scissor culled primitives
+    - Facing culled primitives
+    - Sample culled primitives
   - Primitive Culling Rate:
     - Visible primitive rate
     - Facing or XY plane culled primitive rate
     - Z plane culled primitive rate
-    - Facing culled primitive rate
     - Frustum culled primitive rate
     - Scissor culled primitive rate
+    - Facing culled primitive rate
     - Sample culled primitive rate
+  - Geometry Primitive Properties:
+    - Deferred vertex shading primitives
+  - Geometry Workload Properties:
+    - Deferred vertex shading rate
   - Geometry Threads:
     - Position shading threads
     - Varying shading threads
@@ -206,7 +221,7 @@
     - Varying threads/visible primitive
 
 - Graphics Fragment Workload:
-  - Output pixels:
+  - Output Pixels:
     - Pixels
   - Overdraw:
     - Fragments/pixel
@@ -216,6 +231,11 @@
     - GPU cycles/pixel
     - Shader cycles/non-fragment thread
     - Shader cycles/fragment thread
+    - ALU cycles/thread
+    - Varying unit cycles/thread
+    - Texture unit cycles/thread
+    - Load/store unit cycles/thread
+    - Ray tracing unit cycles/thread
 
 - Shader Core Front-end:
   - Shader Core Cycles:
@@ -224,17 +244,16 @@
     - Non-fragment active
     - Fragment active
     - Main phase active
-    - Fragment pre-pipe buffer active
-    - Execution core active
+    - Fragment staging buffer active
+    - Programmable core active
+    - Neural accelerator active
   - Shader Core Utilization:
     - Compute or binning phase utilization
     - Non-fragment utilization
     - Fragment utilization
     - Main phase utilization
-    - Fragment pre-pipe buffer utilization
-    - Execution core utilization
-  - Shader Clock Ratio:
-    - Shader core clock ratio
+    - Fragment staging buffer utilization
+    - Programmable core utilization
   - Shader Core Tasks:
     - Non-fragment tasks
     - Non-main phase tasks
@@ -246,7 +265,7 @@
   - Fragment Primitives:
     - Input primitives
     - Loaded primitives
-    - Loaded prepass primitives
+    - Prepass primitives
     - Prepass culled primitives
     - Prepass skipped primitives
     - Rasterized primitives
@@ -264,22 +283,22 @@
     - Shaded coarse quads
   - Fragment ZS Quads:
     - Prepass tested quads
-    - Prepass killed quads
     - Prepass early ZS updated quads
+    - Prepass killed quads
     - Early ZS tested quads
-    - Early ZS killed quads
     - Early ZS updated quads
+    - Early ZS killed quads
     - FPK HSR killed quads
-    - Late ZS killed quads
     - Late ZS tested quads
+    - Late ZS killed quads
   - ZS Unit Test Rate:
-    - Early ZS kill rate
     - Early ZS test rate
     - Early ZS update rate
+    - Early ZS kill rate
     - Occluding quad rate
     - FPK HSR kill rate
-    - Late ZS kill rate
     - Late ZS test rate
+    - Late ZS kill rate
   - Fragment FPK HSR Quads:
     - Non-occluding quads
     - Occluding quads
@@ -298,6 +317,7 @@
     - Ray tracing unit utilization
     - Attribute unit utilization
     - Blend unit utilization
+    - Neural accelerator utilization
   - Shader Core Backpressure Cycles:
     - Load/store unit backpressure
     - Varying unit backpressure
@@ -316,8 +336,8 @@
     - Blend unit rate
   - Shader Core Stall Cycles:
     - Fragment main pass stalls
-    - Execution engine starvation
-    - Execution engine I-cache starvation
+    - Instruction issue starvation
+    - Instruction cache starvation
 
 - Shader Core Workload:
   - Shader Warps:
@@ -334,6 +354,15 @@
     - Fragment prepass threads
     - Fragment main pass threads
     - Fragment threads
+  - Shader Register Use:
+    - 0-32 registers
+    - 33-80 registers
+    - 81-128 registers
+  - Shader Core Occupancy:
+    - 0-25% occupancy
+    - 25-50% occupancy
+    - 50-75% occupancy
+    - 75-100% occupancy
   - Shader Workload Properties:
     - Fragment warp occupancy
     - Full warp rate
@@ -346,7 +375,7 @@
   - ALU Cycles:
     - Arithmetic unit issues
   - Instruction Cache:
-    - I-cache misses
+    - Instruction cache misses
   - ALU Instructions:
     - Executed instructions
     - FMA pipe instructions
@@ -361,6 +390,8 @@
     - SFU pipe utilization
   - ALU Issues:
     - Any slot issues
+    - Total slot 0 issues
+    - Total slot 1 issues
     - Slot 0 issues
     - Slot 1 issues
 
@@ -374,6 +405,8 @@
     - Full writes
     - Partial writes
     - Atomic accesses
+  - Load/Store Unit Requests:
+    - RTU writes
 
 - Shader Core Varying Unit:
   - Varying Unit Requests:
@@ -424,13 +457,14 @@
     - Mipmapped sample rate
     - Trilinear sample rate
   - Texture Unit CPI:
-    - Texture CPI
+    - Filtering CPI
   - Texture Unit Utilization:
-    - Cache utilization
     - Input bus utilization
+    - Cache lookup utilization
+    - Filtering utilization
     - Output bus utilization
   - Texture Unit Cache Cycles:
-    - Cache lookup
+    - Cache lookups
     - Cache lookup active
     - L1 load active
     - L1 lookup active
@@ -466,6 +500,10 @@
     - Nodes with 5-8 rays
     - Nodes with 9-12 rays
     - Nodes with 13-16 rays
+  - Ray Tracing Unit Micromap Tests:
+    - Opaque hits
+    - Non-opaque hits
+    - Misses
   - Ray Tracing Unit Workload:
     - New ray trace messages
     - Resumed ray trace messages
@@ -475,15 +513,18 @@
     - Culled BLAS instances
   - Ray Tracing Unit Box Workload:
     - Box tests
+    - Box tests due to resume
     - TLAS box tests
   - Ray Tracing Unit Triangle Workload:
     - Triangle tests
     - Opaque triangle hits
     - Non-opaque triangle hits
-    - Triangle nodes tested
+    - Triangle node tests
   - Ray Tracing Unit Cache:
     - Cache hits
     - Cache misses
+  - Ray Tracing Unit Cache Hit Rate:
+    - Cache hit rate
 
 - Shader Core Other Units:
   - Attribute Unit Cycles:
@@ -516,6 +557,7 @@
     - Load/store unit bytes
     - Texture unit bytes
     - Ray tracing unit bytes
+    - Other unit bytes
   - Shader Core External Read Bytes:
     - Fragment front-end bytes
     - Load/store unit bytes
@@ -536,19 +578,29 @@
     - External write bytes/px
 
 - Tiling:
+  - Tiler Cycles:
+    - Position shading active
   - Tiler Stall Cycles:
     - Position FIFO full stalls
     - Position shading stalls
     - Primitive assembly position shading stalls
     - Varying shading stalls
+    - Vertex cache read stalls
   - Tiler Vertex Cache:
     - Position cache hits
     - Position cache misses
     - Varying cache hits
     - Varying cache misses
-  - Tiler L2 Accesses:
+  - Tiler L2 Reads:
     - Read beats
+  - Tiler L2 Writes:
     - Write beats
+    - Port 0 write beats
+    - Port 1 write beats
+  - Tiler L2 Read Bytes:
+    - Read bytes
+  - Tiler L2 Write Bytes:
+    - Write bytes
   - Tiler Shading Requests:
     - Position shading requests
     - Varying shading requests
@@ -557,8 +609,101 @@
   - Vertex Cache Hit Rate:
     - Position read hit rate
     - Varying read hit rate
-  - Tiler Workload Properties:
-    - DVS primitives
+
+- Neural Accelerator:
+  - Neural Accelerator Cycles:
+    - Neural accelerator active
+    - Data processing active
+  - Neural Accelerator Utilization:
+    - Data processing utilization
+  - Neural Accelerator Unit Cycles:
+    - Scheduler unit active
+    - Descriptor fetch active
+    - Resource table fetch active
+    - Input read unit active
+    - Weight read unit active
+    - Convolution unit active
+    - Vector unit active
+    - Motion unit active
+    - Transform unit active
+    - Output write unit active
+  - Neural Accelerator Unit Utilization:
+    - Scheduler unit utilization
+    - Input read unit utilization
+    - Weight read unit utilization
+    - Convolution unit utilization
+    - Vector unit utilization
+    - Transform unit utilization
+    - Motion unit utilization
+    - Output write unit utilization
+  - Neural Accelerator Convolution Unit Issues:
+    - 2D convolution cycles
+    - Depth-wise 2D convolution cycles
+    - Pooling cycles
+  - Neural Accelerator Vector Unit Issues:
+    - Block reduction cycles
+    - Element binary cycles
+    - Element reduction cycles
+    - Element unary cycles
+    - Post process cycles
+    - Resize cycles
+  - Neural Accelerator Transform Unit Issues:
+    - Dimension change cycles
+    - Element order cycles
+    - Element replicate cycles
+    - Element select cycles
+    - Weight convert cycles
+  - Neural Accelerator Workload:
+    - Control unit workload
+    - DMA unit workload
+    - Weight read unit workload
+    - Internal memory workload
+    - Convolution unit ops
+    - Vector unit ops
+    - Transform unit workload
+    - Motion unit ops
+  - Neural Accelerator Tasks:
+    - Input tasks
+    - Output tasks
+  - Neural Accelerator Blocks:
+    - Input read unit blocks
+    - Weight read unit blocks
+    - Convolution unit blocks
+    - Vector unit blocks
+    - Transform unit blocks
+    - Motion unit blocks
+    - Output write unit blocks
+
+- Neural Accelerator Memory Access:
+  - Neural Accelerator Internal Read Bytes:
+    - Input read unit src0 bytes
+    - Convolution unit src0 bytes
+    - Convolution unit src1 bytes
+    - Convolution unit src2 bytes
+    - Vector unit src0 bytes
+    - Vector unit src1 bytes
+    - Vector unit src2 bytes
+    - Transform unit src0 bytes
+    - Motion unit dst0 bytes
+    - Motion unit dst1 bytes
+    - Motion unit src0 bytes
+    - Motion unit src1 bytes
+  - Neural Accelerator Internal Write Bytes:
+    - Input read unit dst bytes
+    - Weight read unit dst bytes
+    - Convolution unit dst bytes
+    - Vector unit dst bytes
+    - Transform unit dst bytes
+    - Motion unit dst0 bytes
+    - Motion unit dst1 bytes
+  - Neural Accelerator L2 Read Bytes:
+    - Neural accelerator bytes
+    - Input read unit bytes
+    - Weight read unit bytes
+    - Port 0 read bytes
+    - Port 1 read bytes
+  - Neural Accelerator L2 Write Bytes:
+    - Output write unit bytes
 
 - Internal Memory System:
   - L2 Cache Requests:
@@ -570,7 +715,7 @@
     - L1 read requests
     - L1 write requests
   - L2 Cache Lookups:
-    - Any lookups
+    - All lookups
     - Read lookups
     - Write lookups
     - External snoop lookups
@@ -579,25 +724,25 @@
     - Write stalls
     - Snoop stalls
     - L1 read stalls
-  - L2 Cache Miss Rate:
+  - L2 Cache Hit Rate:
+    - Read hit rate
+    - Write hit rate
     - Read miss rate
     - Write miss rate
-  - Stage 1 MMU Translations:
+  - MMU Hit Rate:
+    - Level 2 hit rate
+    - Level 3 hit rate
+  - MMU Translations:
     - MMU lookups
-    - L2 table reads
-    - L2 table read hits
-    - L3 table reads
-    - L3 table read hits
-  - Stage 2 MMU Translations:
-    - MMU lookups
-    - L2 table reads
-    - L2 table read hits
-    - L3 table reads
-    - L3 table read hits
+    - Level 2 hits
+    - Level 3 hits
+    - Level 2 misses
+    - Level 3 misses
 
 - Constants:
   - Implementation Configuration:
     - Shader core count
+    - Neural accelerator count
     - L2 cache slice count
     - External bus beat size
   - Static Configuration:
@@ -607,7 +752,10 @@
     - Tile size
     - Tile storage/pixel
     - Warp size
-    - Varying slot count
+    - Maximum thread count
+    - ALU slot issues/cycle
+    - Varying issues/cycle
     - Texture samples/cycle
     - Texture cycles/sample
-    - Internal bus beat size
+    - Internal shader core bus beat size
+    - Internal tiler bus beat size

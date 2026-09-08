@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <device/error.hpp>
 #include <device/num_exec_engines.hpp>
 #include <device/product_id.hpp>
 
@@ -43,6 +44,14 @@ static constexpr uint32_t max_registers(uint32_t raw_thread_features) {
 
 static constexpr uint16_t g31_g51_max_registers_small_core{0x2000};
 
+#define RETURN_INVALID_NUM_EXEC_ENGINES(known_pid, core_variant)                                                       \
+    do {                                                                                                               \
+        ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::invalid_num_exec_engines,                                           \
+                                     "Core variant %u doesn't match product %s", (unsigned int)(core_variant),         \
+                                     product_id_name(known_pid).c_str());                                              \
+        return 0;                                                                                                      \
+    } while (0);
+
 uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &ec) {
     auto const known_pid = args.known_pid;
     auto const core_count = args.core_count;
@@ -52,7 +61,6 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
     uint8_t core_variant{};
     uint8_t ee_count{};
 
-    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, bugprone-branch-clone)
     switch (known_pid) {
     case product_id::t60x:
     case product_id::t62x:
@@ -80,17 +88,13 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         return ee_count;
     case product_id::g57:
     case product_id::g57_2:
-        return 1;
     case product_id::g68:
         return 1;
     case product_id::g71:
-        return 3;
     case product_id::g72:
-        return 3;
     case product_id::g76:
         return 3;
     case product_id::g77:
-        return 1;
     case product_id::g78:
     case product_id::g78ae:
         return 1;
@@ -107,8 +111,7 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         case 4:
             return 2;
         }
-        ec = std::make_error_code(std::errc::not_supported);
-        return 0;
+        RETURN_INVALID_NUM_EXEC_ENGINES(known_pid, core_variant);
     case product_id::g510:
         core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
         switch (core_variant) {
@@ -120,8 +123,7 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         case 4:
             return 2;
         }
-        ec = std::make_error_code(std::errc::not_supported);
-        return 0;
+        RETURN_INVALID_NUM_EXEC_ENGINES(known_pid, core_variant);
     case product_id::g610:
     case product_id::g710:
         return 2;
@@ -137,8 +139,7 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         case 4:
             return 2;
         }
-        ec = std::make_error_code(std::errc::not_supported);
-        return 0;
+        RETURN_INVALID_NUM_EXEC_ENGINES(known_pid, core_variant);
     case product_id::g720:
     case product_id::g620:
     case product_id::g725:
@@ -150,11 +151,13 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         case 4:
             return 2;
         }
-        ec = std::make_error_code(std::errc::not_supported);
-        return 0;
+        RETURN_INVALID_NUM_EXEC_ENGINES(known_pid, core_variant);
     case product_id::g1_ultra:
     case product_id::g1_premium:
     case product_id::g1_pro:
+    case product_id::g2_ultra:
+    case product_id::g2_premium:
+    case product_id::g2_pro:
         core_variant = static_cast<uint8_t>(core_features & exec_engines_mask);
         switch (core_variant) {
         case 0:
@@ -163,12 +166,11 @@ uint8_t get_num_exec_engines(get_num_exec_engines_args &&args, std::error_code &
         case 4:
             return 2;
         }
-        ec = std::make_error_code(std::errc::not_supported);
-        return 0;
+        RETURN_INVALID_NUM_EXEC_ENGINES(known_pid, core_variant);
     }
-    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, bugprone-branch-clone)
 
-    ec = std::make_error_code(std::errc::not_supported);
+    ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::invalid_num_exec_engines, "Invalid product (%s)",
+                                 product_id_name(known_pid).c_str());
     return 0;
 }
 
