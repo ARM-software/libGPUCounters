@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -337,9 +337,9 @@ class sampler : private detail::expression::context {
             ec_ = make_error_code(errc::backend_creation_failed);
             return;
         }
-
-        instance_ = instance_type::create(*handle_);
-        if (!instance_) {
+        std::error_code ec;
+        instance_ = instance_type::create(*handle_, ec);
+        if (ec || !instance_) {
             ec_ = make_error_code(errc::backend_creation_failed);
             return;
         }
@@ -594,6 +594,11 @@ class sampler : private detail::expression::context {
 
     HWCP_NODISCARD double get_mali_config_l2_cache_count() const override {
         return static_cast<double>(constants_.l2_slice_size) * static_cast<double>(constants_.num_l2_slices);
+    }
+
+    HWCP_NODISCARD double get_mali_config_neural_accelerator_count() const override {
+        return static_cast<double>(instance_->get_hwcnt_block_extents().num_blocks_of_type(
+            device::hwcnt::block_type::neural_accelerator));
     }
 
     /**

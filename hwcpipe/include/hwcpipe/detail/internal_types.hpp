@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -60,9 +60,16 @@ class context {
     HWCP_NODISCARD virtual double get_mali_config_shader_core_count() const = 0;
 
     /**
-     * @brief
+     * @brief Returns the number of L2 cache slices to be used in evaluator
+     * functions.
      */
     HWCP_NODISCARD virtual double get_mali_config_l2_cache_count() const = 0;
+
+    /**
+     * @brief Returns the number of neural accelerators to be used in evaluator
+     * functions.
+     */
+    HWCP_NODISCARD virtual double get_mali_config_neural_accelerator_count() const = 0;
 };
 
 // Signature for generated evaluation functions.

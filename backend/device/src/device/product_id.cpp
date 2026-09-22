@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024-2025 Arm Limited.
+ * Copyright (c) 2024-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -28,6 +28,7 @@
  * Functions to obtain a GPU product ID and query product information.
  */
 
+#include <device/error.hpp>
 #include <device/product_id.hpp>
 
 #include <cassert>
@@ -57,7 +58,6 @@ static constexpr bool gpu_id_is_64bit(uint64_t gpu_id) {
  * @return Product id value.
  */
 static constexpr uint32_t hash_from_versions(uint32_t arch_major, uint32_t product_major) {
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
     return (arch_major << 8) | product_major;
 }
 
@@ -65,7 +65,6 @@ std::pair<std::error_code, product_id> product_id_from_raw_gpu_id(uint64_t raw_g
     const uint64_t old_product_id = raw_gpu_id >> 16;
     static constexpr uint16_t old_version_max_value{0x1000U};
 
-    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
     if (old_product_id == 0x6956U || old_product_id < old_version_max_value) {
         assert(!gpu_id_is_64bit(raw_gpu_id));
 
@@ -88,9 +87,10 @@ std::pair<std::error_code, product_id> product_id_from_raw_gpu_id(uint64_t raw_g
         case 0x0880U:
             return std::make_pair(std::error_code{}, product_id::t880);
         default:
-            return std::make_pair(std::make_error_code(std::errc::invalid_argument), product_id{});
+            std::error_code ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::invalid_product_id,
+                                                         "old_product_id = 0x%" PRIX64, old_product_id);
+            return std::make_pair(ec, product_id{});
         }
-        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
     } else {
         uint32_t arch_major = 0, product_major = 0;
 
@@ -113,7 +113,6 @@ std::pair<std::error_code, product_id> product_id_from_raw_gpu_id(uint64_t raw_g
 
         switch (hash_from_versions(arch_major, product_major)) {
         // Values mapped from GPU_ID register from architecture spec
-        // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
         /* Bifrost */
         case hash_from_versions(7, 3):
             return std::make_pair(std::error_code{}, product_id::g31);
@@ -167,9 +166,17 @@ std::pair<std::error_code, product_id> product_id_from_raw_gpu_id(uint64_t raw_g
             return std::make_pair(std::error_code{}, product_id::g1_premium);
         case hash_from_versions(14, 3):
             return std::make_pair(std::error_code{}, product_id::g1_pro);
-        // NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+        case hash_from_versions(15, 0):
+        case hash_from_versions(15, 5): // 0xf005 is an alias of G2-Ultra.
+            return std::make_pair(std::error_code{}, product_id::g2_ultra);
+        case hash_from_versions(15, 1):
+            return std::make_pair(std::error_code{}, product_id::g2_premium);
+        case hash_from_versions(15, 3):
+            return std::make_pair(std::error_code{}, product_id::g2_pro);
         default:
-            return std::make_pair(std::make_error_code(std::errc::invalid_argument), product_id{});
+            std::error_code ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::invalid_product_id, "Product ID=(%i, %i)",
+                                                         arch_major, product_major);
+            return std::make_pair(ec, product_id{});
         }
     }
     __builtin_unreachable();
@@ -217,6 +224,9 @@ gpu_family get_gpu_family(const product_id pid) {
     case product_id::g1_ultra:
     case product_id::g1_premium:
     case product_id::g1_pro:
+    case product_id::g2_ultra:
+    case product_id::g2_premium:
+    case product_id::g2_pro:
         return gpu_family::fifthgen;
     }
     __builtin_unreachable();
@@ -259,6 +269,9 @@ gpu_frontend get_gpu_frontend(const product_id pid) {
     case product_id::g1_ultra:
     case product_id::g1_premium:
     case product_id::g1_pro:
+    case product_id::g2_ultra:
+    case product_id::g2_premium:
+    case product_id::g2_pro:
         return gpu_frontend::csf;
     }
     __builtin_unreachable();

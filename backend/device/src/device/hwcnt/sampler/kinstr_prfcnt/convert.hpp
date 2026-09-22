@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include <device/error.hpp>
 #include <device/hwcnt/block_metadata.hpp>
+#include <device/hwcnt/detail/to_str.hpp>
 #include <device/hwcnt/sample.hpp>
 #include <device/hwcnt/sampler/configuration.hpp>
 #include <device/ioctl/kinstr_prfcnt/types.hpp>
@@ -52,8 +54,8 @@ inline std::pair<std::error_code, block_type> convert(ioctl::kinstr_prfcnt::bloc
     switch (value) {
     case ioctl::kinstr_prfcnt::block_type::fe:
         return std::make_pair(std::error_code{}, block_type::fe);
-    case ioctl::kinstr_prfcnt::block_type::tiler:
-        return std::make_pair(std::error_code{}, block_type::tiler);
+    case ioctl::kinstr_prfcnt::block_type::geometry:
+        return std::make_pair(std::error_code{}, block_type::geometry);
     case ioctl::kinstr_prfcnt::block_type::memory:
         return std::make_pair(std::error_code{}, block_type::memory);
     case ioctl::kinstr_prfcnt::block_type::shader_core:
@@ -62,9 +64,13 @@ inline std::pair<std::error_code, block_type> convert(ioctl::kinstr_prfcnt::bloc
         return std::make_pair(std::error_code{}, block_type::firmware);
     case ioctl::kinstr_prfcnt::block_type::csg:
         return std::make_pair(std::error_code{}, block_type::csg);
+    case ioctl::kinstr_prfcnt::block_type::neural_accelerator:
+        return std::make_pair(std::error_code{}, block_type::neural_accelerator);
     }
 
-    return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_type{});
+    std::error_code ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::extents_invalid_block_type, "Block type = %s",
+                                                 hwcpipe::device::hwcnt::detail::to_str(value).c_str());
+    return std::make_pair(ec, block_type{});
 }
 
 /**
@@ -77,8 +83,8 @@ inline ioctl::kinstr_prfcnt::block_type convert(block_type value) {
     switch (value) {
     case block_type::fe:
         return ioctl::kinstr_prfcnt::block_type::fe;
-    case block_type::tiler:
-        return ioctl::kinstr_prfcnt::block_type::tiler;
+    case block_type::geometry:
+        return ioctl::kinstr_prfcnt::block_type::geometry;
     case block_type::memory:
         return ioctl::kinstr_prfcnt::block_type::memory;
     case block_type::core:
@@ -87,6 +93,8 @@ inline ioctl::kinstr_prfcnt::block_type convert(block_type value) {
         return ioctl::kinstr_prfcnt::block_type::firmware;
     case block_type::csg:
         return ioctl::kinstr_prfcnt::block_type::csg;
+    case block_type::neural_accelerator:
+        return ioctl::kinstr_prfcnt::block_type::neural_accelerator;
     }
 
     assert(!&"Unexpected block_type value");

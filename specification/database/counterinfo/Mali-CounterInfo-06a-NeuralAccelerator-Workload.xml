@@ -1,0 +1,472 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2025-2026 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<CounterInfoList>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXTaskIn</MachineName>
+    <SourceName>NE_TASK_ACCEPTED</SourceName>
+    <StableID>42</StableID>
+    <HumanName>Neural accelerator input tasks</HumanName>
+    <GroupName>Neural Accelerator Tasks</GroupName>
+    <GroupHumanName>Input tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of tasks received by the neural accelerator.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every task the neural accelerator receives.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXTaskOut</MachineName>
+    <SourceName>NE_TASK_COMPLETE</SourceName>
+    <StableID>45</StableID>
+    <HumanName>Neural accelerator output tasks</HumanName>
+    <GroupName>Neural Accelerator Tasks</GroupName>
+    <GroupHumanName>Output tasks</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of tasks completed by the neural accelerator.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every task the neural accelerator completes.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXCCUProcessingCy</MachineName>
+    <SourceName>NE_CCU_WORKLOAD</SourceName>
+    <StableID>484</StableID>
+    <HumanName>Neural accelerator control unit processing cycles</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Control unit workload</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when the NX control unit is processing.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the control unit is
+      processing.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXWFWorkload</MachineName>
+    <SourceName>NE_WF_WORKLOAD</SourceName>
+    <StableID>489</StableID>
+    <HumanName>Neural accelerator WF cumulative pipeline cycles</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Weight read unit workload</GroupHumanName>
+    <Units>issues</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cumulative pipeline cycles when the Weight read is
+      processing.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle by the number of Weight read
+      pipelines that are processing.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXDMAProcessingCy</MachineName>
+    <SourceName>NE_DMA_WORKLOAD</SourceName>
+    <StableID>488</StableID>
+    <HumanName>Neural accelerator DMA processing cycles</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>DMA unit workload</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when the NX DMA unit is processing.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the DMA unit is
+      processing.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNIMAccessBy</MachineName>
+    <SourceName>NE_SB_WORKLOAD</SourceName>
+    <StableID>490</StableID>
+    <HumanName>Neural accelerator internal memory accesses</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Internal memory workload</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of bytes accessed in the neural accelerator internal memory.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte accessed in the neural accelerator
+      internal memory.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXTUProcessingCy</MachineName>
+    <SourceName>NE_TU_WORKLOAD</SourceName>
+    <StableID>486</StableID>
+    <HumanName>Neural accelerator transform unit processing cycles</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Transform unit workload</GroupHumanName>
+    <Units>cycles</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of cycles when the NX transform unit is processing.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments every clock cycle when the transform unit is
+      processing.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXCEWorkload</MachineName>
+    <SourceName>NE_CE_WORKLOAD</SourceName>
+    <StableID>485</StableID>
+    <HumanName>Neural accelerator convolution unit workload</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Convolution unit ops</GroupHumanName>
+    <Units>issues</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Novice</Visibility>
+    <ShortDescription>
+      The number of 8-bit MACs processed by the convolution unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every 8-bit MAC processed by the convolution
+      unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXVEWorkload</MachineName>
+    <SourceName>NE_VE_WORKLOAD</SourceName>
+    <StableID>487</StableID>
+    <HumanName>Neural accelerator vector unit workload</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Vector unit ops</GroupHumanName>
+    <Units>issues</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Novice</Visibility>
+    <ShortDescription>
+      The number of arithmetic operations processed by the vector unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every scalar operation processed by the
+      vector unit. A vector operation increments this counter by the vector
+      length of the operation.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMEWorkload</MachineName>
+    <SourceName>NE_ME_WORKLOAD</SourceName>
+    <StableID>543</StableID>
+    <HumanName>Neural accelerator motion unit workload</HumanName>
+    <GroupName>Neural Accelerator Workload</GroupName>
+    <GroupHumanName>Motion unit ops</GroupHumanName>
+    <Units>tasks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of arithmetic operations performed by the motion unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every arithmetic operation performed by the
+      motion unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXIRBlk</MachineName>
+    <SourceName>NE_TSU_IR_BLK</SourceName>
+    <StableID>492</StableID>
+    <HumanName>Neural accelerator input read unit blocks</HumanName>
+    <GroupName>Neural Accelerator Blocks</GroupName>
+    <GroupHumanName>Input read unit blocks</GroupHumanName>
+    <Units>blocks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of blocks processed by the input read unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every block processed by the input read unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXOWBlk</MachineName>
+    <SourceName>NE_TSU_OW_BLK</SourceName>
+    <StableID>491</StableID>
+    <HumanName>Neural accelerator output write unit blocks</HumanName>
+    <GroupName>Neural Accelerator Blocks</GroupName>
+    <GroupHumanName>Output write unit blocks</GroupHumanName>
+    <Units>blocks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of blocks processed by the output write unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every block processed by the output write
+      unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXWFBlk</MachineName>
+    <SourceName>NE_TSU_WF_BLK</SourceName>
+    <StableID>496</StableID>
+    <HumanName>Neural accelerator weight read unit blocks</HumanName>
+    <GroupName>Neural Accelerator Blocks</GroupName>
+    <GroupHumanName>Weight read unit blocks</GroupHumanName>
+    <Units>blocks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of blocks processed by the Weight read unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every block processed by the Weight read
+      unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXTUBlk</MachineName>
+    <SourceName>NE_TSU_TU_BLK</SourceName>
+    <StableID>495</StableID>
+    <HumanName>Neural accelerator transform unit blocks</HumanName>
+    <GroupName>Neural Accelerator Blocks</GroupName>
+    <GroupHumanName>Transform unit blocks</GroupHumanName>
+    <Units>blocks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of blocks processed by the transform unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every block processed by the transform unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXCEBlk</MachineName>
+    <SourceName>NE_TSU_CE_BLK</SourceName>
+    <StableID>493</StableID>
+    <HumanName>Neural accelerator convolution unit blocks</HumanName>
+    <GroupName>Neural Accelerator Blocks</GroupName>
+    <GroupHumanName>Convolution unit blocks</GroupHumanName>
+    <Units>blocks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of blocks processed by the convolution unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every block processed by the convolution
+      unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXVEBlk</MachineName>
+    <SourceName>NE_TSU_VE_BLK</SourceName>
+    <StableID>494</StableID>
+    <HumanName>Neural accelerator vector unit blocks</HumanName>
+    <GroupName>Neural Accelerator Blocks</GroupName>
+    <GroupHumanName>Vector unit blocks</GroupHumanName>
+    <Units>blocks</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced system</Visibility>
+    <ShortDescription>
+      The number of blocks processed by the vector unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every block processed by the vector unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+</CounterInfoList>

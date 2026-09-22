@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -87,14 +87,14 @@ class ArchitectureInfo:
         subnode = et.SubElement(node, 'Name')
         subnode.text = self.name.to_xml()
 
-        subnode = et.SubElement(node, 'LongDescription')
-        subnode.text = xu.to_pretty_xml(self.long_description, True)
-
         if self.gpu_support:
             subnode = et.SubElement(node, 'SupportedGPUs')
             for gpu in self.gpu_support:
                 gpu_node = et.SubElement(subnode, 'GPU')
                 gpu_node.text = gpu
+
+        subnode = et.SubElement(node, 'LongDescription')
+        subnode.text = xu.to_pretty_xml(self.long_description, True)
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, self.__class__):

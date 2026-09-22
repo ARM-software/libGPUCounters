@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -32,6 +32,7 @@
 #include "funcs/unix.hpp"
 
 #include <device/detail/is_empty_class.hpp>
+#include <device/detail/translate_ioctl_error.hpp>
 
 #include <system_error>
 
@@ -137,8 +138,10 @@ class iface {
 
         std::error_code ec;
 
-        if (result < 0)
+        if (result < 0) {
+            HWCPIPE_LOG_ERROR("iface %s: close on fd %d failed, err =  %d", iface_name().c_str(), fd, result);
             ec = errno_error_code();
+        }
 
         return ec;
     }
@@ -188,7 +191,7 @@ class iface {
      * @param[in]     fd      Valid file descriptor.
      * @param[in]     command I/O control command.
      * @param[in,out] args    Command arguments.
-     * @return A pair of std:error_code and `ioctl` return value.
+     * @return A pair of std::error_code and `ioctl` return value.
      */
     template <typename command_t, typename... args_t>
     static std::pair<std::error_code, int> ioctl(int fd, command_t command, args_t &&...args) {
@@ -199,7 +202,7 @@ class iface {
         if (result < 0)
             ec = errno_error_code();
 
-        return std::make_pair(ec, result);
+        return std::make_pair(hwcpipe::device::detail::translate_ioctl_error(ec), result);
     }
 
     /**
@@ -209,7 +212,7 @@ class iface {
      * @param[in] nfds        The number of items in the fds array in nfds.
      * @param[in] timeout     The timeout in milliseconds that poll() should block
      *                        waiting for a file descriptor to become ready.
-     * @return A pair of std:error_code and `poll` return value.
+     * @return A pair of std::error_code and `poll` return value.
      */
     static std::pair<std::error_code, int> poll(struct pollfd *fds, nfds_t nfds, int timeout) {
         const int result = ::poll(fds, nfds, timeout);
@@ -225,6 +228,14 @@ class iface {
   private:
     /** @return std::error_code created out of the errno value. */
     static std::error_code errno_error_code() { return {errno, std::generic_category()}; }
+    /** @return std::string name of the used iface. */
+    static std::string iface_name() {
+        if (std::is_same<syscall_funcs_type, funcs::libmali>::value)
+            return "libmali";
+        else if (std::is_same<syscall_funcs_type, funcs::unix>::value)
+            return "unix";
+        return "unknown iface name";
+    }
 };
 
 } // namespace detail

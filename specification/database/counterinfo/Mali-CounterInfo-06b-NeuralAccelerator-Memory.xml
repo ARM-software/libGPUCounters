@@ -1,0 +1,745 @@
+<?xml version="1.0" ?>
+<!--
+#
+# Copyright (c) 2025-2026 Arm Limited.
+#
+# SPDX-License-Identifier: MIT
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#
+-->
+<CounterInfoList>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwIRSrc0RdBy</MachineName>
+    <SourceName>NE_IR_SRC0_TRANS</SourceName>
+    <SourceAlias>NE_IR_SRC1_READ</SourceAlias>
+    <StableID>501</StableID>
+    <HumanName>Neural accelerator input read unit source 0 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Input read unit src0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the input read unit source 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the input read unit
+      source 0 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwIRDstWrBy</MachineName>
+    <SourceName>NE_IR_DST_TRANS</SourceName>
+    <SourceAlias>NE_IR_DST0_WRITE</SourceAlias>
+    <StableID>502</StableID>
+    <HumanName>Neural accelerator input read unit destination write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Input read unit dst bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the input read unit destination buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the input read unit
+      destination buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwWFDstWrBy</MachineName>
+    <SourceName>NE_WF_SB_WR_TRANS</SourceName>
+    <StableID>511</StableID>
+    <HumanName>Neural accelerator weight read unit destination write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Weight read unit dst bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the Weight read unit destination buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the Weight read unit
+      destination buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwTUSrc0RdBy</MachineName>
+    <SourceName>NE_TU_SB_SRC0_TRANS</SourceName>
+    <SourceAlias>NE_TU_SB_SRC0_READ</SourceAlias>
+    <StableID>505</StableID>
+    <HumanName>Neural accelerator transform unit source 0 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Transform unit src0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the transform unit source 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the transform unit
+      source 0 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwTUDstWrBy</MachineName>
+    <SourceName>NE_TU_SB_DST_TRANS</SourceName>
+    <SourceAlias>NE_TU_SB_DST0_WRITE</SourceAlias>
+    <StableID>506</StableID>
+    <HumanName>Neural accelerator transform unit destination write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Transform unit dst bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the transform unit destination buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the transform unit
+      destination buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwCESrc0RdBy</MachineName>
+    <SourceName>NE_CE_SB_SRC0_TRANS</SourceName>
+    <SourceAlias>NE_CE_SB_SRC0_READ</SourceAlias>
+    <StableID>497</StableID>
+    <HumanName>Neural accelerator convolution unit source 0 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Convolution unit src0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the convolution unit source 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the convolution unit
+      source 0 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwCESrc1RdBy</MachineName>
+    <SourceName>NE_CE_SB_SRC1_TRANS</SourceName>
+    <SourceAlias>NE_CE_SB_SRC1_READ</SourceAlias>
+    <StableID>498</StableID>
+    <HumanName>Neural accelerator convolution unit source 1 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Convolution unit src1 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the convolution unit source 1 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the convolution unit
+      source 1 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwCESrc2RdBy</MachineName>
+    <SourceName>NE_CE_SB_SRC2_TRANS</SourceName>
+    <StableID>499</StableID>
+    <HumanName>Neural accelerator convolution unit source 2 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Convolution unit src2 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the convolution unit source 2 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the convolution unit
+      source 2 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwCEDstWrBy</MachineName>
+    <SourceName>NE_CE_SB_WR_TRANS</SourceName>
+    <StableID>500</StableID>
+    <HumanName>Neural accelerator convolution unit destination write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Convolution unit dst bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the convolution unit destination buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the convolution unit
+      destination buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwVESrc0RdBy</MachineName>
+    <SourceName>NE_VE_SB_SRC0_TRANS</SourceName>
+    <SourceAlias>NE_VE_SB_SRC_READ</SourceAlias>
+    <StableID>507</StableID>
+    <HumanName>Neural accelerator vector unit source 0 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Vector unit src0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the vector unit source 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the vector unit source 0
+      buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwVESrc1RdBy</MachineName>
+    <SourceName>NE_VE_SB_SRC1_TRANS</SourceName>
+    <SourceAlias>NE_VE_SB_DST_READ</SourceAlias>
+    <StableID>508</StableID>
+    <HumanName>Neural accelerator vector unit source 1 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Vector unit src1 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the vector unit source 1 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the vector unit source 1
+      buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwVESrc2RdBy</MachineName>
+    <SourceName>NE_VE_SB_SRC2_TRANS</SourceName>
+    <StableID>509</StableID>
+    <HumanName>Neural accelerator vector unit source 2 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Vector unit src2 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the vector unit source 2 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the vector unit source 2
+      buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwVEDstWrBy</MachineName>
+    <SourceName>NE_VE_SB_DST_TRANS</SourceName>
+    <SourceAlias>NE_VE_SB_DST_WRITE</SourceAlias>
+    <StableID>510</StableID>
+    <HumanName>Neural accelerator vector unit destination write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Vector unit dst bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the vector unit destination buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the vector unit
+      destination buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMESrc0RdBy</MachineName>
+    <SourceName>NE_ME_SB_SRC0_TRANS</SourceName>
+    <SourceAlias>NE_ME_SB_SRC0_READ</SourceAlias>
+    <StableID>537</StableID>
+    <HumanName>Neural accelerator motion unit source 0 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Motion unit src0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the motion unit source 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the motion unit source 0
+      buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMESrc1RdBy</MachineName>
+    <SourceName>NE_ME_SB_SRC1_TRANS</SourceName>
+    <SourceAlias>NE_ME_SB_SRC1_READ</SourceAlias>
+    <StableID>538</StableID>
+    <HumanName>Neural accelerator motion unit source 1 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Motion unit src1 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the motion unit source 1 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the motion unit source 1
+      buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMEDst0RdBy</MachineName>
+    <SourceName>NE_ME_SB_DST0_RD_TRANS</SourceName>
+    <SourceAlias>NE_ME_SB_DST0_READ</SourceAlias>
+    <StableID>539</StableID>
+    <HumanName>Neural accelerator motion unit destination 0 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Motion unit dst0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the motion unit destination 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the motion unit
+      destination 0 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMEDst1RdBy</MachineName>
+    <SourceName>NE_ME_SB_DST1_RD_TRANS</SourceName>
+    <SourceAlias>NE_ME_SB_DST1_READ</SourceAlias>
+    <StableID>540</StableID>
+    <HumanName>Neural accelerator motion unit destination 1 read bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Read Bytes</GroupName>
+    <GroupHumanName>Motion unit dst1 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the motion unit destination 1 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the motion unit
+      destination 1 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMEDst0WrBy</MachineName>
+    <SourceName>NE_ME_SB_DST0_WR_TRANS</SourceName>
+    <SourceAlias>NE_ME_SB_DST0_WRITE</SourceAlias>
+    <StableID>541</StableID>
+    <HumanName>Neural accelerator motion unit destination 0 write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Motion unit dst0 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the motion unit destination 0 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the motion unit
+      destination 0 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwMEDst1WrBy</MachineName>
+    <SourceName>NE_ME_SB_DST1_WR_TRANS</SourceName>
+    <SourceAlias>NE_ME_SB_DST1_WRITE</SourceAlias>
+    <StableID>542</StableID>
+    <HumanName>Neural accelerator motion unit destination 1 write bytes</HumanName>
+    <GroupName>Neural Accelerator Internal Write Bytes</GroupName>
+    <GroupHumanName>Motion unit dst1 bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes written to the motion unit destination 1 buffer.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the motion unit
+      destination 1 buffer.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwIRRdBy</MachineName>
+    <SourceName>NE_IR_RD_BEAT</SourceName>
+    <SourceAlias>NE_IR_DMA_READ</SourceAlias>
+    <StableID>512</StableID>
+    <HumanName>Neural accelerator input read unit read bytes from the L2 memory system</HumanName>
+    <GroupName>Neural Accelerator L2 Read Bytes</GroupName>
+    <GroupHumanName>Input read unit bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Novice</Visibility>
+    <ShortDescription>
+      The number of bytes read from the L2 memory system by the input read
+      unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the L2 memory system by
+      the input read unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwWFRdBy</MachineName>
+    <SourceName>NE_WF_RD_BEAT</SourceName>
+    <StableID>513</StableID>
+    <HumanName>Neural accelerator weight read unit read bytes from the L2 memory system</HumanName>
+    <GroupName>Neural Accelerator L2 Read Bytes</GroupName>
+    <GroupHumanName>Weight read unit bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Novice</Visibility>
+    <ShortDescription>
+      The number of bytes read from the L2 memory system by the Weight read
+      unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the L2 memory system by
+      the Weight read unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwOWWrBy</MachineName>
+    <SourceName>NE_OW_WR_BEAT</SourceName>
+    <SourceAlias>NE_OW_DMA_WRITE</SourceAlias>
+    <StableID>514</StableID>
+    <HumanName>Neural accelerator output write unit write bytes to L2 memory system</HumanName>
+    <GroupName>Neural Accelerator L2 Write Bytes</GroupName>
+    <GroupHumanName>Output write unit bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Novice</Visibility>
+    <ShortDescription>
+      The number of bytes written to the L2 memory system by the output write
+      unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte written to the L2 memory system by
+      the output write unit.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwLLBy</MachineName>
+    <SourceName>NE_IR_WF_PORT0_BEAT</SourceName>
+    <StableID>515</StableID>
+    <HumanName>Neural accelerator port 0 read bytes from the L2 memory system</HumanName>
+    <GroupName>Neural Accelerator L2 Read Bytes</GroupName>
+    <GroupHumanName>Port 0 read bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the L2 memory system using read port 0.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the L2 memory system
+      using read port 0.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwHLBy</MachineName>
+    <SourceName>NE_IR_WF_PORT1_BEAT</SourceName>
+    <StableID>516</StableID>
+    <HumanName>Neural accelerator port 1 read bytes from the L2 memory system</HumanName>
+    <GroupName>Neural Accelerator L2 Read Bytes</GroupName>
+    <GroupHumanName>Port 1 read bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Advanced application</Visibility>
+    <ShortDescription>
+      The number of bytes read from the L2 memory system using read port 1.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the L2 memory system
+      using read port 1.
+    </LongDescription>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+  <!-- ==================================================================== -->
+  <CounterInfo>
+    <MachineName>MaliNXBwTotalRdBy</MachineName>
+    <StableID>567</StableID>
+    <HumanName>Neural accelerator read bytes from the L2 memory system</HumanName>
+    <GroupName>Neural Accelerator L2 Read Bytes</GroupName>
+    <GroupHumanName>Neural accelerator bytes</GroupHumanName>
+    <Units>bytes</Units>
+    <Trend>Lower better</Trend>
+    <Visibility>Novice</Visibility>
+    <ShortDescription>
+      The number of bytes read from the L2 memory system by any neural
+      accelerator unit.
+    </ShortDescription>
+    <LongDescription>
+      This counter increments for every byte read from the L2 memory system by
+      any neural accelerator unit.
+    </LongDescription>
+    <Equation>
+      MaliNXBwIRRdBy + MaliNXBwWFRdBy
+    </Equation>
+    <SupportedGPUs>
+      <GPU>Mali G1</GPU>
+      <GPU>Mali G2</GPU>
+    </SupportedGPUs>
+    <Perfetto>
+      <Groups>
+        <GroupName>Unclassified</GroupName>
+      </Groups>
+    </Perfetto>
+  </CounterInfo>
+</CounterInfoList>

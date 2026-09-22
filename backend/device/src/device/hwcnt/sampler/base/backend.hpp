@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -28,6 +28,7 @@
 
 #include "backend_args.hpp"
 
+#include <device/error.hpp>
 #include <device/hwcnt/reader.hpp>
 #include <device/hwcnt/sampler/detail/backend.hpp>
 
@@ -57,7 +58,14 @@ class backend : public detail::backend, public reader, private syscall_iface_t {
         , reader(args.fd.release(), args.features_v, args.extents)
         , syscall_iface_t(syscall_iface)
         , period_ns_(args.period_ns)
-        , memory_(std::move(args.memory)) {}
+        , memory_(std::move(args.memory)) {
+        if (period_ns_) {
+            HWCPIPE_LOG_INFO("Periodic backend created with period %" PRIu64, period_ns_);
+            return;
+        }
+
+        HWCPIPE_LOG_INFO("Manual backend created");
+    }
 
     ~backend() override { get_syscall_iface().close(fd_); }
 

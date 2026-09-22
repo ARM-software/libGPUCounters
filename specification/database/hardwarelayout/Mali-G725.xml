@@ -29,6 +29,7 @@
     <Counter name="GPU_ACTIVE" index="4"/>
     <Counter name="MCU_ACTIVE" index="5"/>
     <Counter name="GPU_ITER_ACTIVE" index="6"/>
+    <Counter name="MMU_FLUSH_COUNT" index="7"/>
     <Counter name="GPU_IRQ_ACTIVE" index="10"/>
     <Counter name="GPU_IRQ_COUNT" index="11"/>
     <Counter name="CACHE_FLUSH_CYCLES" index="12"/>
@@ -229,6 +230,8 @@
     <Counter name="PRIM_FRUSTUM_CULLED" index="13"/>
     <Counter name="PRIM_SAMPLE_CULLED" index="14"/>
     <Counter name="BUS_READ" index="17"/>
+    <Counter name="BUS_WRITE_UTLB0" index="18"/>
+    <Counter name="BUS_WRITE_UTLB1" index="19"/>
     <Counter name="POS_SHADER_WARPS" index="21"/>
     <Counter name="POS_SHADER_PARTIAL_WARPS" index="22"/>
     <Counter name="POS_SHADER_STALL" index="23"/>

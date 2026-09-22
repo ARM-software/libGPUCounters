@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -30,8 +30,8 @@
 
 #include "commands.hpp"
 
-#include <debug/ostream_indent.hpp>
-#include <debug/print_array.hpp>
+#include <device/logging/ostream_indent.hpp>
+#include <device/logging/print_array.hpp>
 
 #include <cassert>
 #include <ostream>
@@ -84,7 +84,6 @@ inline std::ostream &operator<<(std::ostream &os, get_gpuprops::gpuprop_size val
         return os << "uint64";
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
@@ -258,7 +257,6 @@ inline std::ostream &operator<<(std::ostream &os, get_gpuprops::gpuprop_code val
         return os << "raw_gpu_features";
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
@@ -304,7 +302,7 @@ inline std::ostream &operator<<(std::ostream &os, const hwcnt_reader_setup &valu
               << debug::indent << ".buffer_count = " << value.buffer_count << ",\n" //
               << debug::indent << ".fe_bm = " << value.fe_bm << ",\n" //
               << debug::indent << ".shader_bm = " << value.shader_bm << ",\n" //
-              << debug::indent << ".tiler_bm = " << value.tiler_bm << ",\n" //
+              << debug::indent << ".geometry_bm = " << value.geometry_bm << ",\n" //
               << debug::indent << ".mmu_l2_bm = " << value.mmu_l2_bm << ",\n" //
               << debug::indent_level::pop //
               << debug::indent << "}"; //

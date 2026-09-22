@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -117,6 +117,23 @@ def get_copyright_from_yaml_str(document: str) -> str:
     return '\n'.join(copyright_msg)
 
 
+def read_node_str(element: et.Element[str]) -> str:
+    '''
+    Helper to get a known-to-exist string from an XML node.
+
+    This utility exists with asserts to keep mypy type checking happy.
+
+    Args:
+        element: The XML node to read.
+
+    Return:
+        The string value.
+    '''
+    result = element.text
+    assert result is not None
+    return result
+
+
 def get_node_str(root: et.Element[str], tag: str) -> str:
     '''
     Helper to get a known-to-exist string from a known-to-exist XML node.
@@ -211,22 +228,13 @@ def _to_pretty_xml__form_blocks(data: str, indent: int,
     for para in paras:
         is_list = para.startswith('*')
 
-        # List wrapping aligns on the first character after the bullet
-        if is_list:
-            lines = textwrap.wrap(para,
-                                  break_on_hyphens=False,
-                                  width=width - indent - 2)
+        # List wrapped lines align on the first character after the bullet
+        lines = textwrap.wrap(para,
+                                break_on_hyphens=False,
+                                subsequent_indent='  ' if is_list else '',
+                                width=width - indent)
 
-            new_text = '\n  '.join(lines)
-
-        # Else wrap at the start of the indent block.
-        else:
-            lines = textwrap.wrap(para,
-                                  break_on_hyphens=False,
-                                  width=width - indent)
-
-            new_text = '\n'.join(lines)
-
+        new_text = '\n'.join(lines)
         new_paras.append(textwrap.indent(new_text, ' ' * indent))
 
     return new_paras

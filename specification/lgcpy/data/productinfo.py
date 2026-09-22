@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2025 Arm Limited.
+# Copyright (c) 2019-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -104,9 +104,10 @@ class ProductArchitecture(enum.Enum):
     '''
     Product architecture.
     '''
-    BIFROST = 1
-    VALHALL = 2
-    FIFTH_GENERATION = 3
+    MIDGARD = 1
+    BIFROST = 2
+    VALHALL = 3
+    FIFTH_GENERATION = 4
 
     @classmethod
     def from_xml(cls, value: str) -> ProductArchitecture:
@@ -119,6 +120,9 @@ class ProductArchitecture(enum.Enum):
         Returns:
             The enum value.
         '''
+        if value == 'Midgard':
+            return cls.MIDGARD
+
         if value == 'Bifrost':
             return cls.BIFROST
 
@@ -140,6 +144,9 @@ class ProductArchitecture(enum.Enum):
         Returns:
             The XML string value.
         '''
+        if self == self.MIDGARD:
+            return 'Midgard'
+
         if self == self.BIFROST:
             return 'Bifrost'
 
@@ -457,7 +464,7 @@ class ProductInfos():
 
         raise KeyError(f'Unknown GPU product {name}')
 
-    def get_gpu_documentation_primary(self, name: str) -> ProductInfo:
+    def get_gpu_documentation_primary(self, name: str) -> Optional[ProductInfo]:
         '''
         Return the product info that is the documentation primary for a
         product. This may be a different product info than get_gpu() returns
@@ -469,10 +476,8 @@ class ProductInfos():
             name: Name of the product to find.
 
         Returns:
-            The product info.
-
-        Raises:
-            KeyError is not found.
+            The product info of the primary documentation source, or None if no
+            documentation is supported for this product.
         '''
         # Get the root product and return that if it is a primary source
         product = self.get_gpu(name)
@@ -488,7 +493,8 @@ class ProductInfos():
             if indirect_product.get_document_name():
                 return indirect_product
 
-        raise KeyError(f'Unknown GPU product documentation primary {name}')
+        # No documentation supported for this product
+        return None
 
     def get_aliases_for(self, gpu: str) -> list[str]:
         '''
@@ -511,7 +517,9 @@ class ProductInfos():
 
         names = []
         for product in key_matches:
-            names.extend(product.names)
+            for name in product.names:
+                if name not in names:
+                    names.append(name)
 
         return names
 
@@ -610,9 +618,8 @@ class ProductInfos():
                 continue
 
             doc_source = infos.get_gpu_documentation_primary(info.names[0])
-            assert doc_source
-
-            info.document_name_indirect = doc_source.document_name
+            if doc_source:
+                info.document_name_indirect = doc_source.document_name
 
         return infos
 

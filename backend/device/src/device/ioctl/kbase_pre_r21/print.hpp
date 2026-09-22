@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -30,8 +30,8 @@
 
 #include "commands.hpp"
 
-#include <debug/ostream_indent.hpp>
-#include <debug/print_array.hpp>
+#include <device/logging/ostream_indent.hpp>
+#include <device/logging/print_array.hpp>
 
 #include <cassert>
 #include <ostream>
@@ -76,7 +76,6 @@ inline std::ostream &operator<<(std::ostream &os, header_id value) {
         return os << "set_flags";
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 

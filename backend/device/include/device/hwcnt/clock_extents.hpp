@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Arm Limited.
+ * Copyright (c) 2024-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -37,6 +37,7 @@
 #include <cstddef>
 #include <iterator>
 #include <map>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -49,74 +50,104 @@ namespace hwcnt {
  *
  * Stores information about clock numbers and clock names
  */
+enum class clock_type {
+    gpu_cycle = 0,
+    cg_cycle = 1,
+    sc_cycle = 2,
+    ne_cycle = 3,
+    num_clock_types = 4,
+};
+
 class clock_extents {
   public:
-    /** Number of clock types. GPU Cycle Clock and SC Cycle Clock */
-    static const constexpr size_t num_clock_types = 2;
-
-    using num_clock_types_strings_type = std::array<const char *, num_clock_types>;
-
     /**
      * Construct clock extents.
      *
      * @param[in] has_gpu_cycle  does GPU support GPU clock
-     * @param[in] has_sc_cycle  does GPU support SC clock
+     * @param[in] has_cg_cycle  does GPU support Core Group clock (MMU, L2 cache, Tile, etc.)
+     * @param[in] has_sc_cycle  does GPU support Shader Core clock
+     * @param[in] has_ne_cycle  does GPU support NE clock
      */
-    clock_extents(bool has_gpu_cycle, bool has_sc_cycle) {
-        was_set = true;
-        has_gpu_cycle_ = false;
-        has_sc_cycle_ = false;
-
-        if (has_gpu_cycle) {
-            has_gpu_cycle_ = true;
-        }
-        if (has_sc_cycle) {
-            has_sc_cycle_ = true;
-        }
-    }
+    clock_extents(bool has_gpu_cycle, bool has_cg_cycle, bool has_sc_cycle, bool has_ne_cycle)
+        : clocks_{has_gpu_cycle, has_cg_cycle, has_sc_cycle, has_ne_cycle}
+        , was_set(true) {}
 
     /** Default ctor. */
     clock_extents()
-        : has_gpu_cycle_(false)
-        , has_sc_cycle_(false)
-        , was_set(false){};
+        : clocks_{}
+        , was_set(false) {}
+
     /** Default copy ctor. */
     clock_extents(const clock_extents &) = default;
     /** Default assign. */
     clock_extents &operator=(const clock_extents &) = default;
 
     /** @return number of clocks. */
-    uint16_t num_of_enabled_clocks() const { return static_cast<uint16_t>(has_gpu_cycle_ + has_sc_cycle_); }
+    uint16_t num_of_enabled_clocks() const {
+        return static_cast<uint16_t>(static_cast<uint16_t>(clocks_[0]) + static_cast<uint16_t>(clocks_[1]) +
+                                     static_cast<uint16_t>(clocks_[2]) + static_cast<uint16_t>(clocks_[3]));
+    }
+
+    /** @return is clock enabled. */
+    bool has_clock(clock_type type) const { return clocks_[static_cast<size_t>(type)]; }
 
     /** @return is GPU cycle clock enabled. */
-    bool has_gpu_cycle() const { return has_gpu_cycle_; }
+    bool has_gpu_cycle() const { return clocks_[static_cast<size_t>(clock_type::gpu_cycle)]; }
+
+    /** @return is Core Group cycle clock enabled. */
+    bool has_cg_cycle() const { return clocks_[static_cast<size_t>(clock_type::cg_cycle)]; }
 
     /** @return is Shader cycle clock enabled. */
-    bool has_sc_cycle() const { return has_sc_cycle_; }
+    bool has_sc_cycle() const { return clocks_[static_cast<size_t>(clock_type::sc_cycle)]; }
+
+    /** @return is Neural accelerator cycle clock enabled. */
+    bool has_ne_cycle() const { return clocks_[static_cast<size_t>(clock_type::ne_cycle)]; }
 
     bool was_clock_extent_set() const { return was_set; }
 
     /** @return clock names in domain order */
     const std::vector<const char *> get_active_clock_strings() const {
         std::vector<const char *> ret;
-        if (has_gpu_cycle_)
-            ret.push_back(clock_types_strings[gpu_cycle_idx]);
-        if (has_sc_cycle_)
-            ret.push_back(clock_types_strings[sc_cycle_idx]);
+        for (size_t i = 0; i < static_cast<size_t>(clock_type::num_clock_types); ++i) {
+            if (clocks_[i])
+                ret.push_back(get_clock_type_string(i));
+        }
         return ret;
-    };
+    }
+
+    /** @return string representation of clock extents. */
+    explicit operator std::string() const {
+        std::string result = "Clocks=" + std::to_string(num_of_enabled_clocks());
+        if (num_of_enabled_clocks() > 0)
+            result += ":";
+        for (size_t i = 0; i < static_cast<size_t>(clock_type::num_clock_types); ++i) {
+            if (clocks_[i])
+                result += " '" + std::string(get_clock_type_string(i)) + "'";
+        }
+        return result;
+    }
 
   private:
-    bool has_gpu_cycle_;
-    bool has_sc_cycle_;
-    bool was_set;
-    static constexpr size_t gpu_cycle_idx = 0;
-    static constexpr size_t sc_cycle_idx = 1;
+    static const char *get_clock_type_string(size_t index) {
+        switch (static_cast<clock_type>(index)) {
+        case clock_type::gpu_cycle:
+            return "Top cycle";
+        case clock_type::cg_cycle:
+            return "Core group";
+        case clock_type::sc_cycle:
+            return "Shader cores";
+        case clock_type::ne_cycle:
+            return "Neural accelerator";
+        case clock_type::num_clock_types:
+        default:
+            return "Unknown";
+        }
 
-    static const constexpr num_clock_types_strings_type clock_types_strings = {
-        "Top cycle",
-        "Shader cores",
-    };
+        __builtin_unreachable();
+    }
+
+    std::array<bool, static_cast<size_t>(clock_type::num_clock_types)> clocks_;
+    bool was_set;
 };
 
 } // namespace hwcnt

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -28,16 +28,35 @@ These tests aim to sense check the implementation of the Python code, and
 do not check the validity of the data in the counter info database.
 '''
 
-import sys
 import unittest
 
-from .counterinfo import CounterInfos
+from .counterinfo import PerfettoGroup, CounterInfos
 
 
 class CounterInfoTestSuite(unittest.TestCase):
     '''
     Unit tests for the counterinfo module.
     '''
+
+    def test_perfetto_group_enum(self):
+        '''
+        Test the HardwareBlockType enum helper.
+        '''
+        valid_xml_strings = [
+            'Unclassified',
+            'System',
+            'Vertices',
+            'Fragments',
+            'Primitives',
+            'Memory',
+            'Compute',
+            'Ray tracing'
+        ]
+
+        for xml_string in valid_xml_strings:
+            enum = PerfettoGroup.from_xml(xml_string)
+            encoded_enum = enum.to_xml()
+            self.assertEqual(xml_string, encoded_enum)
 
     def test_smoke(self):
         '''
@@ -55,16 +74,5 @@ class CounterInfoTestSuite(unittest.TestCase):
         self.assertEqual(deserialized_original, deserialized)
 
 
-def main() -> int:
-    '''
-    The main function.
-
-    Returns:
-        Process return code.
-    '''
-    results = unittest.main(exit=False)
-    return 0 if results.result.wasSuccessful() else 1
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    unittest.main()

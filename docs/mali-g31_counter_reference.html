@@ -73,138 +73,232 @@
       <div class="lgc-contentpanel">
         <div class="lgc-section">
 <h2 id="s_introduction">Introduction</h2>
-<p>Arm GPUs provide a wide range of performance counters. You can use them to
-understand your application's performance characteristics, and to find
-behavioral inefficiencies to optimize. This guide explains the performance
-counters for the Mali-G31, which is a member of the Bifrost architecture
-family.</p>
-<p>This introduction section will explain the high level goals to consider when
-profiling this GPU. Later sections will explain the available counters for each
-part of the GPU design.</p>
-<h3>Profiling GPU scheduling</h3>
-<p>The GPU runs workloads that have been submitted by the graphics driver, using
-scheduling barriers between workloads to ensure they run in the correct order.
-Workloads are scheduled to run by adding them to the appropriate hardware
-queue, which will run enqueued workloads in a pipelined FIFO processing order.</p>
-<p><img alt="Bifrost top-level" src="./images/bifrost-top-level.svg" /></p>
-<h4>Tile-based rendering</h4>
-<p>Arm GPUs are tile-based GPUs, meaning that they process graphics render passes
-in two distinct phases. The first phase processes geometry to determine which
-primitives contribute to which screen-space tiles. The second phase renders the
-output framebuffer tile-by-tile.</p>
-<p>In this design, tiles are small enough to be kept in on-chip tile memory, which
-makes fragment processing more efficient. However, in this generation of GPUs
-vertex shaders are processed in their entirety in the first phase with their
-outputs written back to main memory, and then re-read during the second phase.
-This makes geometry processing less efficient.</p>
-<h4>GPU queues</h4>
-<p>The GPU front-end in this generation of hardware has two hardware queues:</p>
+<p>Arm GPUs provide you with a wide range of performance counters that can be used
+to understand your application's performance characteristics and to identify
+optimization opportunities. This guide documents the counters available for
+Mali-G31 in the Bifrost architecture family.</p>
+<p>To use these counters effectively, you need a basic mental model of how
+workloads move through the GPU. This guide starts by summarizing the Bifrost
+execution model, then introduces the major hardware blocks that expose
+counters. Finally, it describes a profiling workflow for using those counters
+to distinguish scheduling limits, oversized workloads, and execution
+inefficiencies. You can use this approach to choose the right counters for an
+initial performance triage before investigating specific bottlenecks in more
+detail.</p>
+<h3>GPU workload execution</h3>
+<p>Arm Bifrost GPUs process jobs submitted by the application. The driver running
+on the host CPU interprets the command streams recorded by the application,
+creating render state and job descriptors to be submitted to the hardware. When
+a workload needs to be processed, the kernel driver adds a job to a hardware
+queue. The hardware queue breaks up the job into smaller tasks and distributes
+them to the correct type of processing endpoint inside the GPU.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/dark/bifrost/submission-simple.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./images/light/bifrost/submission-simple.svg">
+  <img src="./images/light/bifrost/submission-simple.svg" alt="Simplified Bifrost GPU work
+submission">
+</picture>
+<p>Schedulable workloads that can be queued on the Job Manager correspond to the
+application workloads visible in the high-level API. They are:</p>
 <ul>
-<li>Non-fragment queue</li>
-<li>Fragment queue</li>
+<li>Render passes</li>
+<li>Compute dispatches</li>
+<li>Transfers</li>
 </ul>
-<p>The Non-fragment queue is used for all compute-like workloads, including vertex
-shading and buffer transfers. The Fragment queue is used for all fragment-like
-workloads, including fragment shading and most image transfers.</p>
-<p>Monitoring your application's queue usage is the first stage of profiling an
-Arm GPU, as the queue costs give the overall processing cost of each type of
-workload. In addition you can see if your application is using barriers
-efficiently, allowing the queues to run their workloads in parallel.</p>
-<h3>Profiling GPU memory bandwidth</h3>
-<p>GPUs are data-plane processors, so memory access efficiency is an important
-factor for overall performance.</p>
-<p><img alt="Bifrost memory system" src="./images/bifrost-memory-system.svg" /></p>
-<p>Memory system performance outside of the GPU cannot be directly observed via
-GPU performance counters, but the counters can show the performance observed by
-the GPU on its memory interface.</p>
-<h4>Reducing bandwidth</h4>
-<p>Accessing external DRAM is a very energy-intensive operation, which makes
-reducing external bandwidth an important optimization goal for mobile devices.
-Sustained high bandwidth can cause poor performance in main-stream devices, and
-thermal issues in high-end devices.</p>
-<p>Shader core performance counters can give you more breakdown about which
-functional units are generating memory traffic, guiding your optimization
-efforts.</p>
-<h4>Reducing stalls</h4>
-<p>The memory system outside of the GPU is implemented by the chip manufacturer,
-and designs can vary and have different performance characteristics. Workloads
-that generate a significant number of memory stall cycles, or that see a large
-percentage of high latency reads, might be stressing the external memory system
-beyond its capabilities. Reducing memory bandwidth often gives measurable
-performance gains in these scenarios.</p>
-<h3>Profiling shader core usage</h3>
-<p>If the GPU queues are scheduling well, the next thing that you will need to
-profile to determine the processing bottleneck of a workload is your
-application's use of the shader core.</p>
-<p>The Mali-G31 shader cores use a massively multi-threaded architecture,
-supporting hundreds of concurrently running threads. A large pool of available
-threads allows the hardware to fill parallel functional units by switching to
-any of the available threads if the current thread becomes blocked for any
-reason.</p>
-<p><img alt="Bifrost shader core" src="./images/bifrost-execution-core.svg" /></p>
-<p>In this type of architecture, the utilization of the functional units reflects
-the overall demand of the running shader programs. This is relatively
-independent of localized hot-spots in shaders that stress a single functional
-unit, because other threads will be running other parts of the program and will
-load-balance the hardware. This is quite different to profiling a CPU, where
-the serial instruction stream means that performance can be very sensitive to
-both latency and localized hot-spots.</p>
-<h3>Improve speed-of-light utilization</h3>
-<p>For functional unit profiling, we therefore aim for at least 75% utilization of
-the most heavily used functional unit, relative to its best case
-'speed-of-light' performance. This shows that the application has done a good
-job getting its workload running without problematic stalls.</p>
-<p>In this situation, reducing demand on the most heavily used functional units,
-either by improving efficiency or reducing size, should improve application
-performance.</p>
-<h4>Reduce shader core stalls</h4>
-<p>If no functional unit is heavily utilized, the shader core is running out of
-work to do. This can occur for multiple reasons, and should be avoided if
-possible.</p>
-<p>The first reason is that the shader is literally running out of threads to run,
-and the shader core is running with low thread occupancy. GPUs rely on
-workloads having a lot of threads to fill the capacity of the shader core. You
-should avoid running small workloads with few threads on the GPU, preferring to
-use the CPU if possible. Note that some workloads, such as depth shadow maps,
-may not generate many fragment threads due to their algorithmic design. This is
-usually unavoidable, but is something to remember when profiling.</p>
-<p>The second reason is that the running shader programs are causing operations to
-stall by missing in descriptor caches or data caches. GPUs use their thread
-count to hide the impact and latency of cache misses, but there are limits to
-the density of misses that can be hidden. In this situation, try to identify
-which workload is causing stalls and try to minimize them. There are not
-specific performance counters for every stall reason, so this can take some
-investigation and experimentation to determine which resource is causing the
-problem.</p>
-<h3>Profiling workload</h3>
-<p>In addition to profiling use of the hardware, measuring cycles and bytes, Arm
-GPUs provide many performance counters that can help you to understand the size
-and characteristics of your workload. These counters gives feedback in the
-context of API constructs, such as vertices, triangles, and pixels making it
-easier for developers to understand the feedback.</p>
-<p><img alt="Bifrost shader core" src="./images/bifrost-shader-core.svg" /></p>
-<p>Supplementing the workload size counters, Arm GPUs also provide counters that
-indicate areas where content is not following best practice guidelines.
-Improving these best practice metrics will nearly always improve your
-application's performance or energy efficiency.</p>
+<h4>Render passes and tile-based rendering</h4>
+<p>Render passes are a special type of workload because Arm GPUs are tile-based
+GPUs. Tile-based GPUs optimize fragment shading efficiency by splitting the
+output framebuffer into small tiles and rendering the output image
+tile-by-tile. Individual tiles are small enough to allow the GPU framebuffer
+working set to be kept in on-chip RAM, avoiding unnecessary memory bandwidth
+from framebuffer read-modify-write operations.</p>
+<p>To support this approach, a render pass must be processed in two phases. The
+first phase determines which primitives contribute to which screen-space tiles.
+The second phase processes the render pass tile-by-tile and writes the final
+framebuffer state for each tile back to memory. A single render pass workload
+in the API therefore corresponds to two hardware workloads that must be
+scheduled.</p>
+<p>Arm Bifrost GPUs perform all geometry processing during the first phase of a
+render pass, which we call the Vertex phase. The outputs of the Vertex phase
+are written back to memory for exchange to the second phase, which we call the
+Fragment phase.</p>
+<p>For most draw calls the shader compiler will split the user vertex shader into
+two pieces. The first computes only the transformed position, and is called the
+position shader. The second computes all remaining vertex attributes, and is
+called the varying shader.</p>
+<p>The position shader runs for all input vertices referenced by a primitive. The
+varying shader runs for only the vertices that contribute to a primitive that
+is not culled. Only the vertex shader outputs for visible primitives are
+written back to memory for handover to the Fragment phase.</p>
+<p>Techniques that cannot use this optimization are treated as advanced geometry;
+these fully process geometry during the Vertex phase and write all outputs back
+to main memory. Draw calls using the advanced geometry path are significantly
+less efficient, so avoid them if possible. The advanced geometry path is used
+for:</p>
+<ul>
+<li>Vertex shaders using transform feedback</li>
+<li>Tessellation shaders</li>
+<li>Geometry shaders</li>
+</ul>
+<h4>Parallel hardware queues</h4>
+<p>The GPU supports multiple hardware queues, which allows multiple workload jobs
+to be submitted and processed in parallel.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/dark/bifrost/submission-detailed.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./images/light/bifrost/submission-detailed.svg">
+  <img src="./images/light/bifrost/submission-detailed.svg" alt="Detailed Bifrost GPU work
+submission">
+</picture>
+<p>There are two hardware queues, which can each accept a specific set of workload
+types.</p>
+<ul>
+<li><strong>Non-fragment queue:</strong> Dispatches vertex shading, advanced geometry shading,
+  compute dispatches, and transfers that write to a buffer.</li>
+<li><strong>Fragment queue:</strong> Dispatches fragment workloads for render passes and most
+  transfer workloads that write to an image.</li>
+</ul>
+<h3>Major functional blocks</h3>
+<p>The GPU consists of multiple hardware blocks, each of which can provide
+performance counters to show how it is being used.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/dark/bifrost/blocks-and-clocks.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./images/light/bifrost/blocks-and-clocks.svg">
+  <img src="./images/light/bifrost/blocks-and-clocks.svg" alt="Bifrost GPU top-level">
+</picture>
+<p>The blocks are:</p>
+<ul>
+<li><strong>Job Manager Front-end:</strong> The interface between the driver and the GPU
+  hardware, responsible for scheduling work onto the hardware queues.</li>
+<li><strong>L2 Cache:</strong> A unified cache for the GPU, implemented as multiple physical
+  slices to allow bandwidth to scale with GPU performance.</li>
+<li><strong>Memory Management Unit (MMU):</strong> A hardware unit that performs
+  virtual-to-physical address translation.</li>
+<li><strong>Tiler:</strong> A fixed-function unit used by the binning phase. It coordinates
+  vertex shading, performs primitive culling, and bins primitives into tile
+  lists.</li>
+<li><strong>Shader Cores:</strong> The programmable units that run user shader programs. Each
+  shader core includes a fixed-function wrapper in addition to the programmable
+  core. For example, the fixed-function Fragment front-end converts a tile list
+  into shader threads for execution.</li>
+</ul>
+<p>Many GPU counters measure the number of cycles spent doing something. This GPU
+generation supports a single clock domain. The supported clock frequencies are
+hardware vendor design choices and vary across devices.</p>
+<h3>Profiling a GPU</h3>
+<p>There are three broad reasons why an application using a GPU could be running
+slowly:</p>
+<ul>
+<li>Hardware not fully utilized</li>
+<li>Workload is too big</li>
+<li>Workload is inefficient</li>
+</ul>
+<h4>Hardware is not fully utilized</h4>
+<p>The first class of problem is one of scheduling. The workloads that make up a
+frame may be individually perfectly efficient, but some form of scheduling
+restriction means that the hardware queues are either completely idle or being
+used serially. Available hardware performance potential is unused.</p>
+<p>The solution to this type of problem is to find the cause of the CPU bottleneck
+or command stream serialization, and then refactor to avoid it.</p>
+<p>Hardware queue active performance counters show how many cycles the GPU is
+running work of a specific type. Spotting idle time (no queue active) and
+serialization (only one queue active) is the first tool used to detect
+scheduling problems.</p>
+<h4>Workload is too big</h4>
+<p>The second class of problem is one of scale. The workload may be perfectly
+efficient, allowing the hardware to run at full throughput, but too large to
+reach the desired performance.</p>
+<p>The solution to this class of problem is to reduce the size or complexity of
+the workload. This can be achieved by:</p>
+<ul>
+<li>Reducing the number of workload elements that need processing, for example by
+  reducing model vertex count or render pass resolution.</li>
+<li>Reducing the complexity of individual workload elements, for example by
+  optimizing the existing implementation or changing to a smarter algorithm.</li>
+</ul>
+<p>Hardware queue active performance counters show which types of workload are
+taking the most time, and individual hardware unit utilization counters help
+diagnose which specific aspect of the workload is the most expensive part.</p>
+<h4>Workload is inefficient</h4>
+<p>The final class of problem is one of execution inefficiency. The workload has
+been scheduled on the hardware, but it is not making the best use of the
+available resources.</p>
+<p>Inefficiencies could be causing additional processing or memory bandwidth, or
+could be causing stalls during processing.</p>
+<p>Hardware counters that count interesting events inside the functional units can
+indicate specific inefficiencies encountered when running a workload.</p>
+<h3>Profiling GPU scheduling</h3>
+<p>The first profiling task to perform is a performance triage to identify the
+class of problem that your application is hitting. Measuring the overall GPU
+active cycle count and the individual hardware queue utilization will show you
+how busy the GPU is and the queue scheduling behavior.</p>
+<h3>Profiling a GPU memory system</h3>
+<p>GPUs are data-plane processors, so optimizing memory access is an important
+goal for overall efficiency. The GPU L2 cache is implemented as a number of
+parallel slices, each of which has internal and external memory access ports.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/dark/bifrost/memory-system.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./images/light/bifrost/memory-system.svg">
+  <img src="./images/light/bifrost/memory-system.svg" alt="Bifrost GPU memory system">
+</picture>
+<p>Performance counters on the GPU memory interface measure the memory bandwidth
+generated by the GPU and the bus stalls and read latency observed by the GPU.
+These counters can be used to determine if the external memory system can
+provide the memory bandwidth requested by the GPU.</p>
+<p>The GPU performance counters can only measure the memory system behavior at the
+GPU boundary. The counters provide no visibility into the downstream memory
+system, such as the behavior of a system cache or the off-chip DRAM bandwidth.</p>
+<h3>Profiling a GPU shader core</h3>
+<p>A shader core consists of a programmable core, wrapped by fixed-function
+hardware units that create warps for execution and write complete framebuffer
+tiles back to main memory.</p>
+<p>The Fragment front-end performs many fixed-function operations to turn a tile
+list into the warps that run in the programmable core. If the programmable core
+is not being fully utilized during fragment shading, the counters for the
+Fragment front-end can often give clues about what is stalling.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/dark/bifrost/shader-core.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./images/light/bifrost/shader-core.svg">
+  <img src="./images/light/bifrost/shader-core.svg" alt="Bifrost GPU shader core">
+</picture>
+<p>The programmable core is a massively multi-threaded core that can contain up to
+512 concurrently running threads, grouped into 4-wide warps. Many warps can be
+stalled on a data cache miss without loss in performance. As long as there are
+enough live warps that are not stalled, the core can be kept busy.</p>
+<p>Instructions from all of the warps can be running in the various units at the
+same time. The demand on the processing units reflects the statistical
+distribution of work across all of the running shader programs. The most
+heavily utilized unit is likely the one determining the overall performance,
+and that unit should be the target for optimizations.</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/dark/bifrost/programmable-core.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./images/light/bifrost/programmable-core.svg">
+  <img src="./images/light/bifrost/programmable-core.svg" alt="Bifrost GPU programmable core">
+</picture>
+<p>In addition to the functional unit usage cycle counters, the shader core
+counters include extensive coverage of other behaviors that could be a source
+of lost performance. For example, the counters can indicate whether a high
+percentage of rasterized fragment quads are only partially covered, or whether
+arithmetic instructions are being executed in divergent control flow. This
+allows you to target optimizations at specific areas that are having a
+measurable impact on your application's performance.</p>
 </div>
 <div class="lgc-section">
 <h2 id="s_gpufrontend">GPU Front-end <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
 <p>The GPU front-end is the interface between the GPU hardware and the driver. The
-front-end schedules workloads submitted by the driver on to multiple hardware
+front-end schedules workloads submitted by the driver onto multiple hardware
 work queues. Each work queue handles a specific type of workload and is
 responsible for breaking a workload into smaller tasks that can be dispatched
 to the shader cores. Work stays at the head of the queue while being processed,
 so queue activity is a direct way of measuring that the GPU is busy handling a
 workload.</p>
-<p>In this generation of hardware there are two work queues:</p>
+<p>In this generation of hardware, there are two work queues:</p>
 <ul>
-<li>Non-fragment queue for compute shaders, vertex shaders, and primitive
-  culling and binning.</li>
+<li>Non-fragment queue for compute shaders, vertex shaders, and primitive culling
+  and binning.</li>
 <li>Fragment queue for render pass fragment shading.</li>
 </ul>
 <p>It is beneficial to schedule work on multiple queues in parallel, as this can
-more evenly load balance the hardware. Parallel processing will increase the
+balance the hardware load more evenly. Parallel processing increases the
 latency of individual tasks, but usually significantly improves overall
 throughput.</p>
 <p>Performance counters in this section can show activity on each of the queues,
@@ -212,7 +306,7 @@ which indicates the complexity and scheduling patterns of submitted workloads.</
 <div class="lgc-group">
 <h3 id="g_gpucycles">GPU Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the workload processing activity level of the GPU,
-showing the overall use and when work was running for each of the hardware
+showing the overall use and when work is running for each of the hardware
 scheduling queues.</p>
 <div class="lgc-series">
 <h4 id="c_6">GPU active <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
@@ -296,8 +390,8 @@ and providing the fixed-function tiling needed for the Mali tile-based
 rendering pipeline. It can run in parallel to vertex shading and fragment
 shading.</p>
 <p>A high cycle count here does not necessarily imply a bottleneck, unless the <a
-href="#c_226">Non-fragment active cycles</a> counter in the shader core is
-comparatively low.</p>
+href="#c_226">Shader core non-fragment active cycles</a> counter in the shader
+core is comparatively low.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTilerActiveCy</code>
 </div>
@@ -317,7 +411,7 @@ because the GPU can process other queued work in parallel. However, if <a
 href="#c_54">GPU interrupt pending cycles</a> are a high percentage of <a
 href="#c_6">GPU active cycles</a>, an underlying problem might be preventing
 the CPU from efficiently handling interrupts. This problem is normally a system
-integration issue, which an application developer cannot work around.</p>
+integration issue, which an application developer can not work around.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliGPUIRQActiveCy</code>
 </div>
@@ -336,7 +430,7 @@ showing reasons for any scheduling stalls for each queue.</p>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_69">Non-fragment queue cache flush stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has non-fragment work
-queued that can not run or retire because of a pending L2 cache flush.</p>
+queued that can not run or retire due to a pending L2 cache flush.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliNonFragQueueWaitFlushCy</code>
 </div>
@@ -350,7 +444,7 @@ Hardware name: <code>JS1_WAIT_FLUSH</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_70">Non-fragment queue descriptor read stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has non-fragment work
-queued that can not run because of a pending descriptor load from memory.</p>
+queued that can not run due to a pending descriptor load from memory.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliNonFragQueueWaitRdCy</code>
 </div>
@@ -364,7 +458,7 @@ Hardware name: <code>JS1_WAIT_READ</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_72">Non-fragment queue job dependency stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has non-fragment work
-queued that can not run until dependent work has completed.</p>
+queued that can not run until dependent work completes.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliNonFragQueueWaitDepCy</code>
 </div>
@@ -406,7 +500,7 @@ Hardware name: <code>JS1_WAIT_ISSUE</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_61">Fragment queue cache flush stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has fragment work queued
-that can not run or retire because of a pending L2 cache flush.</p>
+that can not run or retire due to a pending L2 cache flush.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragQueueWaitFlushCy</code>
 </div>
@@ -420,7 +514,7 @@ Hardware name: <code>JS0_WAIT_FLUSH</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_62">Fragment queue descriptor read stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has fragment work queued
-that can not run because of a pending descriptor load from memory.</p>
+that can not run due to a pending descriptor load from memory.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragQueueWaitRdCy</code>
 </div>
@@ -434,7 +528,7 @@ Hardware name: <code>JS0_WAIT_READ</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_64">Fragment queue job dependency stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has fragment work queued
-that can not run until dependent work has completed.</p>
+that can not run until dependent work completes.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragQueueWaitDepCy</code>
 </div>
@@ -476,7 +570,7 @@ Hardware name: <code>JS0_WAIT_ISSUE</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_77">Reserved queue cache flush stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has reserved work queued
-that can not run or retire because of a pending L2 cache flush.</p>
+that can not run or retire due to a pending L2 cache flush.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliResQueueWaitFlushCy</code>
 </div>
@@ -490,7 +584,7 @@ Hardware name: <code>JS2_WAIT_FLUSH</code>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_78">Reserved queue descriptor read stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments any clock cycle that the GPU has reserved work queued
-that can not run because of a pending descriptor load from memory.</p>
+that can not run due to a pending descriptor load from memory.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliResQueueWaitRdCy</code>
 </div>
@@ -547,10 +641,10 @@ Hardware name: <code>JS2_WAIT_ISSUE</code>
 <div class="lgc-group lgc-advanced-sys">
 <h3 id="g_gpujobs">GPU Jobs <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the total number of workload jobs issued to the GPU
-front-end for each queue. Most jobs will correspond to an API workload, for
-example a compute dispatch generates a compute job. However, the driver can
-also generate small house-keeping jobs for each queue, so job counts do not
-directly correlate with API behavior.</p>
+front-end for each queue. Most jobs correspond to an API workload, for example
+a compute dispatch generates a compute job. However, the driver can also
+generate small housekeeping jobs for each queue, so job counts do not directly
+correlate with API behavior.</p>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_66">Non-fragment jobs <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every job processed by the GPU non-fragment queue.</p>
@@ -566,7 +660,7 @@ Hardware name: <code>JS1_JOBS</code>
 </div>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_8">Fragment jobs <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every job processed by the GPU fragment queue.</p>
+<p>This counter increments for every job processed by the fragment queue.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragQueueJob</code>
 </div>
@@ -594,7 +688,7 @@ Hardware name: <code>JS2_JOBS</code>
 <div class="lgc-group lgc-advanced-app lgc-advanced-sys">
 <h3 id="g_gputasks">GPU Tasks <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the total number of workload tasks issued by the GPU
-front-end to the processing end-points inside the GPU.</p>
+front-end to the processing endpoints inside the GPU.</p>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_67">Non-fragment tasks <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every non-fragment task processed by the GPU.</p>
@@ -791,8 +885,8 @@ designed to be tolerant of high latency, when compared to a CPU, but poor
 memory system performance can still reduce GPU efficiency.</p>
 <p>Accessing external DRAM is one of the most energy-intensive operations that the
 GPU can perform. Reducing memory bandwidth is a key optimization goal for
-mobile applications, even if not bandwidth limited, ensuring users get long
-battery life and thermally stable performance.</p>
+mobile applications, even if the application is not bandwidth-limited, ensuring
+users get long battery life and thermally stable performance.</p>
 <p>Performance counters in this section measure how much memory bandwidth your
 application uses, as well as stall and latency counters to show how well the
 memory system is coping with the generated traffic.</p>
@@ -934,14 +1028,12 @@ Hardware name: <code>L2_EXT_WRITE_SNP_PTL</code>
 </div>
 <div class="lgc-group lgc-advanced-app">
 <h3 id="g_externalbusbeats">External Bus Beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the absolute amount of external memory data transfer
+<p>This counter group shows the absolute number of external memory data transfer
 cycles used by the GPU.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_114">Read beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every clock cycle when a data beat was read from
-the external memory bus.</p>
-<p>Most implementations use a 128-bit (16-byte) data bus, enabling a single
-64-byte read transaction to be read using 4 bus cycles.</p>
+<p>This counter increments for every clock cycle when a data beat is read from the
+external memory bus.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdBt</code>
 </div>
@@ -954,10 +1046,8 @@ Hardware name: <code>L2_EXT_READ_BEATS</code>
 </div>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_129">Write beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every clock cycle when a data beat was written to
+<p>This counter increments for every clock cycle when a data beat is written to
 the external memory bus.</p>
-<p>Most implementations use a 128-bit (16-byte) data bus, enabling a single
-64-byte read transaction to be written using 4 bus cycles.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusWrBt</code>
 </div>
@@ -976,7 +1066,7 @@ generated by the GPU. Absolute measures are the most useful way to check actual
 bandwidth against a per-frame bandwidth budget.</p>
 <div class="lgc-series">
 <h4 id="c_65548">Read bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the total output read bandwidth for the GPU.</p>
+<p>This expression defines the total output read bytes for the GPU.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdBy</code>
 </div>
@@ -1001,7 +1091,7 @@ libGPUCounters name: <code>MaliExtBusRdBy</code>
 </div>
 <div class="lgc-series">
 <h4 id="c_65553">Write bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the total output write bandwidth for the GPU.</p>
+<p>This expression defines the total output write bytes for the GPU.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusWrBy</code>
 </div>
@@ -1087,12 +1177,12 @@ libGPUCounters name: <code>MaliExtBusWrBPS</code>
 <div class="lgc-group lgc-advanced-app lgc-advanced-sys">
 <h3 id="g_externalbusstallcycles">External Bus Stall Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the absolute number of external memory interface
-stalls, which is the number of cycles that the GPU was trying to send data but
-the external bus could not accept it.</p>
+stalls, which is the number of cycles when the GPU is trying to send data but
+the external bus can not accept it.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_115">Read stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every stall cycle on the AXI bus where the GPU has
-a valid read transaction to send, but is awaiting a ready signal from the bus.</p>
+<p>This counter increments for every stall cycle on the AXI bus when the GPU has a
+valid read transaction to send, but is awaiting a ready signal from the bus.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdStallCy</code>
 </div>
@@ -1135,9 +1225,9 @@ Hardware name: <code>L2_EXT_SNOOP_STALL</code>
 </div>
 <div class="lgc-group">
 <h3 id="g_externalbusstallrate">External Bus Stall Rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the percentage of cycles that the GPU was trying to
-send data, but by the external bus could not accept it.</p>
-<p>A small number of stalls is expected, but sustained periods of with stall rates
+<p>This counter group shows the percentage of cycles that the GPU is trying to
+send data, but the external bus can not accept it.</p>
+<p>A small number of stalls is expected, but sustained periods with stall rates
 above 10% might indicate that the GPU is generating more traffic than the
 downstream memory system can handle efficiently.</p>
 <div class="lgc-series">
@@ -1201,13 +1291,13 @@ libGPUCounters name: <code>MaliExtBusWrStallRate</code>
 <h3 id="g_externalbusreadlatency">External Bus Read Latency <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the histogram distribution of memory latency for GPU
 reads.</p>
-<p>GPUs are more tolerant to latency than a CPU, but sustained periods of high
+<p>GPUs are more tolerant of latency than CPUs, but sustained periods of high
 latency might indicate that the GPU is generating more traffic than the
 downstream memory system can handle efficiently.</p>
 <div class="lgc-series">
 <h4 id="c_119">0-127 cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data beat that is returned between 0 and 127
-cycles after the read transaction started. This latency is considered a fast
+cycles after the read transaction starts. This latency is considered a fast
 access response speed.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdLat0</code>
@@ -1222,7 +1312,7 @@ Hardware name: <code>L2_EXT_RRESP_0_127</code>
 <div class="lgc-series">
 <h4 id="c_120">128-191 cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data beat that is returned between 128 and
-191 cycles after the read transaction started. This latency is considered a
+191 cycles after the read transaction starts. This latency is considered a
 normal access response speed.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdLat128</code>
@@ -1237,7 +1327,7 @@ Hardware name: <code>L2_EXT_RRESP_128_191</code>
 <div class="lgc-series">
 <h4 id="c_121">192-255 cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data beat that is returned between 192 and
-255 cycles after the read transaction started. This latency is considered a
+255 cycles after the read transaction starts. This latency is considered a
 normal access response speed.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdLat192</code>
@@ -1252,8 +1342,8 @@ Hardware name: <code>L2_EXT_RRESP_192_255</code>
 <div class="lgc-series">
 <h4 id="c_122">256-319 cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data beat that is returned between 256 and
-319 cycles after the read transaction started. This latency is considered a
-slow access response speed.</p>
+319 cycles after the read transaction starts. This latency is considered a slow
+access response speed.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdLat256</code>
 </div>
@@ -1267,8 +1357,8 @@ Hardware name: <code>L2_EXT_RRESP_256_319</code>
 <div class="lgc-series">
 <h4 id="c_123">320-383 cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data beat that is returned between 320 and
-383 cycles after the read transaction started. This latency is considered a
-slow access response speed.</p>
+383 cycles after the read transaction starts. This latency is considered a slow
+access response speed.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdLat320</code>
 </div>
@@ -1281,9 +1371,9 @@ Hardware name: <code>L2_EXT_RRESP_320_383</code>
 </div>
 <div class="lgc-series">
 <h4 id="c_65551">384+ cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression increments for every read beat that is returned at least 384
-cycles after the transaction started. This latency is considered a very slow
-access response speed.</p>
+<p>This expression increments for every read beat that is returned more than 383
+cycles after the read transaction starts. This latency is considered a very
+slow access response speed.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliExtBusRdLat384</code>
 </div>
@@ -1491,7 +1581,7 @@ libGPUCounters name: <code>MaliGeomTotalPrim</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>$MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives</code></pre>
+<pre><code>$MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1501,7 +1591,7 @@ libGPUCounters name: <code>MaliGeomTotalPrim</code>
 </div>
 </div></div>
 </div>
-<div class="lgc-series lgc-advanced-app">
+<div class="lgc-series">
 <h4 id="c_143">Triangle primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every input triangle primitive. The count is made
 before any culling or clipping.</p>
@@ -1515,7 +1605,7 @@ Streamline name: <code>$MaliInputPrimitivesTrianglePrimitives</code>
 Hardware name: <code>TRIANGLES</code>
 </div>
 </div>
-<div class="lgc-series lgc-advanced-app">
+<div class="lgc-series">
 <h4 id="c_144">Line primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every input line primitive. The count is made
 before any culling or clipping.</p>
@@ -1529,7 +1619,7 @@ Streamline name: <code>$MaliInputPrimitivesLinePrimitives</code>
 Hardware name: <code>LINES</code>
 </div>
 </div>
-<div class="lgc-series lgc-advanced-app">
+<div class="lgc-series">
 <h4 id="c_145">Point primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every input point primitive. The count is made
 before any culling or clipping.</p>
@@ -1544,11 +1634,11 @@ Hardware name: <code>POINTS</code>
 </div>
 </div>
 </div>
-<div class="lgc-group lgc-advanced-app">
+<div class="lgc-group">
 <h3 id="g_visibleprimitives">Visible Primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the properties of any visible primitives, after any
 culling is applied.</p>
-<div class="lgc-series lgc-advanced-app">
+<div class="lgc-series">
 <h4 id="c_146">Front-facing primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every visible front-facing triangle that survives
 culling.</p>
@@ -1562,7 +1652,7 @@ Streamline name: <code>$MaliVisiblePrimitivesFrontFacingPrimitives</code>
 Hardware name: <code>FRONT_FACING</code>
 </div>
 </div>
-<div class="lgc-series lgc-advanced-app">
+<div class="lgc-series">
 <h4 id="c_147">Back-facing primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every visible back-facing triangle that survives
 culling.</p>
@@ -1586,8 +1676,6 @@ primitives that are not culled by any stage.</p>
 <h4 id="c_148">Visible primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every visible primitive that survives all culling
 stages.</p>
-<p>All fragments of the primitive might be occluded by other primitives closer to
-the camera, and so produce no visible output.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliGeomVisiblePrim</code>
 </div>
@@ -1600,8 +1688,8 @@ Hardware name: <code>PRIM_VISIBLE</code>
 </div>
 <div class="lgc-series">
 <h4 id="c_65562">Culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the number of primitives that were culled during the
-rendering process, for any reason.</p>
+<p>This expression defines the number of primitives that are culled during the
+rendering process.</p>
 <p>For efficient 3D content, it is expected that only 50% of primitives are
 visible because back-face culling is used to remove half of each model.</p>
 <div class="lgc-equation-format-lgc">
@@ -1616,7 +1704,7 @@ libGPUCounters name: <code>MaliGeomTotalCullPrim</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>$MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives</code></pre>
+<pre><code>$MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1627,7 +1715,7 @@ libGPUCounters name: <code>MaliGeomTotalCullPrim</code>
 </div></div>
 </div>
 <div class="lgc-series">
-<h4 id="c_149">Facing or XY plane test culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_149">Facing or XY plane culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every primitive culled by the facing test, or
 culled by testing against the view frustum X and Y clip planes.</p>
 <p>For an arbitrary 3D scene we would expect approximately half of the triangles
@@ -1644,14 +1732,14 @@ using smaller batches to reduce the bounding volume to enable better culling.</p
 libGPUCounters name: <code>MaliGeomFaceXYPlaneCullPrim</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives</code>
+Streamline name: <code>$MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>PRIM_CULLED</code>
 </div>
 </div>
 <div class="lgc-series">
-<h4 id="c_150">Z plane test culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_150">Z plane culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every primitive culled by testing against the view
 frustum near and far clip planes.</p>
 <p>It is expected that a small number of primitives are outside of the frustum
@@ -1665,20 +1753,20 @@ better culling.</p>
 libGPUCounters name: <code>MaliGeomZPlaneCullPrim</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliPrimitiveCullingZPlaneTestCulledPrimitives</code>
+Streamline name: <code>$MaliPrimitiveCullingZPlaneCulledPrimitives</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>PRIM_CLIPPED</code>
 </div>
 </div>
 <div class="lgc-series">
-<h4 id="c_151">Sample test culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_151">Sample culled primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every primitive culled by the sample coverage test.
 It is expected that a few primitives are small and fail the sample coverage
 test, as application mesh level-of-detail selection can never be perfect. If
-the number of primitives counted is more than than 5-10% of the total number,
-this might indicate that the application has a large number of very small
-triangles, which are very expensive for a GPU to process.</p>
+the number of primitives counted is more than 5-10% of the total number, this
+might indicate that the application has a large number of very small triangles,
+which are very expensive for a GPU to process.</p>
 <p>Aim to keep triangle screen area above 10 pixels. Use schemes such as mesh
 level-of-detail to select simplified meshes as objects move further away from
 the camera.</p>
@@ -1686,7 +1774,7 @@ the camera.</p>
 libGPUCounters name: <code>MaliGeomSampleCullPrim</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliPrimitiveCullingSampleTestCulledPrimitives</code>
+Streamline name: <code>$MaliPrimitiveCullingSampleCulledPrimitives</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>PRIM_SAT_CULLED</code>
@@ -1707,9 +1795,9 @@ visible because back-face culling is used to remove half of each model.</p>
 <ul>
 <li>A significantly higher visibility rate indicates that the facing test might
   not be enabled.</li>
-<li>A significantly lower visibility rate indicates that geometry is being
-  culled for other reasons, which is often possible to optimize. Use the
-  individual culling counters for a more detailed breakdown.</li>
+<li>A significantly lower visibility rate indicates that geometry is being culled
+  for other reasons, which is often possible to optimize. Use the individual
+  culling counters for a more detailed breakdown.</li>
 </ul>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliGeomVisibleRate</code>
@@ -1723,7 +1811,7 @@ libGPUCounters name: <code>MaliGeomVisibleRate</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliPrimitiveCullingVisiblePrimitives / ($MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives)) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliPrimitiveCullingVisiblePrimitives / ($MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives)) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1755,7 +1843,7 @@ libGPUCounters name: <code>MaliGeomFaceXYPlaneCullRate</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives / ($MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives)) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives / ($MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives)) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1785,7 +1873,7 @@ libGPUCounters name: <code>MaliGeomZPlaneCullRate</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliPrimitiveCullingZPlaneTestCulledPrimitives / (($MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives) - $MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives)) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliPrimitiveCullingZPlaneCulledPrimitives / (($MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives) - $MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives)) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1816,7 +1904,7 @@ libGPUCounters name: <code>MaliGeomSampleCullRate</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliPrimitiveCullingSampleTestCulledPrimitives / (($MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives) - $MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives - $MaliPrimitiveCullingZPlaneTestCulledPrimitives)) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliPrimitiveCullingSampleCulledPrimitives / (($MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives) - $MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives - $MaliPrimitiveCullingZPlaneCulledPrimitives)) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1831,18 +1919,18 @@ libGPUCounters name: <code>MaliGeomSampleCullRate</code>
 <h3 id="g_geometrythreads">Geometry Threads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of vertex shader threads of each type that
 are generated during vertex processing.</p>
-<p>All vertices must be position shaded, but only visible vertices will be varying
+<p>All vertices must be position shaded, but only visible vertices are varying
 shaded.</p>
 <div class="lgc-series">
 <h4 id="c_65565">Position shading threads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the number of position shader thread invocations.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliGeomPosShadThread</code>
+libGPUCounters name: <code>MaliTilerPosShadThread</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
 <p>libGPUCounters derivation:</p>
-<pre><code>MaliGeomPosShadTask * 4</code></pre>
+<pre><code>MaliTilerPosShadTask * 4</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1862,12 +1950,12 @@ libGPUCounters name: <code>MaliGeomPosShadThread</code>
 <h4 id="c_65566">Varying shading threads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the number of varying shader thread invocations.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliGeomVarShadThread</code>
+libGPUCounters name: <code>MaliTilerVarShadThread</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
 <p>libGPUCounters derivation:</p>
-<pre><code>MaliGeomVarShadTask * 4</code></pre>
+<pre><code>MaliTilerVarShadTask * 4</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1893,24 +1981,24 @@ to keep these metrics as low as possible.</p>
 <h4 id="c_65666">Position threads/input primitive <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the number of position shader threads per input
 primitive.</p>
-<p>Efficient meshes with a good vertex reuse have average less than 1.5 vertices
-shaded per triangle, as vertex computation is shared by multiple primitives.
-Minimize this number by reusing vertices for nearby primitives, improving
-temporal locality of index reuse, and avoiding unused values in the active
-index range.</p>
+<p>Efficient meshes with good vertex reuse have an average of less than 1.5
+vertices shaded per triangle, as vertex computation is shared by multiple
+primitives. Minimize this number by reusing vertices for nearby primitives,
+improving temporal locality of index reuse, and avoiding unused values in the
+active index range.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliGeomPosShadThreadPerPrim</code>
+libGPUCounters name: <code>MaliTilerPosShadThreadPerPrim</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
 <p>libGPUCounters derivation:</p>
-<pre><code>(MaliGeomPosShadTask * 4) / (MaliGeomFaceXYPlaneCullPrim + MaliGeomZPlaneCullPrim + MaliGeomSampleCullPrim + MaliGeomVisiblePrim)</code></pre>
+<pre><code>(MaliTilerPosShadTask * 4) / (MaliGeomFaceXYPlaneCullPrim + MaliGeomZPlaneCullPrim + MaliGeomSampleCullPrim + MaliGeomVisiblePrim)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>($MaliTilerShadingRequestsPositionShadingRequests * 4) / ($MaliPrimitiveCullingFacingOrXYPlaneTestCulledPrimitives + $MaliPrimitiveCullingZPlaneTestCulledPrimitives + $MaliPrimitiveCullingSampleTestCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives)</code></pre>
+<pre><code>($MaliTilerShadingRequestsPositionShadingRequests * 4) / ($MaliPrimitiveCullingFacingOrXYPlaneCulledPrimitives + $MaliPrimitiveCullingZPlaneCulledPrimitives + $MaliPrimitiveCullingSampleCulledPrimitives + $MaliPrimitiveCullingVisiblePrimitives)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1924,18 +2012,18 @@ libGPUCounters name: <code>MaliGeomPosShadThreadPerPrim</code>
 <h4 id="c_65667">Varying threads/visible primitive <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the number of varying shader invocations per visible
 primitive.</p>
-<p>Efficient meshes with a good vertex reuse have average less than 1.5 vertices
-shaded per triangle, as vertex computation is shared by multiple primitives.
-Minimize this number by reusing vertices for nearby primitives, improving
-temporal locality of index reuse, and avoiding unused values in the active
-index range.</p>
+<p>Efficient meshes with good vertex reuse have an average of less than 1.5
+vertices shaded per triangle, as vertex computation is shared by multiple
+primitives. Minimize this number by reusing vertices for nearby primitives,
+improving temporal locality of index reuse, and avoiding unused values in the
+active index range.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliGeomVarShadThreadPerPrim</code>
+libGPUCounters name: <code>MaliTilerVarShadThreadPerPrim</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
 <p>libGPUCounters derivation:</p>
-<pre><code>(MaliGeomVarShadTask * 4) / MaliGeomVisiblePrim</code></pre>
+<pre><code>(MaliTilerVarShadTask * 4) / MaliGeomVisiblePrim</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -1960,7 +2048,7 @@ framebuffer to create output images.</p>
 <p>Performance counters in this section show the workload complexity of your
 fragment rendering.</p>
 <div class="lgc-group">
-<h3 id="g_outputpixels">Output pixels <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<h3 id="g_outputpixels">Output Pixels <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the total number of output pixels rendered.</p>
 <div class="lgc-series">
 <h4 id="c_65546">Pixels <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
@@ -2038,17 +2126,17 @@ against budget, and to monitor the impact of application changes over time.</p>
 <h3 id="g_averageworkloadcost">Average Workload Cost <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group gives the average cycle throughput for the different kinds
 of workloads the GPU is running.</p>
-<p>When running workloads in parallel the shader core is shared, and these
-throughput metrics will be impacted by cross-talk across the queues. However,
-they still a useful tool for managing performance budgets.</p>
+<p>When workloads run in parallel, the shader core is shared, and these throughput
+metrics are impacted by cross-talk across the queues. However, they are still a
+useful tool for managing performance budgets.</p>
 <div class="lgc-series">
 <h4 id="c_65673">GPU cycles/pixel <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the average number of GPU cycles being spent per pixel
-rendered. This includes the cost of all shader stages.</p>
+<p>This expression defines the average number of GPU cycles spent per rendered
+pixel. This includes the cost of all shader stages.</p>
 <p>It is a useful exercise to set a cycle budget for each render pass in your
 application, based on your target resolution and frame rate. Rendering 1080p60
 is possible with an entry-level device, but you have a small number of cycles
-per pixel to work so must use them efficiently.</p>
+per pixel to work with, so you must use them efficiently.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliGPUCyPerPix</code>
 </div>
@@ -2076,9 +2164,9 @@ libGPUCounters name: <code>MaliGPUCyPerPix</code>
 <p>This expression defines the average number of shader core cycles per
 non-fragment thread.</p>
 <p>This measurement captures the overall shader core throughput, not the shader
-processing cost. It will be impacted by cycles lost to stalls that could not be
-hidden by other processing. In addition, it will be impacted by any fragment
-workloads that are running concurrently in the shader core.</p>
+processing cost. It is impacted by cycles lost to stalls that can not be hidden
+by other processing. In addition, it is impacted by other workloads that are
+running concurrently in the shader core.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliNonFragThroughputCy</code>
 </div>
@@ -2106,9 +2194,9 @@ libGPUCounters name: <code>MaliNonFragThroughputCy</code>
 <p>This expression defines the average number of shader core cycles per fragment
 thread.</p>
 <p>This measurement captures the overall shader core throughput, not the shader
-processing cost. It will be impacted by cycles lost to stalls that could not be
-hidden by other processing. In addition, it will be impacted by any fragment
-workloads that are running concurrently in the shader core.</p>
+processing cost. It is impacted by cycles lost to stalls that can not be hidden
+by other processing. In addition, it is impacted by other workloads that are
+running concurrently in the shader core.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragThroughputCy</code>
 </div>
@@ -2131,6 +2219,114 @@ libGPUCounters name: <code>MaliFragThroughputCy</code>
 </div>
 </div></div>
 </div>
+<div class="lgc-series">
+<h4 id="c_801">ALU cycles/thread <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the average number of shader core arithmetic cycles per
+shader thread.</p>
+<p>This metric assumes warps are fully occupied.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliALUThroughputCy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>MaliEngInstr / ((MaliFragWarp * 4) + (MaliNonFragWarp * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>$MaliALUInstructionsExecutedInstructions / (($MaliShaderWarpsFragmentWarps * 4) + ($MaliShaderWarpsNonFragmentWarps * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>EXEC_INSTR_COUNT / ((FRAG_WARPS * 4) + (COMPUTE_WARPS * 4))</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series">
+<h4 id="c_802">Varying unit cycles/thread <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the average number of shader core varying unit cycles
+per shader thread.</p>
+<p>This metric assumes warps are fully occupied.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliVarThroughputCy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>(MaliVar32IssueSlot + MaliVar16IssueSlot) / ((MaliFragWarp * 4) + (MaliNonFragWarp * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>($MaliVaryingUnitRequests32BitInterpolationSlots + $MaliVaryingUnitRequests16BitInterpolationSlots) / (($MaliShaderWarpsFragmentWarps * 4) + ($MaliShaderWarpsNonFragmentWarps * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>(VARY_SLOT_32 + VARY_SLOT_16) / ((FRAG_WARPS * 4) + (COMPUTE_WARPS * 4))</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series">
+<h4 id="c_803">Texture unit cycles/thread <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the average number of shader core texture unit cycles
+per shader thread.</p>
+<p>This metric assumes warps are fully occupied.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliTexThroughputCy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>MaliTexFiltIssueCy / ((MaliFragWarp * 4) + (MaliNonFragWarp * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>$MaliTextureUnitCyclesFilteringActive / (($MaliShaderWarpsFragmentWarps * 4) + ($MaliShaderWarpsNonFragmentWarps * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>TEX_FILT_NUM_OPERATIONS / ((FRAG_WARPS * 4) + (COMPUTE_WARPS * 4))</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series">
+<h4 id="c_804">Load/store unit cycles/thread <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the average number of shader core load/store unit
+cycles per shader thread.</p>
+<p>This metric assumes warps are fully occupied.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliLSThroughputCy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>(MaliLSFullRd + MaliLSPartRd + MaliLSFullWr + MaliLSPartWr + MaliLSAtomic) / ((MaliFragWarp * 4) + (MaliNonFragWarp * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>($MaliLoadStoreUnitCyclesFullReads + $MaliLoadStoreUnitCyclesPartialReads + $MaliLoadStoreUnitCyclesFullWrites + $MaliLoadStoreUnitCyclesPartialWrites + $MaliLoadStoreUnitCyclesAtomicAccesses) / (($MaliShaderWarpsFragmentWarps * 4) + ($MaliShaderWarpsNonFragmentWarps * 4))</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>(LS_MEM_READ_FULL + LS_MEM_READ_SHORT + LS_MEM_WRITE_FULL + LS_MEM_WRITE_SHORT + LS_MEM_ATOMIC) / ((FRAG_WARPS * 4) + (COMPUTE_WARPS * 4))</code></pre>
+</div>
+</div></div>
+</div>
 </div>
 </div>
 <div class="lgc-section">
@@ -2140,20 +2336,20 @@ accept tasks from other parts of the GPU and turn them into shader threads
 running in the programmable core.</p>
 <p>Each shader core has two front-ends:</p>
 <ul>
-<li>Non-fragment front-end for all non-fragment tasks, including compute,
-  vertex shading, and advanced geometry.</li>
+<li>Non-fragment front-end for all non-fragment tasks, including compute, vertex
+  shading, and advanced geometry.</li>
 <li>Fragment front-end for all fragment tasks.</li>
 </ul>
-<p>The front-ends show as active until task processing is complete, so front-end
+<p>The front-ends are active until task processing is complete, so front-end
 activity is a direct way of measuring that the shader core is busy handling a
 workload.</p>
-<p>The Execution engine is the programmable core at the heart of the shader core
-hardware. The Execution engine shows as active if there is at least one thread
+<p>The execution engine is the programmable core at the heart of the shader core
+hardware. The execution engine is active if there is at least one thread
 running, and monitoring its activity is an indirect way of checking that the
 front-ends are managing to keep the GPU busy.</p>
 <p>Performance counters in this section measure the overall workload scheduling
 for the shader core, showing how busy the shader core is. Note that front-end
-counters can tell you that a task was scheduled but cannot tell you how heavily
+counters can tell you that a task is scheduled but can not tell you how heavily
 the programmable core is being used.</p>
 <div class="lgc-group">
 <h3 id="g_shadercorecycles">Shader Core Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
@@ -2193,40 +2389,50 @@ Hardware name: <code>FRAG_ACTIVE</code>
 </div>
 </div>
 <div class="lgc-series">
-<h4 id="c_212">Fragment pre-pipe buffer active <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments every clock cycle when the pre-pipe quad queue contains
-at least one quad waiting to run. If this queue completely drains, a fragment
-warp cannot be spawned when space for new threads becomes available in the
-shader core. You can experience reduced performance when low thread occupancy
-starves the functional units of work to process.</p>
-<p>Possible causes for this include:</p>
+<h4 id="c_212">Fragment staging buffer active <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments every clock cycle when the fragment shading staging
+buffer contains at least one quad waiting to be shaded. If this buffer
+completely drains, a fragment warp can not be spawned when space for new
+threads becomes available in the shader core. Keeping this counter high
+indicates that the fragment front-end is not a bottleneck, and is successfully
+keeping forward-pressure on fragment shading.</p>
+<p>You can experience reduced performance when the shader core runs below full
+thread occupancy, because the shader core functional units run out of work to
+process.</p>
+<p>Possible causes for this buffer draining include:</p>
 <ul>
-<li>Tiles which contain no geometry, which are commonly encountered when
-  creating shadow maps, where many tiles contain no shadow casters.</li>
-<li>Tiles which contain a lot of geometry which are killed by early ZS or
-  hidden surface removal.</li>
+<li>Tiles which contain dense geometry that takes longer to rasterize than
+  fragment shade, meaning that the staging buffer drains faster than it fills.</li>
+<li>Tiles which contain dense geometry where a high proportion is killed by early
+  ZS or hidden surface removal, meaning that few rasterized quads enter the
+  staging buffer.</li>
+<li>Tiles contain layers with complex depth and stencil interactions, causing a
+  layer to stall at early ZS waiting for an older layer to complete late ZS.</li>
+<li>Tiles which contain no geometry, meaning that there are no quads to shade,
+  which is common in depth shadow maps for tiles that contain no shadow
+  casters.</li>
 </ul>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragFPKActiveCy</code>
+libGPUCounters name: <code>MaliFragStagingActiveCy</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliShaderCoreCyclesFragmentPrePipeBufferActive</code>
+Streamline name: <code>$MaliShaderCoreCyclesFragmentStagingBufferActive</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>FRAG_FPK_ACTIVE</code>
 </div>
 </div>
 <div class="lgc-series">
-<h4 id="c_230">Execution core active <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_230">Programmable core active <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments every clock cycle when the shader core is processing at
 least one warp. Note that this counter does not provide detailed information
 about how the functional units are utilized inside the shader core, but simply
-gives an indication that something was running.</p>
+gives an indication that something is running.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliCoreActiveCy</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliShaderCoreCyclesExecutionCoreActive</code>
+Streamline name: <code>$MaliShaderCoreCyclesProgrammableCoreActive</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>EXEC_CORE_ACTIVE</code>
@@ -2240,8 +2446,8 @@ against the overall shader core activity.</p>
 <div class="lgc-series">
 <h4 id="c_65589">Non-fragment utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage utilization of the shader core
-non-fragment path. This counter measures any cycle that a non-fragment workload
-is active in the fixed-function front-end or programmable core.</p>
+non-fragment endpoint. This counter measures any cycle that a non-fragment
+workload is active in the fixed-function front-end or programmable core.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliNonFragUtil</code>
 </div>
@@ -2267,8 +2473,8 @@ libGPUCounters name: <code>MaliNonFragUtil</code>
 <div class="lgc-series">
 <h4 id="c_65567">Fragment utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage utilization of the shader core fragment
-path. This counter measures any cycle that a fragment workload is active in the
-fixed-function front-end, fixed-function back-end, or programmable core.</p>
+endpoint. This counter measures any cycle that a fragment workload is active in
+the fixed-function front-end, fixed-function back-end, or programmable core.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragUtil</code>
 </div>
@@ -2292,38 +2498,42 @@ libGPUCounters name: <code>MaliFragUtil</code>
 </div></div>
 </div>
 <div class="lgc-series">
-<h4 id="c_65569">Fragment pre-pipe buffer utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the percentage of cycles when the pre-pipe quad buffer
-contains at least one fragment quad. This buffer is located after early ZS but
-before the programmable core.</p>
-<p>During fragment shading this counter must be close to 100%. This indicates that
-the fragment front-end is able to keep up with the shader core shading
-performance. This counter commonly drops below 100% for three reasons:</p>
+<h4 id="c_65569">Fragment staging buffer utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage of fragment cycles when the fragment
+shading staging buffer contains at least one quad waiting to be shaded. If this
+buffer completely drains, a fragment warp can not be spawned when space for new
+threads becomes available in the shader core. Keeping this counter high
+indicates that the fragment front-end is not a bottleneck, and is successfully
+keeping forward-pressure on fragment shading.</p>
+<p>You can experience reduced performance when the shader core runs below full
+thread occupancy, because the shader core functional units run out of work to
+process.</p>
+<p>Possible causes for this buffer draining include:</p>
 <ul>
-<li>The running workload has many empty tiles with no geometry to render. Empty
-  tiles are common in shadow maps, corresponding to a screen region with no
-  shadow casters, so this might not be avoidable.</li>
-<li>The application consists of simple shaders but a high percentage of
-  microtriangles. This combination causes the shader core to shade fragments
-  faster than they are rasterized, so the quad buffer drains.</li>
-<li>The application consists of geometry which stalls at early ZS because of a
-  dependency on an earlier fragment layer which is still in flight. Stalled
-  layers prevent new fragments entering the quad buffer, so the quad buffer
-  drains.</li>
+<li>Tiles which contain dense geometry that takes longer to rasterize than
+  fragment shade, meaning that the staging buffer drains faster than it fills.</li>
+<li>Tiles which contain dense geometry where a high proportion is killed by early
+  ZS or hidden surface removal, meaning that few rasterized quads enter the
+  staging buffer.</li>
+<li>Tiles contain layers with complex depth and stencil interactions, causing a
+  layer to stall at early ZS waiting for an older layer to complete late ZS.</li>
+<li>Tiles which contain no geometry, meaning that there are no quads to shade,
+  which is common in depth shadow maps for tiles that contain no shadow
+  casters.</li>
 </ul>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragFPKBUtil</code>
+libGPUCounters name: <code>MaliFragStagingUtil</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
 <p>libGPUCounters derivation:</p>
-<pre><code>max(min((MaliFragFPKActiveCy / MaliFragActiveCy) * 100, 100), 0)</code></pre>
+<pre><code>max(min((MaliFragStagingActiveCy / MaliFragActiveCy) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliShaderCoreCyclesFragmentPrePipeBufferActive / $MaliShaderCoreCyclesFragmentActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliShaderCoreCyclesFragmentStagingBufferActive / $MaliShaderCoreCyclesFragmentActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -2334,7 +2544,7 @@ libGPUCounters name: <code>MaliFragFPKBUtil</code>
 </div></div>
 </div>
 <div class="lgc-series">
-<h4 id="c_65579">Execution core utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_65579">Programmable core utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage utilization of the programmable core,
 measuring cycles when the shader core contains at least one warp. A low
 utilization here indicates lost performance, because there are spare shader
@@ -2358,7 +2568,7 @@ libGPUCounters name: <code>MaliCoreUtil</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliShaderCoreCyclesExecutionCoreActive / $MaliConstantsShaderCoreCount / $MaliGPUCyclesGPUActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliShaderCoreCyclesProgrammableCoreActive / $MaliConstantsShaderCoreCount / $MaliGPUCyclesGPUActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -2396,8 +2606,8 @@ Hardware name: <code>COMPUTE_TASKS</code>
 converts an incoming primitive stream for a screen-space tile into fragment
 threads that need to be shaded. The fragment front-end handles rasterization,
 early depth (Z) and stencil (S) testing, and hidden surface removal (HSR).</p>
-<p>Performance counters in this section measure how the incoming stream was turned
-into quads, and how efficiently those quads interacted with ZS testing and HSR.</p>
+<p>Performance counters in this section measure how the incoming stream is turned
+into quads and how efficiently those quads interact with ZS testing and HSR.</p>
 <div class="lgc-group lgc-advanced-app">
 <h3 id="g_fragmenttiles">Fragment Tiles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of fragment tiles processed by the shader
@@ -2428,7 +2638,7 @@ Hardware name: <code>FRAG_PTILES</code>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_224">Killed unchanged tiles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every 16x16 pixel tile or tile sub-region killed by
-a transaction elimination CRC check, where the data is the same as the content
+a transaction elimination CRC check, when the data is the same as the content
 already stored in memory.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragTileKill</code>
@@ -2445,18 +2655,18 @@ Hardware name: <code>FRAG_TRANS_ELIM</code>
 <h3 id="g_fragmentprimitives">Fragment Primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows how the fragment front-end handles the incoming
 primitive stream from the tile list built during the binning phase.</p>
-<p>Large primitives will be read in multiple tiles and will therefore cause
-multiple increments to these counter values. These counters will not match the
-input primitive counts passed in by the application.</p>
+<p>Large primitives are read in multiple tiles and therefore cause multiple
+increments to these counter values. These counters do not match the input
+primitive counts passed by the application.</p>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_209">Loaded primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every primitive loaded from the tile list by the
+<p>This counter increments for every primitive read from the tile list by the
 fragment front-end. This increments per tile, which means that a single
 primitive that spans multiple tiles is counted multiple times. If you want to
 know the total number of primitives in the scene refer to the <a
-href="#c_65556">Total input primitives</a> expression</p>
+href="#c_65556">Input primitives</a> expression.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragRdPrim</code>
+libGPUCounters name: <code>MaliFragPrim</code>
 </div>
 <div class="lgc-equation-format-sl">
 Streamline name: <code>$MaliFragmentPrimitivesLoadedPrimitives</code>
@@ -2468,10 +2678,11 @@ Hardware name: <code>FRAG_PRIMITIVES</code>
 <div class="lgc-series">
 <h4 id="c_211">Rasterized primitives <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every primitive entering the rasterization unit for
-each tile shaded. This increments per tile, which means that a single primitive
-that spans multiple tiles is counted multiple times. If you want to know the
-total number of primitives in the scene refer to the <a href="#c_65556">Total
-input primitives</a> expression.</p>
+each tile shaded.</p>
+<p>This increments per tile, which means that a single primitive that spans
+multiple tiles is counted multiple times. If you want to know the total number
+of primitives in the scene refer to the <a href="#c_65556">Input primitives</a>
+expression.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragRastPrim</code>
 </div>
@@ -2486,7 +2697,7 @@ Hardware name: <code>FRAG_PRIM_RAST</code>
 <div class="lgc-group">
 <h3 id="g_fragmentquads">Fragment Quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows how the rasterizer turns the incoming primitive stream
-in to 2x2 sample quads for shading.</p>
+into 2x2 sample quads for shading.</p>
 <div class="lgc-series">
 <h4 id="c_216">Rasterized fine quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every fine quad generated by the rasterization
@@ -2535,7 +2746,7 @@ libGPUCounters name: <code>MaliFragShadedQd</code>
 </div>
 <div class="lgc-group">
 <h3 id="g_fragmentzsquads">Fragment ZS Quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows how the depth (Z) and stencil (Z) test unit handles
+<p>This counter group shows how the depth (Z) and stencil (S) test unit handles
 quads for early and late ZS test and update.</p>
 <div class="lgc-series">
 <h4 id="c_218">Early ZS tested quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
@@ -2544,7 +2755,7 @@ testing.</p>
 <p>For maximum performance, this number must be close to the total number of input
 quads. We want as many of the input quads as possible to be subject to early ZS
 testing because early ZS testing is significantly more efficient than late ZS
-testing, which only kills threads after they have been shaded.</p>
+testing, which only kills threads after they are shaded.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragEZSTestQd</code>
 </div>
@@ -2553,6 +2764,26 @@ Streamline name: <code>$MaliFragmentZSQuadsEarlyZSTestedQuads</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>FRAG_QUADS_EZS_TEST</code>
+</div>
+</div>
+<div class="lgc-series">
+<h4 id="c_219">Early ZS updated quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments for every quad undergoing early depth and stencil
+testing that can update the framebuffer. Quads that have a depth value that
+depends on shader behavior, or those that have indeterminate coverage due to
+use of alpha-to-coverage or discard statements in the shader, might be early ZS
+tested but can not do an early ZS update.</p>
+<p>For maximum performance, this number must be close to the total number of input
+quads. Aim to maximize the number of quads that are capable of doing an early
+ZS update.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliFragEZSUpdateQd</code>
+</div>
+<div class="lgc-equation-format-sl">
+Streamline name: <code>$MaliFragmentZSQuadsEarlyZSUpdatedQuads</code>
+</div>
+<div class="lgc-equation-format-hw">
+Hardware name: <code>FRAG_QUADS_EZS_UPDATE</code>
 </div>
 </div>
 <div class="lgc-series">
@@ -2571,26 +2802,6 @@ Streamline name: <code>$MaliFragmentZSQuadsEarlyZSKilledQuads</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>FRAG_QUADS_EZS_KILL</code>
-</div>
-</div>
-<div class="lgc-series">
-<h4 id="c_219">Early ZS updated quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every quad undergoing early depth and stencil
-testing that can update the framebuffer. Quads that have a depth value that
-depends on shader behavior, or those that have indeterminate coverage because
-of use of alpha-to-coverage or discard statements in the shader, might be early
-ZS tested but can not do an early ZS update.</p>
-<p>For maximum performance, this number must be close to the total number of input
-quads. Aim to maximize the number of quads that are capable of doing an early
-ZS update.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragEZSUpdateQd</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliFragmentZSQuadsEarlyZSUpdatedQuads</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>FRAG_QUADS_EZS_UPDATE</code>
 </div>
 </div>
 <div class="lgc-series">
@@ -2628,20 +2839,6 @@ libGPUCounters name: <code>MaliFragFPKKillQd</code>
 </div></div>
 </div>
 <div class="lgc-series">
-<h4 id="c_222">Late ZS killed quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every quad killed by late depth and stencil
-testing.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragLZSKillQd</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliFragmentZSQuadsLateZSKilledQuads</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>FRAG_LZS_KILL</code>
-</div>
-</div>
-<div class="lgc-series">
 <h4 id="c_221">Late ZS tested quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every quad undergoing late depth and stencil
 testing.</p>
@@ -2655,44 +2852,28 @@ Streamline name: <code>$MaliFragmentZSQuadsLateZSTestedQuads</code>
 Hardware name: <code>FRAG_LZS_TEST</code>
 </div>
 </div>
+<div class="lgc-series">
+<h4 id="c_222">Late ZS killed quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments for every quad killed by late depth and stencil
+testing.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliFragLZSKillQd</code>
+</div>
+<div class="lgc-equation-format-sl">
+Streamline name: <code>$MaliFragmentZSQuadsLateZSKilledQuads</code>
+</div>
+<div class="lgc-equation-format-hw">
+Hardware name: <code>FRAG_LZS_KILL</code>
+</div>
+</div>
 </div>
 <div class="lgc-group">
 <h3 id="g_zsunittestrate">ZS Unit Test Rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the relative numbers of quads doing early and late
-depth (Z) and stencil (Z) testing.</p>
-<div class="lgc-series">
-<h4 id="c_65580">Early ZS kill rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the percentage of rasterized quads that are killed by
-early depth and stencil testing.</p>
-<p>Quads killed at this stage are killed before shading, so a high percentage here
-is not generally a performance problem. However, it can indicate an opportunity
-to use software culling techniques such as portal culling to avoid sending
-occluded geometry to the GPU.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragEZSKillRate</code>
-</div>
-<div><div class="lgc-equation">
-<div class="lgc-equation-format-lgc">
-<p>libGPUCounters derivation:</p>
-<pre><code>max(min((MaliFragEZSKillQd / MaliFragRastQd) * 100, 100), 0)</code></pre>
-</div>
-</div></div>
-<div><div class="lgc-equation">
-<div class="lgc-equation-format-sl">
-<p>Streamline derivation:</p>
-<pre><code>max(min(($MaliFragmentZSQuadsEarlyZSKilledQuads / $MaliFragmentQuadsRasterizedFineQuads) * 100, 100), 0)</code></pre>
-</div>
-</div></div>
-<div><div class="lgc-equation">
-<div class="lgc-equation-format-hw">
-<p>Hardware derivation:</p>
-<pre><code>max(min((FRAG_QUADS_EZS_KILL / FRAG_QUADS_RAST) * 100, 100), 0)</code></pre>
-</div>
-</div></div>
-</div>
+depth (Z) and stencil (S) testing.</p>
 <div class="lgc-series">
 <h4 id="c_65578">Early ZS test rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the percentage of rasterized quads that were subjected
+<p>This expression defines the percentage of rasterized quads that are subjected
 to early depth and stencil testing.</p>
 <p>To achieve the best early test rates, enable depth testing, and avoid draw
 calls with modifiable coverage or draw calls with fragment shader programs that
@@ -2745,6 +2926,36 @@ libGPUCounters name: <code>MaliFragEZSUpdateRate</code>
 <div class="lgc-equation-format-hw">
 <p>Hardware derivation:</p>
 <pre><code>max(min((FRAG_QUADS_EZS_UPDATE / FRAG_QUADS_RAST) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series">
+<h4 id="c_65580">Early ZS kill rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage of rasterized quads that are killed by
+early depth and stencil testing.</p>
+<p>Quads killed at this stage are killed before shading, so a high percentage here
+is not generally a performance problem. However, it can indicate an opportunity
+to use software culling techniques such as portal culling to avoid sending
+occluded geometry to the GPU.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliFragEZSKillRate</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min((MaliFragEZSKillQd / MaliFragRastQd) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(($MaliFragmentZSQuadsEarlyZSKilledQuads / $MaliFragmentQuadsRasterizedFineQuads) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min((FRAG_QUADS_EZS_KILL / FRAG_QUADS_RAST) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 </div>
@@ -2805,6 +3016,39 @@ libGPUCounters name: <code>MaliFragFPKKillRate</code>
 </div></div>
 </div>
 <div class="lgc-series">
+<h4 id="c_65583">Late ZS test rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage of rasterized quads that are tested by
+late depth and stencil testing.</p>
+<p>A high percentage of fragments performing a late ZS update can cause slow
+performance, even if fragments are not killed. Younger fragments can not
+complete early ZS until all older fragments at the same coordinate complete
+their late ZS operations, which can cause stalls.</p>
+<p>You achieve the lowest late test rates by avoiding draw calls with modifiable
+coverage, or with shader programs that write to their depth value or that have
+memory-visible side-effects.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliFragLZSTestRate</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min((MaliFragLZSTestQd / MaliFragRastQd) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(($MaliFragmentZSQuadsLateZSTestedQuads / $MaliFragmentQuadsRasterizedFineQuads) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min((FRAG_LZS_TEST / FRAG_QUADS_RAST) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series">
 <h4 id="c_65584">Late ZS kill rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage of rasterized quads that are killed by
 late depth and stencil testing. Quads killed by late ZS testing run at least
@@ -2836,39 +3080,6 @@ libGPUCounters name: <code>MaliFragLZSKillRate</code>
 <div class="lgc-equation-format-hw">
 <p>Hardware derivation:</p>
 <pre><code>max(min((FRAG_LZS_KILL / FRAG_QUADS_RAST) * 100, 100), 0)</code></pre>
-</div>
-</div></div>
-</div>
-<div class="lgc-series">
-<h4 id="c_65583">Late ZS test rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the percentage of rasterized quads that are tested by
-late depth and stencil testing.</p>
-<p>A high percentage of fragments performing a late ZS update can cause slow
-performance, even if fragments are not killed. Younger fragments cannot
-complete early ZS until all older fragments at the same coordinate have
-completed their late ZS operations, which can cause stalls.</p>
-<p>You achieve the lowest late test rates by avoiding draw calls with modifiable
-coverage,, or with shader programs that write to their depth value or that have
-memory-visible side-effects</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliFragLZSTestRate</code>
-</div>
-<div><div class="lgc-equation">
-<div class="lgc-equation-format-lgc">
-<p>libGPUCounters derivation:</p>
-<pre><code>max(min((MaliFragLZSTestQd / MaliFragRastQd) * 100, 100), 0)</code></pre>
-</div>
-</div></div>
-<div><div class="lgc-equation">
-<div class="lgc-equation-format-sl">
-<p>Streamline derivation:</p>
-<pre><code>max(min(($MaliFragmentZSQuadsLateZSTestedQuads / $MaliFragmentQuadsRasterizedFineQuads) * 100, 100), 0)</code></pre>
-</div>
-</div></div>
-<div><div class="lgc-equation">
-<div class="lgc-equation-format-hw">
-<p>Hardware derivation:</p>
-<pre><code>max(min((FRAG_LZS_TEST / FRAG_QUADS_RAST) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 </div>
@@ -2911,7 +3122,7 @@ libGPUCounters name: <code>MaliFragTransparentQd</code>
 <h4 id="c_225">Occluding quads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every quad that is a valid occluder for hidden
 surface removal. To be a candidate occluder, a quad must be guaranteed to be
-opaque and have fulled resolved at early ZS.</p>
+opaque and have fully resolved at early ZS.</p>
 <p>Draw calls that use blending, shader discard, alpha-to-coverage, programmable
 depth, or programmable tile buffer access can not be occluders.</p>
 <div class="lgc-equation-format-lgc">
@@ -2931,10 +3142,10 @@ Hardware name: <code>QUAD_FPK_KILLER</code>
 identify specific application optimization opportunities.</p>
 <div class="lgc-series">
 <h4 id="c_65576">Partial coverage rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the percentage of warps quads that contain fragment
-samples with no coverage. A high percentage can indicate that the content has a
-high density of small triangles, which are expensive to process. To avoid this,
-use mesh level-of-detail algorithms to select simpler meshes as objects move
+<p>This expression defines the percentage of warps that contain fragment samples
+with no coverage. A high percentage can indicate that the content has a high
+density of small triangles, which are expensive to process. To avoid this, use
+mesh level-of-detail algorithms to select simpler meshes as objects move
 further from the camera.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliFragPartWarpRate</code>
@@ -2998,18 +3209,18 @@ libGPUCounters name: <code>MaliFragTileKillRate</code>
 <div class="lgc-section">
 <h2 id="s_shadercoreprogrammablecore">Shader Core Programmable Core <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
 <p>The programmable core is responsible for executing shader programs. This
-generation of Arm GPUs are warp-based, scheduling multiple threads from the
-same program in lockstep to improve energy efficiency.</p>
+generation of Arm GPUs is warp-based, scheduling multiple threads from the same
+program in lockstep to improve energy efficiency.</p>
 <p>The programmable core is a massively multi-threaded core, allowing many
 concurrently resident warps, which provides a level of tolerance to cache
-misses and data fetch latency. For most applications having more threads
+misses and data fetch latency. For most applications, having more threads
 resident improves performance, as it increases the number of threads available
 for latency hiding, but it might decrease performance if the additional threads
 cause cache thrashing.</p>
-<p>The core is built from a multiple independent hardware units, which can be
-simultaneously processing workloads from any of the resident threads. The most
-heavily loaded unit will set the upper bound on performance, with the other
-units running in parallel to it.</p>
+<p>The core is built from multiple independent hardware units, which can process
+workloads from any of the resident threads simultaneously. The most heavily
+loaded unit sets the upper bound on performance, with the other units running
+in parallel with it.</p>
 <p>Performance counters in this section show the overall utilization of the
 different hardware units, making it easier to identify the units that are
 likely to be on the critical path.</p>
@@ -3017,9 +3228,9 @@ likely to be on the critical path.</p>
 <h3 id="g_shadercoreunitutilization">Shader Core Unit Utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the use of each of the functional units inside the
 shader core, relative to their speed-of-light capability.</p>
-<p>These units can run in parallel, and well performing content can expect peak
+<p>These units can run in parallel, and well-performing content can expect peak
 load to be above 80% utilization on the most heavily used units. In this
-scenario reducing use of those units is likely to improve application
+scenario, reducing use of those units is likely to improve application
 performance.</p>
 <p>If no unit is heavily loaded, it implies that the shader core is starving for
 work. This can be because not enough threads are getting spawned by the
@@ -3044,7 +3255,7 @@ libGPUCounters name: <code>MaliALUUtil</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliALUInstructionsExecutedInstructions / $MaliShaderCoreCyclesExecutionCoreActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliALUInstructionsExecutedInstructions / $MaliShaderCoreCyclesProgrammableCoreActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -3079,7 +3290,7 @@ libGPUCounters name: <code>MaliLSUtil</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min((($MaliLoadStoreUnitCyclesFullReads + $MaliLoadStoreUnitCyclesPartialReads + $MaliLoadStoreUnitCyclesFullWrites + $MaliLoadStoreUnitCyclesPartialWrites + $MaliLoadStoreUnitCyclesAtomicAccesses) / $MaliShaderCoreCyclesExecutionCoreActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min((($MaliLoadStoreUnitCyclesFullReads + $MaliLoadStoreUnitCyclesPartialReads + $MaliLoadStoreUnitCyclesFullWrites + $MaliLoadStoreUnitCyclesPartialWrites + $MaliLoadStoreUnitCyclesAtomicAccesses) / $MaliShaderCoreCyclesProgrammableCoreActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -3108,7 +3319,7 @@ libGPUCounters name: <code>MaliVarUtil</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min((($MaliVaryingUnitRequests32BitInterpolationSlots + $MaliVaryingUnitRequests16BitInterpolationSlots) / $MaliShaderCoreCyclesExecutionCoreActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min((($MaliVaryingUnitRequests32BitInterpolationSlots + $MaliVaryingUnitRequests16BitInterpolationSlots) / $MaliShaderCoreCyclesProgrammableCoreActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -3121,11 +3332,10 @@ libGPUCounters name: <code>MaliVarUtil</code>
 <div class="lgc-series">
 <h4 id="c_65644">Texture unit utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage utilization of the texturing unit.</p>
-<p>The most effective technique for reducing texturing unit load is reducing the
-number of texture samples read by your shaders. Using 32bpp color formats, and
-the ASTC decode mode extensions to select a 32bpp intermediate precision, can
-reduce cache access cost. Using simpler texture filters can reduce filtering
-cost. Using a 16bit per component sampler result can reduce data return cost.</p>
+<p>Texture unit performance can be impacted by multiple factors, including message
+bus bandwidth, texture cache bandwidth, and texture filtering usage. Other
+counters can show more specific information about why the texture unit is
+heavily utilized.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTexUtil</code>
 </div>
@@ -3138,7 +3348,7 @@ libGPUCounters name: <code>MaliTexUtil</code>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliTextureUnitCyclesFilteringActive / $MaliShaderCoreCyclesExecutionCoreActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliTextureUnitCyclesFilteringActive / $MaliShaderCoreCyclesProgrammableCoreActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -3156,17 +3366,17 @@ accept new warps, but the front-end has no new warp ready to run. This might be
 because the front-end is a bottleneck, or because the workload requires no
 warps to be spawned.</p>
 <div class="lgc-series lgc-advanced-app">
-<h4 id="c_236">Execution engine starvation <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_236">Instruction issue starvation <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments every clock cycle when the programmable core contains
-threads to run, and is ready to accept a new instruction, but no new thread is
-available to run. This typically occurs when all threads are blocked waiting
-for the result from an asynchronous processing operation, such as a texture
-filtering operation or a data fetch from memory.</p>
+threads to run, and is ready to accept a new instruction, but no new
+instructions is available to run. This typically occurs when all threads are
+blocked waiting for the result from an asynchronous processing operation, such
+as a texture filtering operation or a data fetch from memory.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliEngStarveCy</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliShaderCoreStallCyclesExecutionEngineStarvation</code>
+Streamline name: <code>$MaliShaderCoreStallCyclesInstructionIssueStarvation</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>EXEC_INSTR_STARVING</code>
@@ -3242,7 +3452,7 @@ Hardware name: <code>FRAG_PARTIAL_WARPS</code>
 <p>This counter group shows the number of threads created, split by type. This can
 help you to understand the running workload mix.</p>
 <p>Counters in this group are derived by scaling quad or warp counters, and their
-counts will include unused thread slots in the coarser granule.</p>
+counts include unused thread slots in the coarser granule.</p>
 <div class="lgc-series">
 <h4 id="c_65591">Non-fragment threads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the number of non-fragment threads started.</p>
@@ -3336,16 +3546,16 @@ libGPUCounters name: <code>MaliEngDivergedInstrRate</code>
 <h2 id="s_shadercorearithmeticunit">Shader Core Arithmetic Unit <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
 <p>The arithmetic unit in the shader core processes all the arithmetic and logic
 operations in the running shader programs.</p>
-<p>Performance counters in this section show how the running programs used the
+<p>Performance counters in this section show how the running programs use the
 arithmetic units, which may indicate the type of operations that are consuming
 the most performance.</p>
 <div class="lgc-group">
 <h3 id="g_alucycles">ALU Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of cycles when work was issued to the
+<p>This counter group shows the number of cycles when work is issued to the
 arithmetic and logic unit.</p>
 <div class="lgc-series">
 <h4 id="c_556">Arithmetic unit issues <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the number of cycles that the arithmetic unit was busy
+<p>This expression defines the number of cycles that the arithmetic unit is busy
 processing work.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliALUIssueCy</code>
@@ -3391,9 +3601,9 @@ Hardware name: <code>EXEC_INSTR_COUNT</code>
 <div class="lgc-series">
 <h4 id="c_235">Diverged instructions <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every instruction the programmable core processes
-per warp where there is control flow divergence across the warp. Control flow
+per warp when there is control flow divergence across the warp. Control flow
 divergence erodes arithmetic processing efficiency because it implies some
-threads in the warp are idle because they did not take the current control path
+threads in the warp are idle because they do not take the current control path
 through the code. Aim to minimize control flow divergence when designing shader
 effects.</p>
 <div class="lgc-equation-format-lgc">
@@ -3412,13 +3622,13 @@ Hardware name: <code>EXEC_INSTR_DIVERGED</code>
 <h2 id="s_shadercoreloadstoreunit">Shader Core Load/store Unit <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
 <p>The load/store unit in the shader core handles all generic read/write data
 access, including access to vertex attributes, buffers, images, workgroup local
-storage, and program stack.</p>
-<p>Performance counters in this section show the breakdown of performed load/store
-cache accesses, showing whether accesses are using an entire cache line or just
-using part of one.</p>
+storage, and the program stack.</p>
+<p>Performance counters in this section show a breakdown of load/store cache
+accesses, showing whether accesses use an entire cache line or only part of
+one.</p>
 <div class="lgc-group">
 <h3 id="g_loadstoreunitcycles">Load/Store Unit Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of cycles when work was issued to the
+<p>This counter group shows the number of cycles when work is issued to the
 load/store unit.</p>
 <div class="lgc-series">
 <h4 id="c_65629">Load/store unit issues <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
@@ -3570,7 +3780,7 @@ Hardware name: <code>LS_MEM_WRITE_SHORT</code>
 <div class="lgc-series">
 <h4 id="c_279">Atomic accesses <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every atomic access.</p>
-<p>Atomic memory accesses are typically multicycle operations per thread in a
+<p>Atomic memory accesses are typically multicycle operations per thread in the
 warp, so they are exceptionally expensive. Minimize the use of atomics in
 performance critical code.</p>
 <div class="lgc-equation-format-lgc">
@@ -3589,8 +3799,8 @@ Hardware name: <code>LS_MEM_ATOMIC</code>
 <h2 id="s_shadercorevaryingunit">Shader Core Varying Unit <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
 <p>The varying unit in the shader core handles all vertex data interpolation in
 fragment shaders.</p>
-<p>Performance counters in this section show the breakdown of performed
-interpolation operations.</p>
+<p>Performance counters in this section show a breakdown of interpolation
+operations.</p>
 <div class="lgc-group lgc-advanced-app">
 <h3 id="g_varyingunitrequests">Varying Unit Requests <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of requests made to the varying
@@ -3611,9 +3821,10 @@ Hardware name: <code>VARY_INSTR</code>
 </div>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_324">16-bit interpolation slots <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every 16-bit interpolation slot processed by the
-varying unit.</p>
-<p>The width of each slot and the number of slots is GPU dependent.</p>
+<p>This counter increments for every 16-bit per component interpolation slot
+issued to the varying unit.</p>
+<p>The number of threads per slot, the number of components per slot, and the
+number of slot issues per cycle, is implementation dependent.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliVar16IssueSlot</code>
 </div>
@@ -3626,11 +3837,12 @@ Hardware name: <code>VARY_SLOT_16</code>
 </div>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_323">32-bit interpolation slots <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every 32-bit interpolation slot processed by the
-varying unit. 32-bit interpolation is half the performance of 16-bit
-interpolation, so if content is varying bound consider reducing precision of
-varying inputs to fragment shaders.</p>
-<p>The width of each slot and the number of slots is GPU dependent.</p>
+<p>This counter increments for every 32-bit per component interpolation slot
+issued to the varying unit. 32-bit interpolation is half the performance of
+16-bit interpolation, so if content is varying bound consider reducing
+precision of varying inputs to fragment shaders.</p>
+<p>The number of threads per slot, the number of components per slot, and the
+number of slot issues per cycle, is implementation dependent.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliVar32IssueSlot</code>
 </div>
@@ -3644,7 +3856,7 @@ Hardware name: <code>VARY_SLOT_32</code>
 </div>
 <div class="lgc-group">
 <h3 id="g_varyingunitcycles">Varying Unit Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of cycles when work was issued to the
+<p>This counter group shows the number of cycles when work is issued to the
 varying interpolation unit.</p>
 <div class="lgc-series">
 <h4 id="c_65630">Varying unit issues <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
@@ -3674,8 +3886,8 @@ libGPUCounters name: <code>MaliVarIssueCy</code>
 </div>
 <div class="lgc-series">
 <h4 id="c_282">16-bit interpolation issues <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every 16-bit interpolation cycle processed by the
-varying unit.</p>
+<p>This counter increments for every 16-bit per component interpolation cycle
+processed by the varying unit.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliVar16IssueCy</code>
 </div>
@@ -3700,10 +3912,10 @@ libGPUCounters name: <code>MaliVar16IssueCy</code>
 </div>
 <div class="lgc-series">
 <h4 id="c_281">32-bit interpolation issues <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every 32-bit interpolation cycle processed by the
-varying unit. 32-bit interpolation is half the performance of 16-bit
-interpolation, so if content is varying bound consider reducing precision of
-varying inputs to fragment shaders.</p>
+<p>This counter increments for every 32-bit per component interpolation cycle
+processed by the varying unit. 32-bit interpolation is half the performance of
+16-bit interpolation, so if content is varying bound consider reducing
+precision of varying inputs to fragment shaders.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliVar32IssueCy</code>
 </div>
@@ -3732,8 +3944,8 @@ libGPUCounters name: <code>MaliVar32IssueCy</code>
 <h2 id="s_shadercoretextureunit">Shader Core Texture Unit <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
 <p>The texture unit in the shader core handles all read-only texture access and
 filtering.</p>
-<p>Performance counters in this section show the breakdown of performed texturing
-operations, and use of sub-units inside the texturing hardware.</p>
+<p>Performance counters in this section show a breakdown of texturing operations
+and the use of sub-units inside the texturing hardware.</p>
 <div class="lgc-group">
 <h3 id="g_textureunitrequests">Texture Unit Requests <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of requests made to the texture unit.</p>
@@ -3789,8 +4001,7 @@ operation is split into multiple bilinear passes for:</p>
 <li>Use of trilinear filtering</li>
 <li>Use of anisotropic filtering</li>
 <li>Use of a 3D texture format</li>
-<li>Use of a cubemap texture format that requires data from multiple cube
-  faces.</li>
+<li>Use of a cubemap texture format that requires data from multiple cube faces.</li>
 </ul>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTexQuadPass</code>
@@ -3808,7 +4019,7 @@ Hardware name: <code>TEX_DFCH_NUM_PASSES</code>
 resource or sampler descriptor cache. A high miss rate in the descriptor cache
 can indicate:</p>
 <ul>
-<li>Cache thrashing because of too many unique texture or sampler descriptors</li>
+<li>Cache thrashing due to too many unique texture or sampler descriptors</li>
 <li>A high memory fetch latency causing multiple sampling operations to miss on
   the same descriptor</li>
 </ul>
@@ -3854,11 +4065,11 @@ Hardware name: <code>TEX_TIDX_NUM_SPLIT_MIP_MAP</code>
 </div>
 <div class="lgc-group">
 <h3 id="g_textureunitcycles">Texture Unit Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of cycles when work was issued to the
+<p>This counter group shows the number of cycles when work is issued to the
 sub-units inside the texture unit.</p>
 <div class="lgc-series">
 <h4 id="c_457">Texture unit issues <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression measures the number of cycles the texture unit was busy
+<p>This expression measures the number of cycles the texture unit is busy
 processing work.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTexIssueCy</code>
@@ -3909,8 +4120,7 @@ Hardware name: <code>TEX_FILT_NUM_OPERATIONS</code>
 </div>
 <div class="lgc-group">
 <h3 id="g_textureunitusagerate">Texture Unit Usage Rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the properties of texturing workloads that are being
-performed.</p>
+<p>This counter group shows the properties of texturing workloads being performed.</p>
 <div class="lgc-series">
 <h4 id="c_65614">Compressed line fetch rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage of texture line fetches that are from
@@ -4001,7 +4211,7 @@ libGPUCounters name: <code>MaliTexTriInstrRate</code>
 <h3 id="g_textureunitcpi">Texture Unit CPI <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the average cost of texture samples.</p>
 <div class="lgc-series">
-<h4 id="c_65626">Texture CPI <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_65626">Filtering CPI <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the average number of texture filtering cycles per
 instruction. For texture-limited content that has a CPI higher than the optimal
 throughout of this core (<a href="#c_65610">2</a> samples per cycle), consider
@@ -4036,22 +4246,26 @@ libGPUCounters name: <code>MaliTexCPI</code>
 <p>This counter group shows the use of some of the functional units and data paths
 inside the texture unit, relative to their speed-of-light capability.</p>
 <div class="lgc-series">
-<h4 id="c_65662">Cache utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the percentage utilization of the texturing unit cache
-lookup path.</p>
+<h4 id="c_65662">Cache lookup utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage utilization of the texture cache lookup
+unit.</p>
+<p>If cache lookup unit utilization is high, relative to other texture unit
+component utilization, you might be able to reduce texturing cost by using
+narrower texture color formats. For ASTC textures you can narrow the
+post-decompression format by using the decode_mode extensions.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTexCacheUtil</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
 <p>libGPUCounters derivation:</p>
-<pre><code>max(min((MaliTexCacheLookup / MaliCoreActiveCy) * 100, 100), 0)</code></pre>
+<pre><code>max(min((MaliTexCacheLookupCy / MaliCoreActiveCy) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-sl">
 <p>Streamline derivation:</p>
-<pre><code>max(min(($MaliTextureUnitCacheCyclesCacheLookup / $MaliShaderCoreCyclesExecutionCoreActive) * 100, 100), 0)</code></pre>
+<pre><code>max(min(($MaliTextureUnitCacheCyclesCacheLookups / $MaliShaderCoreCyclesProgrammableCoreActive) * 100, 100), 0)</code></pre>
 </div>
 </div></div>
 <div><div class="lgc-equation">
@@ -4061,23 +4275,53 @@ libGPUCounters name: <code>MaliTexCacheUtil</code>
 </div>
 </div></div>
 </div>
+<div class="lgc-series">
+<h4 id="c_806">Filtering utilization <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage utilization of the texture filtering
+unit.</p>
+<p>If filtering unit utilization is high, relative to other texture unit component
+utilization, you might be able to reduce texturing cost by using simpler
+texture filters. You can do this by using less trilinear filtering and
+anisotropic filtering.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliTexFiltUtil</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min((MaliTexFiltIssueCy / MaliCoreActiveCy) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(($MaliTextureUnitCyclesFilteringActive / $MaliShaderCoreCyclesProgrammableCoreActive) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min((TEX_FILT_NUM_OPERATIONS / EXEC_CORE_ACTIVE) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
 </div>
 <div class="lgc-group">
 <h3 id="g_textureunitcachecycles">Texture Unit Cache Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of cache access cycles for the data caches
 inside the texture unit.</p>
 <div class="lgc-series">
-<h4 id="c_264">Cache lookup <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_264">Cache lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every texture cache lookup cycle. A high number of
 cache lookups per pass can indicate a poor access pattern, that sparsely
 samples texels from a high resolution texture. This normally occurs for 3D
-content that has failed to use mipmaps, and so accesses the high resolution
-level 0 surface when an object is distant from the camera.</p>
+content that does not use mipmaps, and so accesses the high resolution level 0
+surface when an object is distant from the camera.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliTexCacheLookup</code>
+libGPUCounters name: <code>MaliTexCacheLookupCy</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliTextureUnitCacheCyclesCacheLookup</code>
+Streamline name: <code>$MaliTextureUnitCacheCyclesCacheLookups</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>TEX_TFCH_NUM_OPERATIONS</code>
@@ -4151,10 +4395,10 @@ performance.</p>
 <p>Performance counters in this section show the breakdown of memory accesses by
 shader core hardware unit, showing the total amount of read and write bandwidth
 being generated by the shader core.</p>
-<p>Read bandwidth is split to show how much was provided by the GPU L2 cache and
-how much was provided by the external memory system. Write bandwidth does not
+<p>Read bandwidth is split to show how much is provided by the GPU L2 cache and
+how much is provided by the external memory system. Write bandwidth does not
 have an equivalent split, and it is not possible to tell from the counters if a
-write went to L2 or directly to external memory.</p>
+write goes to L2 or directly to external memory.</p>
 <div class="lgc-group lgc-advanced-app">
 <h3 id="g_shadercorel2reads">Shader Core L2 Reads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of shader core read transactions served
@@ -4221,8 +4465,8 @@ from external memory, broken down by hardware unit inside the shader core.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_286">Fragment front-end beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every read beat received by the fixed-function
-fragment front-end that required an external memory access because of an L2
-cache miss.</p>
+fragment front-end that requires an external memory access due to an L2 cache
+miss.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusFFEExtRdBt</code>
 </div>
@@ -4236,7 +4480,7 @@ Hardware name: <code>BEATS_RD_FTC_EXT</code>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_288">Load/store unit beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every read beat received by the load/store unit
-that required an external memory access because of an L2 cache miss.</p>
+that requires an external memory access due to an L2 cache miss.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusLSExtRdBt</code>
 </div>
@@ -4250,7 +4494,7 @@ Hardware name: <code>BEATS_RD_LSC_EXT</code>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_290">Texture unit beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every read beat received by the texture unit that
-required an external memory access because of an L2 cache miss.</p>
+requires an external memory access due to an L2 cache miss.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusTexExtRdBt</code>
 </div>
@@ -4293,8 +4537,8 @@ libGPUCounters name: <code>MaliSCBusLSWrBt</code>
 </div>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_293">Load/store unit write-back beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every write beat by the load/store unit that are
-because of write-back.</p>
+<p>This counter increments for every write beat by the load/store unit that is
+caused by write-back.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusLSWBWrBt</code>
 </div>
@@ -4307,8 +4551,8 @@ Hardware name: <code>BEATS_WR_LSC_WB</code>
 </div>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_294">Load/store unit other beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every write beat by the load/store unit that are
-because of any reason other than write-back.</p>
+<p>This counter increments for every write beat by the load/store unit that is not
+caused by write-back.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusLSOtherWrBt</code>
 </div>
@@ -4321,7 +4565,8 @@ Hardware name: <code>BEATS_WR_LSC_OTHER</code>
 </div>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_295">Tile unit beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every write beat sent by the tile write-back unit.</p>
+<p>This counter increments for every write beat sent by the framebuffer tile
+write-back unit.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusTileWrBt</code>
 </div>
@@ -4415,6 +4660,32 @@ libGPUCounters name: <code>MaliSCBusTexL2RdBy</code>
 </div>
 </div></div>
 </div>
+<div class="lgc-series lgc-advanced-app">
+<h4 id="c_569">Other unit bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments for every read byte received by any unit that is not
+identified as a specific data destination.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliSCBusOtherL2RdBy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>MaliSCBusOtherL2RdBt * 16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>$MaliShaderCoreL2ReadsOtherUnitBeats * 16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>BEATS_RD_OTHER * 16</code></pre>
+</div>
+</div></div>
+</div>
 </div>
 <div class="lgc-group">
 <h3 id="g_shadercoreexternalreadbytes">Shader Core External Read Bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
@@ -4503,8 +4774,8 @@ libGPUCounters name: <code>MaliSCBusTexExtRdBy</code>
 <h3 id="g_shadercorel2writebytes">Shader Core L2 Write Bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the number of bytes written by the shader core, broken
 down by hardware unit inside the shader core.</p>
-<p>These writes are written to the L2 memory system, but counters cannot determine
-if the write was written to the L2 cache or directly to external memory.</p>
+<p>These writes go to the L2 memory system, but counters can not determine if each
+write goes to the L2 cache or directly to external memory.</p>
 <div class="lgc-series">
 <h4 id="c_65639">Load/store unit bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the total number of bytes written to the L2 memory
@@ -4534,7 +4805,7 @@ libGPUCounters name: <code>MaliSCBusLSWrBy</code>
 <div class="lgc-series">
 <h4 id="c_65642">Tile unit bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the total number of bytes written to the L2 memory
-system by the tile write-back unit.</p>
+system by the framebuffer tile write-back unit.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusTileWrBy</code>
 </div>
@@ -4742,16 +5013,16 @@ render pass store configuration.</p>
 practices:</p>
 <ul>
 <li>Use the smallest pixel color format that meets your requirements.</li>
-<li>Discard transient attachments that are no longer required at the end of
-  each render pass (Vulkan storeOp=DONT_CARE or storeOp=NONE).</li>
-<li>Use resolve attachments to resolve multi-sampled data into a single value
-  as part of tile write-back and discard the multi-sampled data so that it is
-  not written back to memory.</li>
+<li>Discard transient attachments that are no longer required at the end of each
+  render pass (Vulkan storeOp=DONT_CARE or storeOp=NONE).</li>
+<li>Use resolve attachments to resolve multi-sampled data into a single value as
+  part of tile write-back and discard the multi-sampled data so that it is not
+  written back to memory.</li>
 </ul>
 <div class="lgc-series">
 <h4 id="c_544">External write bytes/px <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This expression defines the average number of bytes written to the L2 memory
-system by the tile unit per output pixel.</p>
+<p>This expression defines the average number of bytes per output pixel written to
+the L2 memory system by the framebuffer tile unit.</p>
 <p>If more bytes are being written per pixel than expected, Arm recommends:</p>
 <ul>
 <li>Using narrower attachment color formats with fewer bytes per pixel.</li>
@@ -4786,14 +5057,33 @@ libGPUCounters name: <code>MaliSCBusTileWrBPerPx</code>
 </div>
 <div class="lgc-section">
 <h2 id="s_tiling">Tiling <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h2>
-<p>The tiler hardware orchestrates vertex shading, and binning primitives into the
+<p>The tiler hardware orchestrates vertex shading and bins primitives into the
 tile lists read during fragment shading.</p>
-<p>Performance counters in this section show how the tiler processed the
+<p>Performance counters in this section show how the tiler processes the
 binning-time vertex and primitive workload.</p>
 <div class="lgc-group lgc-advanced-app">
+<h3 id="g_tilercycles">Tiler Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the number of cycles when individual sub-units inside
+the tiler are active.</p>
+<div class="lgc-series lgc-advanced-app">
+<h4 id="c_160">Position shading active <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments every clock cycle when the tiler has an outstanding
+position shading request that is still being processed by a shader core.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliTilerPosShadWaitCy</code>
+</div>
+<div class="lgc-equation-format-sl">
+Streamline name: <code>$MaliTilerCyclesPositionShadingActive</code>
+</div>
+<div class="lgc-equation-format-hw">
+Hardware name: <code>IDVS_POS_SHAD_WAIT</code>
+</div>
+</div>
+</div>
+<div class="lgc-group lgc-advanced-app">
 <h3 id="g_tilerstallcycles">Tiler Stall Cycles <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of cycles that individual sub-units inside
-the tiler were stalled.</p>
+<p>This counter group shows the number of cycles when individual sub-units inside
+the tiler are stalled.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_162">Position FIFO full stalls <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments every clock cycle when the tiler has a position shading
@@ -4904,36 +5194,101 @@ Hardware name: <code>IDVS_VBU_MISS</code>
 </div>
 </div>
 <div class="lgc-group lgc-advanced-app">
-<h3 id="g_tilerl2accesses">Tiler L2 Accesses <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of tiler memory transactions into the L2
-memory system.</p>
+<h3 id="g_tilerl2reads">Tiler L2 Reads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the number of tiler read accesses from the L2 memory
+system.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_154">Read beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data read cycle the tiler uses on the
-internal bus.</p>
+internal bus from the L2 memory system.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTilerRdBt</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliTilerL2AccessesReadBeats</code>
+Streamline name: <code>$MaliTilerL2ReadsReadBeats</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>BUS_READ</code>
 </div>
 </div>
+</div>
+<div class="lgc-group lgc-advanced-app">
+<h3 id="g_tilerl2writes">Tiler L2 Writes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the number of tiler write accesses to the L2 memory
+system.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_155">Write beats <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every data write cycle the tiler uses on the
-internal bus.</p>
+internal bus to the L2 memory system.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliTilerWrBt</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliTilerL2AccessesWriteBeats</code>
+Streamline name: <code>$MaliTilerL2WritesWriteBeats</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>BUS_WRITE</code>
 </div>
+</div>
+</div>
+<div class="lgc-group lgc-advanced-app">
+<h3 id="g_tilerl2readbytes">Tiler L2 Read Bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the tiler read bandwidth from the L2 memory system.</p>
+<div class="lgc-series lgc-advanced-app">
+<h4 id="c_411">Read bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the number of bytes that the tiler reads from the
+internal bus to the L2 memory system.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliTilerRdBy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>MaliTilerRdBt * 16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>$MaliTilerL2ReadsReadBeats * 16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>BUS_READ * 16</code></pre>
+</div>
+</div></div>
+</div>
+</div>
+<div class="lgc-group lgc-advanced-app">
+<h3 id="g_tilerl2writebytes">Tiler L2 Write Bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the tiler write bandwidth to the L2 memory system.</p>
+<div class="lgc-series lgc-advanced-app">
+<h4 id="c_568">Write bytes <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the number of bytes that the tiler writes to the
+internal bus to the L2 memory system.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliTilerWrBy</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>MaliTilerWrBt * 16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>$MaliTilerL2WritesWriteBeats * 16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>BUS_WRITE * 16</code></pre>
+</div>
+</div></div>
 </div>
 </div>
 <div class="lgc-group">
@@ -4949,13 +5304,13 @@ visible vertices that survive primitive culling.</p>
 <p>This counter increments for every position shading request in the tiler
 geometry flow. Position shading runs the first part of the vertex shader,
 computing the position required to perform clipping and culling. A vertex that
-has been evicted from the post-transform cache must be reshaded if used again,
-so your index buffers must have good spatial locality of index reuse.</p>
+is evicted from the post-transform cache must be reshaded if used again, so
+your index buffers must have good spatial locality of index reuse.</p>
 <p>Each request contains <a href="#c_65564">4</a> vertices.</p>
 <p>Note that not all types of draw call use this tiler workflow, so this counter
 might not account for all submitted geometry.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliGeomPosShadTask</code>
+libGPUCounters name: <code>MaliTilerPosShadTask</code>
 </div>
 <div class="lgc-equation-format-sl">
 Streamline name: <code>$MaliTilerShadingRequestsPositionShadingRequests</code>
@@ -4969,13 +5324,13 @@ Hardware name: <code>IDVS_POS_SHAD_REQ</code>
 <p>This counter increments for every varying shading request in the tiler geometry
 flow. Varying shading runs the second part of the vertex shader, for any
 primitive that survives clipping and culling. The same vertex is shaded
-multiple times if it has been evicted from the post-transform cache before
-reuse occurs. Keep good spatial locality of index reuse in your index buffers.</p>
+multiple times if it is evicted from the post-transform cache before reuse
+occurs. Keep good spatial locality of index reuse in your index buffers.</p>
 <p>Each request contains <a href="#c_65564">4</a> vertices.</p>
 <p>Note that not all types of draw call use this tiler workflow, so this counter
 might not account for all submitted geometry.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliGeomVarShadTask</code>
+libGPUCounters name: <code>MaliTilerVarShadTask</code>
 </div>
 <div class="lgc-equation-format-sl">
 Streamline name: <code>$MaliTilerShadingRequestsVaryingShadingRequests</code>
@@ -5047,11 +5402,11 @@ libGPUCounters name: <code>MaliTilerVarCacheHitRate</code>
 <p>The GPU internal memory interface connects the processing units, such as the
 shader cores and the tiler, to the GPU L2 cache.</p>
 <p>Performance counters in this section show reads and writes into the L2 cache
-and how the cache responded to them.</p>
+and how the cache responds to them.</p>
 <div class="lgc-group lgc-advanced-app lgc-advanced-sys">
 <h3 id="g_l2cacherequests">L2 Cache Requests <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the total number of requests made into the L2 cache
-from any source. This includes any requests made</p>
+from any source.</p>
 <div class="lgc-series lgc-advanced-app">
 <h4 id="c_94">Read requests <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every read request received by the L2 cache from an
@@ -5129,25 +5484,25 @@ Hardware name: <code>L2_WR_MSG_OUT</code>
 </div>
 </div>
 </div>
-<div class="lgc-group">
+<div class="lgc-group lgc-advanced-app lgc-advanced-sys">
 <h3 id="g_l2cachelookups">L2 Cache Lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
 <p>This counter group shows the total number of lookups made into the L2 cache
 from any source.</p>
 <div class="lgc-series lgc-advanced-app">
-<h4 id="c_107">Any lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_107">All lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every L2 cache lookup made, including all reads,
 writes, coherency snoops, and cache flush operations.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliL2CacheLookup</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliL2CacheLookupsAnyLookups</code>
+Streamline name: <code>$MaliL2CacheLookupsAllLookups</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>L2_ANY_LOOKUP</code>
 </div>
 </div>
-<div class="lgc-series">
+<div class="lgc-series lgc-advanced-app">
 <h4 id="c_108">Read lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every L2 cache read lookup made.</p>
 <div class="lgc-equation-format-lgc">
@@ -5160,7 +5515,7 @@ Streamline name: <code>$MaliL2CacheLookupsReadLookups</code>
 Hardware name: <code>L2_READ_LOOKUP</code>
 </div>
 </div>
-<div class="lgc-series">
+<div class="lgc-series lgc-advanced-app">
 <h4 id="c_109">Write lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every L2 cache write lookup made.</p>
 <div class="lgc-equation-format-lgc">
@@ -5250,9 +5605,61 @@ Hardware name: <code>L2_RD_MSG_OUT_STALL</code>
 </div>
 </div>
 <div class="lgc-group">
-<h3 id="g_l2cachemissrate">L2 Cache Miss Rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the miss rate in the L2 cache.</p>
+<h3 id="g_l2cachehitrate">L2 Cache Hit Rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the hit rate in the L2 cache.</p>
 <div class="lgc-series">
+<h4 id="c_408">Read hit rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage of internal L2 cache reads that do not
+result in an external read.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliL2CacheRdHitRate</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min(100 - ((MaliExtBusRd / MaliL2CacheRdLookup) * 100), 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(100 - (($MaliExternalBusAccessesReadTransactions / $MaliL2CacheLookupsReadLookups) * 100), 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min(100 - ((L2_EXT_READ / L2_READ_LOOKUP) * 100), 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series">
+<h4 id="c_409">Write hit rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage of internal L2 cache writes that do not
+result in an external write.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliL2CacheWrHitRate</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min(100 - ((MaliExtBusWr / MaliL2CacheWrLookup) * 100), 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(100 - (($MaliExternalBusAccessesWriteTransactions / $MaliL2CacheLookupsWriteLookups) * 100), 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min(100 - ((L2_EXT_WRITE / L2_WRITE_LOOKUP) * 100), 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series lgc-advanced-app">
 <h4 id="c_65547">Read miss rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage of internal L2 cache reads that result
 in an external read.</p>
@@ -5278,7 +5685,7 @@ libGPUCounters name: <code>MaliL2CacheRdMissRate</code>
 </div>
 </div></div>
 </div>
-<div class="lgc-series">
+<div class="lgc-series lgc-advanced-app">
 <h4 id="c_65552">Write miss rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This expression defines the percentage of internal L2 cache writes that result
 in an external write.</p>
@@ -5306,9 +5713,66 @@ libGPUCounters name: <code>MaliL2CacheWrMissRate</code>
 </div>
 </div>
 <div class="lgc-group lgc-advanced-sys">
-<h3 id="g_stage1mmutranslations">Stage 1 MMU Translations <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of stage 1 page table lookups handled by
-the GPU MMU.</p>
+<h3 id="g_mmuhitrate">MMU Hit Rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the hit rate in the TLB used for page table lookups
+handled by the GPU MMU.</p>
+<div class="lgc-series lgc-advanced-sys">
+<h4 id="c_571">Level 2 hit rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage hit rate of the main MMU TLB for level 2
+table walks.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliMMUL2HitRate</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min((MaliMMUL2Hit / (MaliMMUL2Hit + MaliMMUL2Miss)) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(($MaliMMUTranslationsLevel2Hits / ($MaliMMUTranslationsLevel2Hits + $MaliMMUTranslationsLevel2Misses)) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min((MMU_HIT_L2 / (MMU_HIT_L2 + MMU_TABLE_READS_L2)) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series lgc-advanced-sys">
+<h4 id="c_570">Level 3 hit rate <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This expression defines the percentage hit rate of the main MMU TLB for level 3
+table walks.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliMMUL3HitRate</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>max(min((MaliMMUL3Hit / (MaliMMUL3Hit + MaliMMUL3Miss)) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>max(min(($MaliMMUTranslationsLevel3Hits / ($MaliMMUTranslationsLevel3Hits + $MaliMMUTranslationsLevel3Misses)) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>max(min((MMU_HIT_L3 / (MMU_HIT_L3 + MMU_TABLE_READS_L3)) * 100, 100), 0)</code></pre>
+</div>
+</div></div>
+</div>
+</div>
+<div class="lgc-group lgc-advanced-sys">
+<h3 id="g_mmutranslations">MMU Translations <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
+<p>This counter group shows the number of page table lookups handled by the GPU
+MMU.</p>
 <div class="lgc-series lgc-advanced-sys">
 <h4 id="c_84">MMU lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every address lookup made by the main GPU MMU.
@@ -5317,148 +5781,66 @@ Increments only occur if all lookups into a local TLB miss.</p>
 libGPUCounters name: <code>MaliMMULookup</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage1MMUTranslationsMMULookups</code>
+Streamline name: <code>$MaliMMUTranslationsMMULookups</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>MMU_REQUESTS</code>
 </div>
 </div>
 <div class="lgc-series lgc-advanced-sys">
-<h4 id="c_86">L2 table reads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every read of a level 2 MMU translation table
-entry. Each address translation at this level covers a 2MB section, which is
-typically broken down into further into 4KB pages using a subsequent level 3
-translation table lookup.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUL2Rd</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage1MMUTranslationsL2TableReads</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_TABLE_READS_L2</code>
-</div>
-</div>
-<div class="lgc-series lgc-advanced-sys">
-<h4 id="c_88">L2 table read hits <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_88">Level 2 hits <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every read of a level 2 MMU translation table entry
 that results in a successful hit in the main MMU's TLB.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliMMUL2Hit</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage1MMUTranslationsL2TableReadHits</code>
+Streamline name: <code>$MaliMMUTranslationsLevel2Hits</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>MMU_HIT_L2</code>
 </div>
 </div>
 <div class="lgc-series lgc-advanced-sys">
-<h4 id="c_85">L3 table reads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every read of a level 3 MMU translation table
-entry. Each address translation at this level covers a single 4KB page.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUL3Rd</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage1MMUTranslationsL3TableReads</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_TABLE_READS_L3</code>
-</div>
-</div>
-<div class="lgc-series lgc-advanced-sys">
-<h4 id="c_87">L3 table read hits <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<h4 id="c_87">Level 3 hits <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
 <p>This counter increments for every read of a level 3 MMU translation table entry
 that results in a successful hit in the main MMU's TLB.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliMMUL3Hit</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage1MMUTranslationsL3TableReadHits</code>
+Streamline name: <code>$MaliMMUTranslationsLevel3Hits</code>
 </div>
 <div class="lgc-equation-format-hw">
 Hardware name: <code>MMU_HIT_L3</code>
 </div>
 </div>
-</div>
-<div class="lgc-group lgc-advanced-sys">
-<h3 id="g_stage2mmutranslations">Stage 2 MMU Translations <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
-<p>This counter group shows the number of stage 2 page table lookups handled by
-the GPU MMU.</p>
 <div class="lgc-series lgc-advanced-sys">
-<h4 id="c_89">MMU lookups <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every stage 2 lookup made by the main GPU MMU.
-Increments only occurs if all lookups in to a local TLB miss.</p>
-<p>Stage 2 address translation is used when the operating system using the GPU is
-a guest in a virtualized environment. The guest operating system controls the
-stage 1 MMU, translating virtual addresses into intermediate physical
-addresses. The hypervisor controls the stage 2 MMU, translating intermediate
-physical addresses into physical addresses.</p>
+<h4 id="c_86">Level 2 misses <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments for every TLB miss that results in a read of a level 2
+MMU translation table entry. Table entries each cover 2MB of address space.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUS2Lookup</code>
+libGPUCounters name: <code>MaliMMUL2Miss</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage2MMUTranslationsMMULookups</code>
+Streamline name: <code>$MaliMMUTranslationsLevel2Misses</code>
 </div>
 <div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_S2_REQUESTS</code>
+Hardware name: <code>MMU_TABLE_READS_L2</code>
 </div>
 </div>
 <div class="lgc-series lgc-advanced-sys">
-<h4 id="c_91">L2 table reads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every read of a stage 2 level 2 MMU translation
-table entry. Each address translation at this level covers a 2MB section.</p>
+<h4 id="c_85">Level 3 misses <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This counter increments for every TLB miss that results in a read of a level 3
+MMU translation table entry. Table entries each cover 4KB of address space.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUS2L2Rd</code>
+libGPUCounters name: <code>MaliMMUL3Miss</code>
 </div>
 <div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage2MMUTranslationsL2TableReads</code>
+Streamline name: <code>$MaliMMUTranslationsLevel3Misses</code>
 </div>
 <div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_S2_TABLE_READS_L2</code>
-</div>
-</div>
-<div class="lgc-series lgc-advanced-sys">
-<h4 id="c_93">L2 table read hits <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every read of a stage 2 level 2 MMU translation
-table entry that results in a successful hit in the main MMU's TLB.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUS2L2Hit</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage2MMUTranslationsL2TableReadHits</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_S2_HIT_L2</code>
-</div>
-</div>
-<div class="lgc-series lgc-advanced-sys">
-<h4 id="c_90">L3 table reads <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every read of a stage 2 level 3 MMU translation
-table entry. Each address translation at this level covers a single 4KB page.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUS2L3Rd</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage2MMUTranslationsL3TableReads</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_S2_TABLE_READS_L3</code>
-</div>
-</div>
-<div class="lgc-series lgc-advanced-sys">
-<h4 id="c_92">L3 table read hits <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This counter increments for every read of a stage 2 level 3 MMU translation
-table entry that results in a successful hit in the main MMU's TLB.</p>
-<div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliMMUS2L3Hit</code>
-</div>
-<div class="lgc-equation-format-sl">
-Streamline name: <code>$MaliStage2MMUTranslationsL3TableReadHits</code>
-</div>
-<div class="lgc-equation-format-hw">
-Hardware name: <code>MMU_S2_HIT_L3</code>
+Hardware name: <code>MMU_TABLE_READS_L3</code>
 </div>
 </div>
 </div>
@@ -5469,7 +5851,7 @@ Hardware name: <code>MMU_S2_HIT_L3</code>
 variable configurations across devices.</p>
 <p>This section lists useful symbolic configuration and constant values that can
 be used in expressions to compute derived counters. Note that configuration
-values must be provided by a run-time tool that can query the actual
+values must be provided by a runtime tool that can query the actual
 implementation configuration of the target device.</p>
 <div class="lgc-group">
 <h3 id="g_implementationconfiguration">Implementation Configuration <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h3>
@@ -5690,11 +6072,39 @@ libGPUCounters name: <code>MaliGPUWarpSize</code>
 </div></div>
 </div>
 <div class="lgc-series lgc-advanced-app">
-<h4 id="c_322">Varying slot count <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This constant defines the number of varying unit slots.</p>
-<p>The width of a slot is GPU-dependent.</p>
+<h4 id="c_800">Maximum thread count <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This constant defines the maximum number of concurrent threads in a single
+core. This product is configurable, and this value shows the largest
+configuration size.</p>
 <div class="lgc-equation-format-lgc">
-libGPUCounters name: <code>MaliVarSlotPerCy</code>
+libGPUCounters name: <code>MaliGPUThreadCount</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>512</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>512</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>512</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series lgc-advanced-app">
+<h4 id="c_322">Varying issues/cycle <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This constant defines the maximum number of varying unit issues that can be
+made per cycle.</p>
+<p>The width of an issue is GPU-dependent.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliVarIssuePerCy</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
@@ -5768,10 +6178,37 @@ libGPUCounters name: <code>MaliTexCyPerSample</code>
 </div></div>
 </div>
 <div class="lgc-series lgc-advanced-app">
-<h4 id="c_65652">Internal bus beat size <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
-<p>This constant defines the number of bytes transferred per internal bus beat.</p>
+<h4 id="c_65652">Internal shader core bus beat size <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This constant defines the number of bytes transferred per internal shader core
+bus beat.</p>
 <div class="lgc-equation-format-lgc">
 libGPUCounters name: <code>MaliSCBusBeatSize</code>
+</div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-lgc">
+<p>libGPUCounters derivation:</p>
+<pre><code>16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-sl">
+<p>Streamline derivation:</p>
+<pre><code>16</code></pre>
+</div>
+</div></div>
+<div><div class="lgc-equation">
+<div class="lgc-equation-format-hw">
+<p>Hardware derivation:</p>
+<pre><code>16</code></pre>
+</div>
+</div></div>
+</div>
+<div class="lgc-series lgc-advanced-app">
+<h4 id="c_410">Internal tiler bus beat size <span data-bs-toggle="tooltip" data-bs-delay="400" data-bs-placement="right" title="Copy to clipboard"><a class="lgc-link-copy link-secondary"><i class="fa-solid fa-link"></i></a></span></h4>
+<p>This constant defines the number of bytes transferred per internal tiler bus
+beat.</p>
+<div class="lgc-equation-format-lgc">
+libGPUCounters name: <code>MaliTilerBusBeatSize</code>
 </div>
 <div><div class="lgc-equation">
 <div class="lgc-equation-format-lgc">
@@ -5796,7 +6233,7 @@ libGPUCounters name: <code>MaliSCBusBeatSize</code>
 </div>
       </div>
       <div class="lgc-footerpanel">
-        <p>Copyright &copy; Arm 2025</p>
+        <p>Copyright &copy; Arm 2026</p>
       </div>
     </div>
   </main>

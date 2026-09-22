@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -129,7 +129,8 @@ class backend : public base::backend<syscall_iface_t>, private timestamp_iface_t
 
     std::error_code request_sample(uint64_t user_data) override {
         if (sampler_type() != base_type::sampler_type::manual)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::sampler_invalid_type,
+                                           "Requested periodic sample in manual sampler");
 
         std::lock_guard<std::mutex> lock(access_);
 
@@ -252,7 +253,7 @@ class backend : public base::backend<syscall_iface_t>, private timestamp_iface_t
      */
     std::error_code request_sample_no_lock(uint64_t user_data) {
         if (!active_)
-            return std::make_error_code(std::errc::invalid_argument);
+            return HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::sampler_invalid_state, "Sampler not active");
 
         std::error_code ec;
         std::tie(ec, std::ignore) = get_syscall_iface().ioctl(fd_, ioctl::vinstr::command::dump, 0);

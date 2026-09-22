@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -50,19 +50,27 @@ class handle_impl : public handle, private syscall_iface_t {
         /** the descriptor is kept open at destruction time. */
         external,
     };
+    enum class type {
+        /** The descriptor refers to a kbase driver. */
+        kbase,
+        /** The descriptor refers to a panthor driver. */
+        panthor,
+    };
 
     /**
      * Handle constructor.
      *
      * @param[in]     fd   Device file descriptor.
      * @param[in]     m    Which descriptor handling mode to use.
+     * @param[in]     t    The driver the handle will correspond to.
      * @param[in,out] args System calls interface constructor args (unit tests only).
      */
     template <typename... args_t>
-    handle_impl(int fd, mode m, args_t &&...args)
+    handle_impl(int fd, mode m, type t, args_t &&...args)
         : syscall_iface_t(std::forward<args_t>(args)...)
         , fd_(fd)
-        , mode_(m) {}
+        , mode_(m)
+        , type_(t) {}
 
     ~handle_impl() override {
         if (mode_ == mode::internal)
@@ -70,19 +78,19 @@ class handle_impl : public handle, private syscall_iface_t {
     }
 
     /**
-     * Open character device.
+     * Open character device with custom flags
      *
      * @param[in]     path  The device path.
+     * @param[in]     flags Flags to pass to the open call.
      * @param[in,out] iface System calls interface to use (unit tests only).
      * @return Device handle on success, -1 on failure.
      */
     template <typename other_syscall_iface_t = syscall_iface_t>
-    static int open(const char *path, other_syscall_iface_t &&iface = {}) {
+    static int open(const char *path, int flags, other_syscall_iface_t &&iface = {}) {
         int fd = -1;
         std::error_code ec;
 
-        std::tie(ec, fd) = iface.open(path, O_RDONLY);
-
+        std::tie(ec, fd) = iface.open(path, flags);
         if (ec)
             return -1;
 
@@ -98,11 +106,30 @@ class handle_impl : public handle, private syscall_iface_t {
     }
 
     /**
+     * Open character device as read-only.
+     *
+     * @param[in]     path  The device path.
+     * @param[in,out] iface System calls interface to use (unit tests only).
+     * @return Device handle on success, -1 on failure.
+     */
+    template <typename other_syscall_iface_t = syscall_iface_t>
+    static int open(const char *path, other_syscall_iface_t &&iface = {}) {
+        return open(path, O_RDONLY, iface);
+    }
+
+    /**
      * Get the file descriptor.
      *
      * @return file descriptor.
      */
     int fd() const { return fd_; }
+
+    /**
+     * Get the type of file descriptor.
+     *
+     * @return file descriptor type.
+     */
+    enum type type() const { return type_; }
 
   private:
     /** Syscall interface type. */
@@ -112,6 +139,7 @@ class handle_impl : public handle, private syscall_iface_t {
 
     int fd_;
     mode mode_;
+    enum type type_;
 };
 } // namespace device
 } // namespace hwcpipe

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include <device/error.hpp>
 #include <device/hwcnt/block_extents.hpp>
+#include <device/hwcnt/detail/to_str.hpp>
 #include <device/hwcnt/sampler/configuration.hpp>
 
 #include <system_error>
@@ -45,18 +47,27 @@ namespace sampler {
  * @return Pair of error code and block extents filtered.
  */
 inline auto filter_block_extents(const block_extents &extents, const configuration *begin, const configuration *end) {
+    using hwcpipe::device::hwcnt::detail::to_str;
+
     block_extents::num_blocks_of_type_type num_blocks_of_type{};
 
     for (auto it = begin; it != end; ++it) {
         // Disallow block configuration if it was not advertised by `instance`.
-        if (extents.num_blocks_of_type(it->type) == 0)
-            return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_extents{});
+        if (extents.num_blocks_of_type(it->type) == 0) {
+            std::error_code ec =
+                HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::extents_invalid_block,
+                                        "Block type:(%s) not advertised by instance", to_str(it->type).c_str());
+            return std::make_pair(ec, block_extents{});
+        }
 
         const auto block_type_idx = static_cast<size_t>(it->type);
 
         // Disallow configuring a block twice.
-        if (num_blocks_of_type[block_type_idx])
-            return std::make_pair(std::make_error_code(std::errc::invalid_argument), block_extents{});
+        if (num_blocks_of_type[block_type_idx]) {
+            std::error_code ec = HWCPIPE_MAKE_ERROR_CODE(
+                hwcpipe_errc::extents_invalid_block, "Block type:(%s) already configured", to_str(it->type).c_str());
+            return std::make_pair(ec, block_extents{});
+        }
 
         num_blocks_of_type[block_type_idx] = extents.num_blocks_of_type(it->type);
     }

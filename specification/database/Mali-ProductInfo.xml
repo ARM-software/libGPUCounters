@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!--
 #
-# Copyright (c) 2019-2025 Arm Limited.
+# Copyright (c) 2019-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -163,6 +163,7 @@
     <DatabaseKey>Mali-G715</DatabaseKey>
     <Visibility>Public</Visibility>
     <ReleaseYear>2022</ReleaseYear>
+    <DocumentName>Immortalis-G715 and Mali-G715</DocumentName>
   </ProductInfo>
   <ProductInfo>
     <Id>0xc001</Id>
@@ -180,6 +181,7 @@
     <DatabaseKey>Mali-G720</DatabaseKey>
     <Visibility>Public</Visibility>
     <ReleaseYear>2023</ReleaseYear>
+    <DocumentName>Immortalis-G720 and Mali-G720</DocumentName>
   </ProductInfo>
   <ProductInfo>
     <Id>0xd001</Id>
@@ -197,6 +199,7 @@
     <DatabaseKey>Mali-G725</DatabaseKey>
     <Visibility>Public</Visibility>
     <ReleaseYear>2024</ReleaseYear>
+    <DocumentName>Immortalis-G925 and Mali-G725</DocumentName>
   </ProductInfo>
   <ProductInfo>
     <Id>0xe003</Id>
@@ -224,5 +227,33 @@
     <Visibility>Public</Visibility>
     <ReleaseYear>2025</ReleaseYear>
     <DocumentName>Mali G1</DocumentName>
+  </ProductInfo>
+  <ProductInfo>
+    <Id>0xf003</Id>
+    <Name>Mali G2-Pro</Name>
+    <Architecture>5th Generation</Architecture>
+    <DatabaseKey>Mali G2</DatabaseKey>
+    <Visibility>Public</Visibility>
+    <ReleaseYear>2026</ReleaseYear>
+    <DocumentName>False</DocumentName>
+  </ProductInfo>
+  <ProductInfo>
+    <Id>0xf001</Id>
+    <Name>Mali G2-Premium</Name>
+    <Architecture>5th Generation</Architecture>
+    <DatabaseKey>Mali G2</DatabaseKey>
+    <Visibility>Public</Visibility>
+    <ReleaseYear>2026</ReleaseYear>
+    <DocumentName>False</DocumentName>
+  </ProductInfo>
+  <ProductInfo>
+    <Id>0xf000</Id>
+    <Id>0xf005</Id>
+    <Name>Mali G2-Ultra</Name>
+    <Architecture>5th Generation</Architecture>
+    <DatabaseKey>Mali G2</DatabaseKey>
+    <Visibility>Public</Visibility>
+    <ReleaseYear>2026</ReleaseYear>
+    <DocumentName>Mali G2</DocumentName>
   </ProductInfo>
 </ProductInfoList>

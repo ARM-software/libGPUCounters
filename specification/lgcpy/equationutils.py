@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -526,10 +526,16 @@ class EquationStreamlineTransformer(Transformer):
         '''
 
         counter_names = {
-            'MALI_CONFIG_TIME_SPAN': '$ZOOM',
-            'MALI_CONFIG_L2_CACHE_COUNT': '$MaliConstantsL2SliceCount',
-            'MALI_CONFIG_SHADER_CORE_COUNT': '$MaliConstantsShaderCoreCount',
-            'MALI_CONFIG_EXT_BUS_BYTE_SIZE': '($MaliConstantsBusWidthBits / 8)'
+            'MALI_CONFIG_TIME_SPAN':
+                '$ZOOM',
+            'MALI_CONFIG_L2_CACHE_COUNT':
+                '$MaliConstantsL2SliceCount',
+            'MALI_CONFIG_SHADER_CORE_COUNT':
+                '$MaliConstantsShaderCoreCount',
+            'MALI_CONFIG_NEURAL_ACCELERATOR_COUNT':
+                '$MaliConstantsNeuralAcceleratorCount',
+            'MALI_CONFIG_EXT_BUS_BYTE_SIZE':
+                '($MaliConstantsBusWidthBits / 8)'
         }
 
         return counter_names[counter]

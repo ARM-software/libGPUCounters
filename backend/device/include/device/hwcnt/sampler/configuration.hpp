@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -31,6 +31,7 @@
 #pragma once
 
 #include <device/hwcnt/block_metadata.hpp>
+#include <device/hwcnt/detail/to_str.hpp>
 #include <device/hwcnt/prfcnt_set.hpp>
 
 #include <bitset>
@@ -58,6 +59,11 @@ struct configuration {
 
     /** Bitmask of counters numbers to enable for this block type. */
     enable_map_type enable_map{};
+
+    explicit operator std::string() const {
+        return std::string("Block type='") + hwcnt::detail::to_str(type) + "', Set='" + hwcnt::detail::to_str(set) +
+               "', Counters enabled=" + std::to_string(enable_map.count()) + " (" + enable_map.to_string() + ")";
+    }
 };
 
 } // namespace sampler

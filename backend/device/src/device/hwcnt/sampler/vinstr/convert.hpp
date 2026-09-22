@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -30,6 +30,8 @@
 
 #pragma once
 
+#include <device/error.hpp>
+#include <device/hwcnt/detail/to_str.hpp>
 #include <device/hwcnt/sampler/configuration.hpp>
 #include <device/ioctl/kbase/types.hpp>
 
@@ -68,18 +70,23 @@ inline uint32_t convert(configuration::enable_map_type mask) {
  * @return A pair of error code and `hwcnt_reader_setup` structure.
  */
 inline auto convert(const configuration *begin, const configuration *end) {
+    using hwcpipe::device::hwcnt::detail::to_str;
+
     ioctl::kbase::hwcnt_reader_setup result{};
 
     for (auto it = begin; it != end; ++it) {
-        if (it->set != prfcnt_set::primary)
-            return std::make_pair(std::make_error_code(std::errc::not_supported), result);
+        if (it->set != prfcnt_set::primary) {
+            std::error_code ec =
+                HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::extents_invalid_set, "Invalid set:(%s)", to_str(it->set).c_str());
+            return std::make_pair(ec, result);
+        }
 
         switch (it->type) {
         case block_type::fe:
             result.fe_bm |= convert(it->enable_map);
             break;
-        case block_type::tiler:
-            result.tiler_bm |= convert(it->enable_map);
+        case block_type::geometry:
+            result.geometry_bm |= convert(it->enable_map);
             break;
         case block_type::memory:
             result.mmu_l2_bm |= convert(it->enable_map);
@@ -89,7 +96,10 @@ inline auto convert(const configuration *begin, const configuration *end) {
             break;
         case block_type::firmware:
         case block_type::csg:
-            return std::make_pair(std::make_error_code(std::errc::invalid_argument), result);
+        case block_type::neural_accelerator:
+            std::error_code ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::extents_invalid_block_type,
+                                                         "Block type (%s) not handled", to_str(it->type).c_str());
+            return std::make_pair(ec, result);
         }
     }
 

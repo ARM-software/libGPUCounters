@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019-2025 Arm Limited.
+# Copyright (c) 2019-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -93,7 +93,7 @@ from __future__ import annotations
 
 import enum
 import pathlib
-from typing import Any, Optional
+from typing import Any, Iterator, Optional
 import xml.dom.minidom as md
 import xml.etree.ElementTree as et
 
@@ -179,7 +179,7 @@ class CounterVisibility(enum.Enum):
 
 class CounterTrend(enum.Enum):
     '''
-    Counter trend rules.
+    Counter trends.
 
     HIGHER_BETTER counters indicate that performance or efficiency would
     improve if the number can be increased. This commonly applies to
@@ -244,6 +244,228 @@ class CounterTrend(enum.Enum):
         return self.to_xml()
 
 
+class PerfettoGroup(enum.Enum):
+    '''
+    Perfetto group names.
+
+    Assigned enum numeric values match the Perfetto enum definition, although
+    the database uses the string names.
+    '''
+    UNCLASSIFIED = 0
+    SYSTEM = 1
+    VERTICES = 2
+    FRAGMENTS = 3
+    PRIMITIVES = 4
+    MEMORY = 5
+    COMPUTE = 6
+    RAY_TRACING = 7
+
+    @classmethod
+    def from_xml(cls, value: str) -> PerfettoGroup:
+        '''
+        Convert an XML string into an enum value.
+
+        Args:
+            value: The XML string value.
+
+        Returns:
+            The enum value.
+        '''
+        # pylint: disable=too-many-return-statements
+
+        if value == 'Unclassified':
+            return cls.UNCLASSIFIED
+
+        if value == 'System':
+            return cls.SYSTEM
+
+        if value == 'Vertices':
+            return cls.VERTICES
+
+        if value == 'Fragments':
+            return cls.FRAGMENTS
+
+        if value == 'Primitives':
+            return cls.PRIMITIVES
+
+        if value == 'Memory':
+            return cls.MEMORY
+
+        if value == 'Compute':
+            return cls.COMPUTE
+
+        if value == 'Ray tracing':
+            return cls.RAY_TRACING
+
+        assert False, f'Unknown enumeration string {value}'
+
+    def to_xml(self) -> str:
+        '''
+        Serialize to XML.
+
+        Args:
+            value: The enum value.
+
+        Returns:
+            The XML string value.
+        '''
+        # pylint: disable=too-many-return-statements
+
+        if self == self.UNCLASSIFIED:
+            return 'Unclassified'
+
+        if self == self.SYSTEM:
+            return 'System'
+
+        if self == self.VERTICES:
+            return 'Vertices'
+
+        if self == self.FRAGMENTS:
+            return 'Fragments'
+
+        if self == self.PRIMITIVES:
+            return 'Primitives'
+
+        if self == self.MEMORY:
+            return 'Memory'
+
+        if self == self.COMPUTE:
+            return 'Compute'
+
+        if self == self.RAY_TRACING:
+            return 'Ray tracing'
+
+        assert False, f'Unknown enumeration value {self.value}'
+
+    def __str__(self) -> str:
+        return self.to_xml()
+
+
+class PerfettoGroupList:
+    '''
+    Perfetto group assignment definition.
+    '''
+
+    def __init__(self, *args: PerfettoGroup):
+        '''
+        Create a new counter group.
+
+        Args:
+            args: Optional group names to add to the group.
+        '''
+        self.groups: list[PerfettoGroup] = []
+
+        for group in args:
+            self.add_group(group)
+
+    def add_group(self, group: PerfettoGroup) -> None:
+        '''
+        Add a new group.
+
+        Args:
+            group: The parsed group enum.
+        '''
+        assert group not in self.groups, 'Duplicate Perfetto group'
+        self.groups.append(group)
+
+    def __iter__(self) -> Iterator[PerfettoGroup]:
+        '''
+        Iterate all groups in the list.
+
+        Yields:
+            Groups in undefined order.
+        '''
+        yield from self.groups
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+
+        self_same = set(self.groups) == set(other.groups)
+        return self_same
+
+    def __ne__(self, other) -> bool:
+        return not self.__eq__(other)
+
+    def __str__(self) -> str:
+        parts = [str(x) for x in self.groups]
+        return ', '.join(parts)
+
+
+class PerfettoGroupLists:
+    '''
+    Perfetto group assignment definitions.
+    '''
+
+    def __init__(self):
+        '''
+        Create a new counter group.
+        '''
+        self.group_lists: list[PerfettoGroupList] = []
+
+    def add_group_list(self, group_list: PerfettoGroupList) -> None:
+        '''
+        Add a new group list.
+
+        Args:
+            group_list: The group list to store.
+        '''
+        self.group_lists.append(group_list)
+
+    def get_group_list(self,
+                       available: PerfettoGroupList) \
+                       -> Optional[PerfettoGroupList]:
+        '''
+        Get the Perfetto group list given groups present in the protocol.
+
+        Args:
+            available: The groups supported in the target Perfetto protocol.
+
+        Returns:
+            The protocol-compatible group list. This must be treated as a
+            read-only resource because we return by reference. Returns None
+
+        '''
+        available_set = set(available)
+
+        # Search for a matching candidate group
+        for candidate_list in self.group_lists:
+            candidate_set = set(candidate_list)
+            if candidate_set.issubset(available_set):
+                return candidate_list
+
+        # No matching group definitions in the database!
+        return None
+
+    def __iter__(self) -> Iterator[PerfettoGroupList]:
+        '''
+        Iterate all group lists in the list.
+
+        Yields:
+            Group lists in undefined order.
+        '''
+        yield from self.group_lists
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+
+        self_same = len(self.group_lists) == len(other.group_lists)
+        if not self_same:
+            return False
+
+        group_list_pairs = zip(self.group_lists, other.group_lists)
+        child_same = all(x == y for x, y in group_list_pairs)
+        return child_same
+
+    def __ne__(self, other) -> bool:
+        return not self.__eq__(other)
+
+    def __str__(self) -> str:
+        parts = [f'[{str(x)}]' for x in self.group_lists]
+        return ', '.join(parts)
+
+
 class CounterInfo():
     '''
     Container class for counter info.
@@ -253,6 +475,8 @@ class CounterInfo():
         machine_name: Canonical machine readable name.
         stable_id: Canonical stable ID.
         source_name: Name of counter in the architecture, or None if derived.
+        preferred_source_name: Override of source_name to use in release builds
+          if architecture name is misleading.
         source_name_aliases: Other source names if architecture name changed.
         human_name: Fully qualified human readable name.
         group_name: Fully qualified human readable group name.
@@ -296,6 +520,7 @@ class CounterInfo():
         self.human_name = human_name
         self.group_name = group_name
         self.group_human_name = group_human_name
+        self.perfetto_groups: Optional[PerfettoGroupLists] = None
 
         self.short_description = short_description
         self.long_description = long_description
@@ -309,6 +534,7 @@ class CounterInfo():
 
         # Must have either a source_name or an equation, but not both
         self.source_name: Optional[str] = None
+        self.preferred_source_name: Optional[str] = None
 
         self.equation_text: Optional[str] = None
         self.equation_ast: Optional[Any] = None
@@ -328,6 +554,26 @@ class CounterInfo():
             True if supported, False otherwise.
         '''
         return key in self.gpu_support
+
+    def _to_xml_perfetto_groups(self, parent: et.Element[str]) -> None:
+        '''
+        Utility to serialize Perfetto data if there is any.
+
+        Args:
+            parent: XML to contain the counter info.
+        '''
+        # No Perfetto data to serialize
+        if not self.perfetto_groups:
+            return
+
+        node1 = et.SubElement(parent, 'Perfetto')
+
+        for group_list in self.perfetto_groups:
+            node2 = et.SubElement(node1, 'Groups')
+
+            for group in group_list:
+                node3 = et.SubElement(node2, 'GroupName')
+                node3.text = group.to_xml()
 
     def to_xml(self, parent: et.Element[str]) -> None:
         '''
@@ -351,6 +597,10 @@ class CounterInfo():
                 continue
             subnode = et.SubElement(node, 'SourceAlias')
             subnode.text = alias
+
+        if self.preferred_source_name:
+            subnode = et.SubElement(node, 'PreferredSourceName')
+            subnode.text = self.preferred_source_name
 
         subnode = et.SubElement(node, 'StableID')
         subnode.text = f'{self.stable_id}'
@@ -390,6 +640,8 @@ class CounterInfo():
             gpu_node = et.SubElement(subnode, 'GPU')
             gpu_node.text = gpu
 
+        self._to_xml_perfetto_groups(node)
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, self.__class__):
             return False
@@ -407,14 +659,40 @@ class CounterInfo():
         self_same &= self.visibility == other.visibility
         self_same &= self.stable_id == other.stable_id
         self_same &= self.source_name == other.source_name
+        self_same &= self.preferred_source_name == other.preferred_source_name
         self_same &= self.equation_ast == other.equation_ast
         self_same &= self.gpu_support == other.gpu_support
         self_same &= self.source_name_aliases == other.source_name_aliases
+        self_same &= self.perfetto_groups == other.perfetto_groups
 
         return self_same
 
     def __ne__(self, other) -> bool:
         return not self.__eq__(other)
+
+    def _from_xml_perfetto_groups(self, node: et.Element[str]) -> None:
+        '''
+        Utility to populate Perfetto data if there is any.
+
+        Args:
+            node: XML containing the counter info.
+        '''
+        group_lists = list(node.findall('Perfetto/Groups'))
+
+        # No Perfetto groups found
+        if not group_lists:
+            return
+
+        self.perfetto_groups = PerfettoGroupLists()
+
+        for child_node in group_lists:
+            group_list = PerfettoGroupList()
+            self.perfetto_groups.add_group_list(group_list)
+
+            for group_node in child_node.findall('GroupName'):
+                group_raw = xu.read_node_str(group_node)
+                group = PerfettoGroup.from_xml(group_raw)
+                group_list.add_group(group)
 
     @classmethod
     def from_xml(cls, node: et.Element[str], source_file: str) -> CounterInfo:
@@ -468,18 +746,21 @@ class CounterInfo():
         raw_equation = xu.get_node_opt_str(node, 'Equation')
 
         if source_name:
-            assert not raw_equation
+            assert not raw_equation, f'Unexpected equation in {machine_name}'
             info.source_name = source_name
             info.source_name_aliases.append(source_name)
         else:
-            assert raw_equation
-            assert not source_name
+            assert raw_equation, f'Missing equation in {machine_name}'
+            assert not source_name, f'Unexpected source name in {machine_name}'
             equation_text = xu.from_pretty_xml(raw_equation)
             info.equation_text = equation_text
 
             parse_result = eu.equation_string_to_ast(equation_text)
             info.equation_ast = parse_result[0]
             info.equation_ast_error = parse_result[1]
+
+        source_name = xu.get_node_opt_str(node, 'PreferredSourceName')
+        info.preferred_source_name = source_name
 
         # Assign supported GPU list
         for child_node in node.findall('SupportedGPUs/GPU'):
@@ -494,6 +775,9 @@ class CounterInfo():
         # Maintain sorted lists for ease of maintenance
         info.gpu_support = gu.sort_gpus(info.gpu_support)
         info.source_name_aliases.sort()
+
+        # Assign Perfetto data
+        info._from_xml_perfetto_groups(node)
 
         return info
 

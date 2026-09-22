@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -36,6 +36,7 @@ from .. import equationutils as eu
 
 from ..data.productinfo import ProductInfo as PInfo
 from ..data.counterinfo import CounterInfo as CInfo
+from ..data.counterinfo import PerfettoGroupList as PGL
 from ..data.counterinfo import CounterVisibility as CVisibility
 from ..data.hardwarelayout import HardwareBlockType as HBType
 from ..data.hardwarelayout import HardwareBlockLayout as HBLayout
@@ -51,6 +52,7 @@ class CounterClockDomain(enum.Enum):
     '''
     GPU = 1
     SHADER_CORE = 2
+    NEURAL_ACCELERATOR = 3
 
 
 class CounterView:
@@ -67,6 +69,9 @@ class CounterView:
         human_name: Fully qualified human readable name.
         group_name: Fully qualified human readable group name.
         group_human_name: Group qualified human readable name.
+        perfetto_groups: Set of candidate Perfetto group labels. Actual group
+           selection will depend on Android version as that defines the
+           Perfetto protobuf protocol version.
         visibility: Visibility level.
         short_description: Short description used for tooltips.
         long_description: Long description used for documentation.
@@ -112,6 +117,9 @@ class CounterView:
         # Shader counter on GPU with async clock domain
         elif self.block_type == HBType.SHADER_CORE:
             self.clock_domain = CounterClockDomain.SHADER_CORE
+        # Neural accelerator on GPU with async clock domain
+        elif self.block_type == HBType.NEURAL_ACCELERATOR:
+            self.clock_domain = CounterClockDomain.NEURAL_ACCELERATOR
         # Any other counter on GPU with async clock domain
         else:
             self.clock_domain = CounterClockDomain.GPU
@@ -133,6 +141,7 @@ class CounterView:
         self.long_description = ci.long_description
         self.unit = ci.units
         self.trend = ci.trend
+        self.perfetto_groups = ci.perfetto_groups
 
         # Handle equations, but we cannot resolve yet so do that later
         self.equation_ast = ci.equation_ast
@@ -167,6 +176,27 @@ class CounterView:
             A stable anchor name.
         '''
         return f'c_{self.stable_id}'
+
+    def get_perfetto_groups(self, available_groups: PGL) -> Optional[PGL]:
+        '''
+        Get the Perfetto groups given what's available in the protocol.
+
+        This function will find the first group definition that is a subset
+        of the available groups in the Protocol. If no groups match the
+        counter will be assigned to the unclassified group.
+
+        Args:
+            available_groups: The set of groups available on the target device.
+
+        Returns:
+            The assigned group list.
+        '''
+        # Perform a search in the group database
+        if self.perfetto_groups:
+            return self.perfetto_groups.get_group_list(available_groups)
+
+        # No group definitions in the database, so use default fallback
+        return None
 
     def is_derived(self) -> bool:
         '''

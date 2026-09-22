@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2021-2025 Arm Limited.
+# Copyright (c) 2021-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
 
 cmake_minimum_required(VERSION 3.13.5)
 
-project(hwcpipe VERSION 2.4)
+project(hwcpipe VERSION 2.5)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -117,4 +117,3 @@ if(HWCPIPE_FRONTEND_ENABLE_TESTS)
     add_subdirectory(test)
     add_subdirectory(third_party/catch2)
 endif()
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -90,6 +90,7 @@ class periodic {
      *
      * Calling any methods when this function returns false is a programming error.
      *
+     * @parblock
      * @par Example
      * @code
      * sampler::periodic m{1000000, config.data(), config.size()};
@@ -98,6 +99,7 @@ class periodic {
      *     return false;
      * }
      * @endcode
+     * @endparblock
      *
      * @return true if sampler initialization was successful, false otherwise.
      */

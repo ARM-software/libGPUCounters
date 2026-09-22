@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Arm Limited.
+ * Copyright (c) 2023-2024 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -22,9 +22,11 @@
  * SOFTWARE.
  */
 
-/** @file metadata_parser.hpp */
+/** @file parse_all.hpp */
 
 #pragma once
+
+#include <device/error.hpp>
 
 #include <iterator>
 #include <system_error>
@@ -53,7 +55,7 @@ std::error_code call_on_item(parser_t &parser, const item_t &, std::tuple<item_t
 template <std::size_t index_v, typename parser_t, typename item_t, typename... args_t>
 std::enable_if_t<index_v == sizeof...(args_t), std::error_code> dispatch_on_item(parser_t &, const item_t &,
                                                                                  std::tuple<args_t...>) {
-    return std::make_error_code(std::errc::invalid_argument);
+    return std::make_error_code(hwcpipe_errc::parser_invalid_argument);
 }
 
 template <std::size_t index_v, typename parser_t, typename item_t, typename... args_t>
@@ -100,7 +102,7 @@ constexpr auto type2member_entry(item_tag_t item_tag) {
  * @param[in] begin         Unions sequence begin iterator.
  * @param[in] end           Unions sequence end iterator.
  * @param[in,out] parser    The parser class.
- * @return Parse result.
+ * @return Error code.
  */
 template <typename iterator_t, typename parser_t>
 auto parse_all(iterator_t begin, iterator_t end, parser_t &parser) {
@@ -108,7 +110,7 @@ auto parse_all(iterator_t begin, iterator_t end, parser_t &parser) {
 
     for (auto it = begin; it != end; ++it) {
         if (parser.sentinel_parsed())
-            return std::make_error_code(std::errc::invalid_argument);
+            return std::make_error_code(hwcpipe_errc::parser_invalid_order);
 
         ec = detail::dispatch_on_item<0>(parser, *it, parser_t::type2member);
 

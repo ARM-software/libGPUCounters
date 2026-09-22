@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -45,6 +45,19 @@ in a block. It also contains any supplemental encoding information sourced from
 the GPU architecture, such as scaling shifts needed to reconstruct the
 counter value.
 
+Ambiguities
+===========
+
+The HardwareLayout stores a name-based lookup to allow rapid discovery of
+counter layouts by their hardware specification name. However, counters names
+are NOT guaranteed to be unique, and can exist in multiple block types or block
+banks, and at different offsets in each.
+
+This is rare, and we are trying to avoid it in future hardware, so we have a
+simplistic workaround for now that assumes names are unique in a bank index
+(primary, secondary, etc) even across block types. We have an assert in the
+code to catch bank conflicts if future hardware causes any.
+
 Source data
 ===========
 
@@ -81,6 +94,7 @@ class HardwareBlockType(enum.Enum):
     SHADER_CORE = 2
     MEMORY_SYSTEM = 3
     TILER = 4
+    NEURAL_ACCELERATOR = 6
 
     @classmethod
     def from_xml(cls, value: str) -> HardwareBlockType:
@@ -105,6 +119,9 @@ class HardwareBlockType(enum.Enum):
         if value == 'Tiler':
             return cls.TILER
 
+        if value == 'Neural Accelerator':
+            return cls.NEURAL_ACCELERATOR
+
         assert False, f'Unknown enumeration string {value}'
 
     def to_xml(self) -> str:
@@ -125,6 +142,9 @@ class HardwareBlockType(enum.Enum):
 
         if self == self.TILER:
             return 'Tiler'
+
+        if self == self.NEURAL_ACCELERATOR:
+            return 'Neural Accelerator'
 
         assert False, f'Unknown enumeration value {self.value}'
 
@@ -230,15 +250,23 @@ class HardwareBlockLayout(list[HardwareCounterLayout]):
         self.bank = bank
         self.size = size
 
-    def add_counter(self, counter: HardwareCounterLayout) -> None:
+    def add_counter(self, counter: HardwareCounterLayout,
+                    sort: bool = False) -> None:
         '''
         Add a new counter to the block.
 
+        Counters in the database are stored sorted, so sort can usually be
+        False, but architecture XML can return them our of order when importing
+        a new GPU.
+
         Args:
             counter: New counter to add.
+            sort: Force a resort after addition.
         '''
         assert counter.index < self.size
         self.append(counter)
+        if sort:
+            self.sort(key=lambda x: x.index)
 
     def to_xml(self, parent: et.Element[str]) -> None:
         '''
@@ -312,7 +340,8 @@ class HardwareLayout(list[HardwareBlockLayout]):
         source: The specification tag used when creating the database.
         generated: True if auto-generated, False if manually edited.
         copyright: Copyright message we will emit when writing to file.
-        lookup: Dictionary for fast lookup by hardware name.
+        lookup: Dictionary for fast lookup by hardware name, can be multiple
+            entries per name if hardware aliases the counter in multiple banks.
     '''
 
     def __init__(self, source_file: str, name: str, source: str,
@@ -334,19 +363,29 @@ class HardwareLayout(list[HardwareBlockLayout]):
         self.generated = generated
         self.copyright = copyright_msg
 
-        self.lookup: dict[str, HardwareLookup] = {}
+        self.lookup: dict[str, list[HardwareLookup]] = {}
 
-    def get_counter_by_name(self, name: str) -> Optional[HardwareLookup]:
+    def get_counter_by_name(self, name: str,
+                            bank: int = 0) -> Optional[HardwareLookup]:
         '''
         Get the block and counter layout of a specific counter.
 
         Args:
             name: The architecture name to lookup.
+            bank: The bank to select in case of aliasing names.
 
         Returns:
             Block and counter layouts if found, None otherwise.
         '''
-        return self.lookup.get(name, None)
+        candidates = self.lookup.get(name, None)
+        if not candidates:
+            return None
+
+        for candidate in candidates:
+            if candidate.block.bank == bank:
+                return candidate
+
+        return None
 
     def iter_counters(self, primary=True) -> Iterator[HardwareCounterLayout]:
         '''
@@ -364,14 +403,22 @@ class HardwareLayout(list[HardwareBlockLayout]):
 
             yield from block
 
-    def _add_block(self, block: HardwareBlockLayout) -> None:
+    def add_block(self, block: HardwareBlockLayout,
+                  sort: bool = False) -> None:
         '''
         Add a new counter block to the set.
 
+        Blocks in the database are stored sorted, so sort can usually be False,
+        but architecture XML can return them our of order when importing a new
+        GPU.
+
         Args:
             block: The new counter block to add.
+            sort: Force a resort after addition.
         '''
         self.append(block)
+        if sort:
+            self.sort(key=lambda x: (x.btype.value, x.bank))
 
     def to_xml_str(self, pretty_print: bool = False) -> str:
         '''
@@ -448,11 +495,27 @@ class HardwareLayout(list[HardwareBlockLayout]):
 
         for child in node:
             block_layout = HardwareBlockLayout.from_xml(child)
-            layout._add_block(block_layout)
+            layout.add_block(block_layout)
 
         for block in layout:
             for counter in block:
-                layout.lookup[counter.name] = HardwareLookup(block, counter)
+
+                # New lookup entry
+                if counter.name not in layout.lookup:
+                    layout.lookup[counter.name] = []
+
+                # Collision - check it's legal
+                else:
+                    # Banks must be unique for current workaround to handle
+                    # aliased names. This has minimal impact on most tooling
+                    # because only bank 0 is needed.
+                    matching_lookups = layout.lookup[counter.name]
+                    for lookup in matching_lookups:
+                        assert lookup.block.bank != block.bank, \
+                            f'Aliasing {counter.name} bank conflict'
+
+                new_entry = HardwareLookup(block, counter)
+                layout.lookup[counter.name].append(new_entry)
 
         return layout
 

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -26,17 +26,20 @@ This module contains utilities we use when processing Arm GPU names.
 '''
 import re
 
+# Midgard architecture - e.g. Mali-T880.
+_GPU_GROUP_0 = re.compile(r'^Mali-T(\d+)$')
+
 # Bifrost, Valhall, and early 5th Generation architecture - e.g. Mali-G77.
-_GPU_GROUP_0 = re.compile(r'^(Mali|Immortalis)-G(\d+)$')
+_GPU_GROUP_1 = re.compile(r'^(Mali|Immortalis)-G(\d+)$')
 
 # Later 5th Generation names excluding postfix - e.g. Mali G1.
-_GPU_GROUP_1 = re.compile(r'^Mali G(\d+)$')
+_GPU_GROUP_2 = re.compile(r'^Mali G(\d+)$')
 
 # Later 5th Generation names including postfix - e.g. Mali G1-Ultra.
-_GPU_GROUP_2 = re.compile(r'^Mali G(\d+)-(\S+)$')
+_GPU_GROUP_3 = re.compile(r'^Mali G(\d+)-(\S+)$')
 
 # Internal Arm codenames which use non-numeric identifiers e.g. Mali GAAx.
-_GPU_GROUP_3 = re.compile(r'^Mali (\S+)$')
+_GPU_GROUP_4 = re.compile(r'^Mali (\S+)$')
 
 
 def _sort_gpu_code(product_name: str) -> tuple[int, int, int, str]:
@@ -53,6 +56,11 @@ def _sort_gpu_code(product_name: str) -> tuple[int, int, int, str]:
     '''
     if match := _GPU_GROUP_0.match(product_name):
         group = 0
+        product = int(match.group(1))
+        subproduct = 0
+
+    elif match := _GPU_GROUP_1.match(product_name):
+        group = 1
         product = int(match.group(2))
 
         group0_subproducts = {
@@ -62,13 +70,13 @@ def _sort_gpu_code(product_name: str) -> tuple[int, int, int, str]:
 
         subproduct = group0_subproducts[match.group(1)]
 
-    elif match := _GPU_GROUP_1.match(product_name):
-        group = 1
+    elif match := _GPU_GROUP_2.match(product_name):
+        group = 2
         product = int(match.group(1))
         subproduct = 0
 
-    elif match := _GPU_GROUP_2.match(product_name):
-        group = 2
+    elif match := _GPU_GROUP_3.match(product_name):
+        group = 3
         product = int(match.group(1))
 
         group2_subproducts = {
@@ -79,8 +87,8 @@ def _sort_gpu_code(product_name: str) -> tuple[int, int, int, str]:
 
         subproduct = group2_subproducts[match.group(2)]
 
-    elif match := _GPU_GROUP_3.match(product_name):
-        group = 3
+    elif match := _GPU_GROUP_4.match(product_name):
+        group = 4
         plen = len(match.group(1))
         parts = [(plen - i) * 256 * ord(x)
                  for i, x in enumerate(match.group(1))]
@@ -88,7 +96,7 @@ def _sort_gpu_code(product_name: str) -> tuple[int, int, int, str]:
         subproduct = 0
 
     else:
-        assert False
+        assert False, f'Malfomed GPU name {product_name}'
 
     return (group, product, subproduct, product_name)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -26,12 +26,15 @@
 
 #pragma once
 
+#include <device/error.hpp>
 #include <device/kbase_version.hpp>
 #include <device/product_id.hpp>
 
 #include <bitset>
 #include <cstdint>
 #include <cstdlib>
+#include <iostream>
+#include <string>
 #include <system_error>
 #include <tuple>
 #include <type_traits>
@@ -39,6 +42,9 @@
 
 namespace hwcpipe {
 namespace device {
+
+class instance;
+
 namespace hwcnt {
 
 namespace detail {
@@ -64,8 +70,10 @@ enum class backend_type : uint8_t {
     kinstr_prfcnt_wa,
     /** kinstr_prfcnt bad available. */
     kinstr_prfcnt_bad,
+    /** panthor available. */
+    panthor,
     /** Sentinel. */
-    last = kinstr_prfcnt_bad,
+    last = panthor,
 };
 
 /** Supported back-end types set. */
@@ -120,8 +128,36 @@ inline std::pair<std::error_code, backend_type> backend_type_select(backend_type
             return std::make_pair(std::error_code{}, static_cast<backend_type>(i));
     }
 
-    return std::make_pair(std::make_error_code(std::errc::function_not_supported), backend_type{});
+    std::error_code ec =
+        HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::backend_invalid_type, "Failed to select a valid backend");
+    return std::make_pair(ec, backend_type{});
 }
+
+/**
+ * Return string equivalent to the @ref backend_type.
+ *
+ * @param[in] be    Backend type.
+ * @return Backend type name.
+ */
+inline const std::string backend_type_name(const backend_type &be) {
+    switch (be) {
+    case backend_type::vinstr:
+        return "vinstr";
+    case backend_type::vinstr_pre_r21:
+        return "vinstr_pre_r21";
+    case backend_type::kinstr_prfcnt:
+        return "kinstr_prfcnt";
+    case backend_type::kinstr_prfcnt_wa:
+        return "kinstr_prfcnt_wa";
+    case backend_type::kinstr_prfcnt_bad:
+        return "kinstr_prfcnt_bad";
+    default:
+        return "Unknown backend_type (" + std::to_string(static_cast<int>(be)) + ")";
+    }
+    __builtin_unreachable();
+}
+
+backend_type get_backend_type(const instance &inst);
 
 } // namespace hwcnt
 } // namespace device

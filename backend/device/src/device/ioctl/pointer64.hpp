@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -45,6 +45,7 @@ namespace ioctl {
  * a pointer-like interface.
  *
  * @par Example
+ * Example usage:
  * @code
  * struct my_ioctl_struct {
  *     pointer64<int> integers; // always 64 bit, even on 32 bit architectures.

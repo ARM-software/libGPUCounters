@@ -22,36 +22,53 @@
 # SOFTWARE.
 #
 
-add_library(
-    device STATIC
-    src/device/handle.cpp
-    src/device/hwcnt/backend_type.cpp
-    src/device/hwcnt/reader.cpp
-    src/device/hwcnt/sampler/detail/backend.cpp
-    src/device/hwcnt/sampler/kinstr_prfcnt/block_index_remap.cpp
-    src/device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.cpp
-    src/device/hwcnt/sampler/kinstr_prfcnt/metadata_parser.cpp
-    src/device/instance.cpp
-    src/device/num_exec_engines.cpp
-    src/device/product_id.cpp
+#
+# device_core interface: core functionality of the device library.
+#
+add_library(device_core INTERFACE)
+
+target_sources(
+    device_core
+    INTERFACE src/device/detail/get_warp_width.cpp
+              src/device/error.cpp
+              src/device/handle.cpp
+              src/device/hwcnt/backend_type.cpp
+              src/device/hwcnt/reader.cpp
+              src/device/hwcnt/sampler/detail/backend.cpp
+              src/device/hwcnt/sampler/kinstr_prfcnt/block_index_remap.cpp
+              src/device/hwcnt/sampler/kinstr_prfcnt/enum_info_parser.cpp
+              src/device/hwcnt/sampler/kinstr_prfcnt/metadata_parser.cpp
+              src/device/instance.cpp
+              src/device/num_exec_engines.cpp
+              src/device/product_id.cpp
 )
 
-target_include_directories(device PUBLIC "include")
+target_compile_definitions(device_core INTERFACE -DHWCPIPE_DEVICE_BUILDING=1)
 
-target_compile_definitions(device PRIVATE -DHWCPIPE_DEVICE_BUILDING=1)
-
+#
+# device_interface interface for properties needed by including targets.
+#
+add_library(device_interface INTERFACE)
+target_include_directories(device_interface INTERFACE "src")
+target_include_directories(device_interface INTERFACE "include")
 if(HWCPIPE_SYSCALL_LIBMALI)
-    target_compile_definitions(device PUBLIC -DHWCPIPE_SYSCALL_LIBMALI=1)
-    target_link_libraries(device PUBLIC ${CMAKE_DL_LIBS})
+    target_compile_definitions(
+        device_interface INTERFACE -DHWCPIPE_SYSCALL_LIBMALI=1
+    )
+    target_link_libraries(device_interface INTERFACE ${CMAKE_DL_LIBS})
 endif()
 
-add_library(device_private INTERFACE)
-target_include_directories(device_private INTERFACE "src")
+#
+# device library, libdevice.a
+#
+add_library(device STATIC)
+target_link_libraries(device PRIVATE device_interface device_core)
 
-target_link_libraries(
-    device
-    PRIVATE device_private
-)
+if(HWCPIPE_LOGGER_HEADER)
+    target_compile_definitions(
+        device PUBLIC "HWCPIPE_LOGGER_HEADER=\"${HWCPIPE_LOGGER_HEADER}\""
+    )
+endif()
 
 if(HWCPIPE_ENABLE_TESTS)
     add_subdirectory(test)

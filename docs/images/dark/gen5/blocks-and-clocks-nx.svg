@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="370"
+   viewBox="0 0 370 300"
+   height="300"
+   version="1.1"
+   id="svg33"
+   sodipodi:docname="blocks-and-clocks-nx.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview33"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="103.06081"
+     inkscape:cy="141.24458"
+     inkscape:window-width="3818"
+     inkscape:window-height="2032"
+     inkscape:window-x="114"
+     inkscape:window-y="114"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer5"
+     showgrid="true">
+    <inkscape:grid
+       id="grid33"
+       units="px"
+       originx="-5"
+       originy="-5"
+       spacingx="1"
+       spacingy="1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Background"
+     style="display:inline"
+     transform="translate(-5,-5)">
+    <rect
+       width="370"
+       x="5"
+       fill="#ffffff"
+       y="5"
+       height="300"
+       id="rect1"
+       style="display:inline;fill:#111111;stroke-width:1.13003"
+       inkscape:label="Background" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Frontend"
+     style="display:inline"
+     transform="translate(-5,-5)">
+    <path
+       d="M 15,15 H 364.94926 V 140.04927 H 15 Z"
+       stroke="#333e48"
+       id="shape2"
+       fill="#e5eceb"
+       stroke-width="0.727828"
+       fill-rule="nonzero"
+       style="fill:#202028;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="M 204.94925,40 H 354.44926 V 80.000002 H 204.94925 Z"
+       stroke="#333e48"
+       id="shape3"
+       fill="#002b49"
+       stroke-width="0.834334"
+       fill-rule="nonzero"
+       style="fill:#0870b8;stroke:#606060;stroke-width:0.999999;stroke-dasharray:none" />
+    <path
+       d="m 24.94926,39.999998 h 149.99999 v 40 H 24.94926 Z"
+       stroke="#333e48"
+       id="shape54"
+       fill="#002b49"
+       stroke-width="0.995076"
+       fill-rule="nonzero"
+       style="fill:#0870b8;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="M 354.94925,150 H 24.949254"
+       stroke="#333e48"
+       id="shape57-4-5"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#606060;stroke:#606060;stroke-width:5;stroke-linecap:round;stroke-dasharray:none"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="m 284.94925,89.999999 h 70 V 130 h -70 z"
+       stroke="#333e48"
+       id="shape3-4"
+       fill="#002b49"
+       stroke-width="0.834334"
+       fill-rule="nonzero"
+       style="display:inline;fill:#0870b8;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="100.03715"
+       y="57.247849"
+       id="text51"><tspan
+         sodipodi:role="line"
+         id="tspan51"
+         x="100.03715"
+         y="57.247849"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none">Command Stream</tspan><tspan
+         sodipodi:role="line"
+         x="100.03715"
+         y="69.847847"
+         id="tspan52"
+         style="font-size:12px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none">Front-end</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#707080;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="23.949253"
+       y="32"
+       id="text51-0"><tspan
+         sodipodi:role="line"
+         x="23.949253"
+         y="32"
+         id="tspan52-6"
+         style="font-size:12px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none">Top-level Clock Domain</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#ffffff;stroke:none;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="319.98734"
+       y="113.47168"
+       id="text60"><tspan
+         sodipodi:role="line"
+         x="319.98734"
+         y="113.47168"
+         id="tspan61"
+         style="text-align:center;text-anchor:middle">MMU</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="279.50882"
+       y="63.794922"
+       id="text60-4"><tspan
+         sodipodi:role="line"
+         x="279.50882"
+         y="63.794922"
+         id="tspan61-8"
+         style="text-align:center;text-anchor:middle">L2 Cache</tspan></text>
+    <path
+       d="M 139.94925,80 V 90"
+       stroke="#333e48"
+       id="shape58-0"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 139.94925,130 v 20"
+       stroke="#333e48"
+       id="shape57-1-9-6"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="M 319.94925,80 V 90"
+       stroke="#333e48"
+       id="shape58-0-6"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 319.94925,130 v 20"
+       stroke="#333e48"
+       id="shape57-1-9-6-6"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="M 59.949254,80.000001 V 150"
+       stroke="#333e48"
+       id="shape57-1-9-6-9"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="M 239.94925,80.000013 V 150.00001"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-4"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 104.94925,90 h 70 v 40 h -70 z"
+       stroke="#333e48"
+       id="shape6"
+       fill="#ff6b00"
+       stroke-width="0.931111"
+       fill-rule="nonzero"
+       style="fill:#0870b8;stroke:#606060" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="139.9538"
+       y="113.47461"
+       id="text56-1"><tspan
+         sodipodi:role="line"
+         x="139.9538"
+         y="113.47461"
+         id="tspan57-9">Tiler</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Shader Core"
+     transform="translate(-5,-5)"
+     style="display:inline">
+    <path
+       d="M 14.949254,160 H 184.96605 V 295.15147 H 14.949254 Z"
+       stroke="#333e48"
+       id="shape2-9"
+       fill="#e5eceb"
+       stroke-width="0.694233"
+       fill-rule="nonzero"
+       style="display:inline;fill:#202028;stroke:#606060;stroke-width:1;stroke-dasharray:none"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       d="M 139.94925,149.99999 V 170"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-40-5"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 139.94925,210.03471 v 9.96528"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-3-4"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 24.966048,170.0168 h 70 v 40.01792 h -70 z"
+       stroke="#333e48"
+       id="shape5"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#7354c5;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="59.614487"
+       y="187.27068"
+       id="text56-1-2"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="59.614487"
+         y="187.27068"
+         id="tspan57-9-3">Shader</tspan><tspan
+         sodipodi:role="line"
+         x="59.614487"
+         y="199.87068"
+         id="tspan2">Core</tspan></text>
+    <path
+       d="m 105.00049,170 h 70 v 40.01792 h -70 z"
+       stroke="#333e48"
+       id="shape5-4"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#7354c5;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="139.64893"
+       y="187.25388"
+       id="text56-1-2-6"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="139.64893"
+         y="187.25388"
+         id="tspan57-9-3-1">Shader</tspan><tspan
+         sodipodi:role="line"
+         x="139.64893"
+         y="199.85388"
+         id="tspan2-8">Core</tspan></text>
+    <path
+       d="m 25.000496,220 h 69.999999 v 40 H 25.000496 Z"
+       stroke="#333e48"
+       id="shape5-1"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#7354c5;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="59.648933"
+       y="237.03403"
+       id="text56-1-2-7"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="59.648933"
+         y="237.03403"
+         id="tspan57-9-3-9">Shader</tspan><tspan
+         sodipodi:role="line"
+         x="59.648933"
+         y="249.63403"
+         id="tspan2-5">Core</tspan></text>
+    <path
+       d="m 105.00049,220 h 70 v 40.01792 h -70 z"
+       stroke="#333e48"
+       id="shape5-4-5"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#7354c5;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="139.64893"
+       y="237.25388"
+       id="text56-1-2-1"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="139.64893"
+         y="237.25388"
+         id="tspan57-9-3-2">Shader</tspan><tspan
+         sodipodi:role="line"
+         x="139.64893"
+         y="249.85388"
+         id="tspan2-3">Core</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#707080;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="24.461433"
+       y="276.10352"
+       id="text51-0-1"><tspan
+         sodipodi:role="line"
+         x="24.461433"
+         y="276.10352"
+         id="tspan52-6-5"
+         style="font-size:12px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none">Shader Core </tspan><tspan
+         sodipodi:role="line"
+         x="24.461433"
+         y="288.70352"
+         style="font-size:12px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none"
+         id="tspan6">Clock Domain</tspan></text>
+    <path
+       d="M 59.949255,149.99999 V 170.0168"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-40"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 59.949254,210.03471 v 9.96528"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-3"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Neural Engine"
+     transform="translate(-5,-5)"
+     style="display:inline">
+    <path
+       d="m 194.94925,160 h 170.0168 v 135 h -170.0168 z"
+       stroke="#333e48"
+       id="shape2-9-1"
+       fill="#e5eceb"
+       stroke-width="0.694233"
+       fill-rule="nonzero"
+       style="display:inline;fill:#202028;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="M 319.94925,149.99999 V 170"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-40-9-2"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 239.94925,150 v 20"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-40-9"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="M 239.94925,210.03472 V 220"
+       stroke="#333e48"
+       id="shape57-1-9-6-9-3-7"
+       stroke-width="1.98011"
+       fill="none"
+       style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
+    <path
+       d="m 205.00049,170 h 70 v 40.01792 h -70 z"
+       stroke="#333e48"
+       id="shape5-13"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#9e4c8a;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="m 285.00049,170 h 70 v 40.01792 h -70 z"
+       stroke="#333e48"
+       id="shape5-4-2"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#9e4c8a;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
+    <path
+       d="m 205.00048,220 h 70 v 39.99999 h -70 z"
+       stroke="#333e48"
+       id="shape5-1-3"
+       fill="#11809f"
+       stroke-width="0.848754"
+       fill-rule="nonzero"
+       style="fill:#9e4c8a;stroke:#606060;stroke-width:0.999994;stroke-dasharray:none" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#707080;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
+       x="204.00049"
+       y="276.25"
+       id="text51-0-1-8"><tspan
+         sodipodi:role="line"
+         x="204.00049"
+         y="276.25"
+         id="tspan52-6-5-6"
+         style="font-size:12px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none">Neural Accelerator </tspan><tspan
+         sodipodi:role="line"
+         x="204.00049"
+         y="288.85001"
+         style="font-size:12px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none"
+         id="tspan1">Clock Domain</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="239.92725"
+       y="187.18356"
+       id="text56-1-2-8"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="239.92725"
+         y="187.18356"
+         id="tspan2-4">Neural </tspan><tspan
+         sodipodi:role="line"
+         x="239.92725"
+         y="199.78357"
+         id="tspan3">Accelerator</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="319.92725"
+       y="187.18356"
+       id="text56-1-2-6-7"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="319.92725"
+         y="187.18356"
+         id="tspan2-8-9">Neural </tspan><tspan
+         sodipodi:role="line"
+         x="319.92725"
+         y="199.78357"
+         id="tspan4">Accelerator</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:#ffffff;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       x="239.92723"
+       y="237.17461"
+       id="text56-1-2-7-1"
+       inkscape:transform-center-x="-12.374369"
+       inkscape:transform-center-y="-4.5961941"><tspan
+         sodipodi:role="line"
+         x="239.92723"
+         y="237.17461"
+         id="tspan2-5-8">Neural </tspan><tspan
+         sodipodi:role="line"
+         x="239.92723"
+         y="249.77461"
+         id="tspan5">Accelerator</tspan></text>
+  </g>
+</svg>

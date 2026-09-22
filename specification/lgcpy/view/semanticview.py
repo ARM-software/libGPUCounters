@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -107,7 +107,7 @@ class SemanticGroupView:
         Args:
             gpu: GPU database key to generate the view for.
             sem_db: The unfiltered semantic layout to use as a data source.
-            grp_db: The unfiltered group into to use as a data source.
+            grp_db: The unfiltered group info to use as a data source.
             i_view: Pre-compiled index view we can load counters from.
 
         Raises:

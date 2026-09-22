@@ -29,6 +29,7 @@
     <Counter name="GPU_ACTIVE" index="4"/>
     <Counter name="MCU_ACTIVE" index="5"/>
     <Counter name="GPU_ITER_ACTIVE" index="6"/>
+    <Counter name="MMU_FLUSH_COUNT" index="7"/>
     <Counter name="GPU_IRQ_ACTIVE" index="10"/>
     <Counter name="GPU_IRQ_COUNT" index="11"/>
     <Counter name="CACHE_FLUSH_CYCLES" index="12"/>
@@ -53,6 +54,11 @@
     <Counter name="ITER_TILER_IRQ_ACTIVE" index="68"/>
     <Counter name="ITER_TILER_READY_BLOCKED" index="70"/>
     <Counter name="ITER_TILER_EP_DRAIN" index="71"/>
+    <Counter name="ITER_NEURAL_ACTIVE" index="72"/>
+    <Counter name="ITER_NEURAL_JOB_COMPLETED" index="73"/>
+    <Counter name="ITER_NEURAL_TASK_COMPLETED" index="74"/>
+    <Counter name="ITER_NEURAL_IRQ_ACTIVE" index="76"/>
+    <Counter name="ITER_NEURAL_READY_BLOCKED" index="78"/>
     <Counter name="CSHWIF0_ENABLED" index="80"/>
     <Counter name="CSHWIF0_WAIT_BLOCKED" index="84"/>
     <Counter name="CSHWIF1_ENABLED" index="86"/>
@@ -126,6 +132,7 @@
     <Counter name="BEATS_WR_OTHER" index="63"/>
     <Counter name="FRAG_QUADS_COARSE" index="68"/>
     <Counter name="FRAG_SHADER_THREADS" index="69" shift="2"/>
+    <Counter name="NEURAL_ACTIVE" index="70"/>
     <Counter name="RT_TRAVERSAL_STACK_OVERFLOW" index="77"/>
     <Counter name="RT_BOX_ISSUE_CYCLES" index="78"/>
     <Counter name="RT_TRI_ISSUE_CYCLES" index="79"/>
@@ -222,6 +229,66 @@
     <Counter name="L2_EXT_AW_CNT_Q2" index="50"/>
     <Counter name="L2_EXT_AW_CNT_Q3" index="51"/>
   </CounterBlock>
+  <CounterBlock type="Neural Accelerator" bank="0" size="128">
+    <Counter name="NE_ACTIVE" index="4"/>
+    <Counter name="NE_CCU_WORKLOAD" index="5"/>
+    <Counter name="NE_CE_WORKLOAD" index="6" shift="10"/>
+    <Counter name="NE_TU_WORKLOAD" index="7"/>
+    <Counter name="NE_VE_WORKLOAD" index="8" shift="3"/>
+    <Counter name="NE_DMA_WORKLOAD" index="9"/>
+    <Counter name="NE_WF_WORKLOAD" index="10" shift="1"/>
+    <Counter name="NE_SB_WORKLOAD" index="11" shift="8"/>
+    <Counter name="NE_TSU_ACTIVE" index="12"/>
+    <Counter name="NE_CE_ACTIVE" index="13"/>
+    <Counter name="NE_IR_ACTIVE" index="14"/>
+    <Counter name="NE_OW_ACTIVE" index="15"/>
+    <Counter name="NE_TU_ACTIVE" index="16"/>
+    <Counter name="NE_VE_ACTIVE" index="17"/>
+    <Counter name="NE_WF_ACTIVE" index="18"/>
+    <Counter name="NE_PROCESSING" index="20"/>
+    <Counter name="NE_TSU_OW_BLK" index="21"/>
+    <Counter name="NE_TSU_IR_BLK" index="22"/>
+    <Counter name="NE_TSU_CE_BLK" index="23"/>
+    <Counter name="NE_TSU_VE_BLK" index="24"/>
+    <Counter name="NE_TSU_TU_BLK" index="25"/>
+    <Counter name="NE_TSU_WF_BLK" index="26"/>
+    <Counter name="NE_TASK_ACCEPTED" index="27"/>
+    <Counter name="NE_TASK_COMPLETE" index="28"/>
+    <Counter name="NE_NED_FETCH_ACTIVE" index="29"/>
+    <Counter name="NE_NRT_FETCH_ACTIVE" index="30"/>
+    <Counter name="NE_CE_SB_SRC0_TRANS" index="32" shift="5"/>
+    <Counter name="NE_CE_SB_SRC1_TRANS" index="33" shift="5"/>
+    <Counter name="NE_CE_SB_SRC2_TRANS" index="34" shift="7"/>
+    <Counter name="NE_CE_SB_WR_TRANS" index="35" shift="7"/>
+    <Counter name="NE_CE_OP_CONV2D" index="36"/>
+    <Counter name="NE_CE_OP_DEPTHWISE" index="37"/>
+    <Counter name="NE_CE_OP_POOLING" index="38"/>
+    <Counter name="NE_IR_RD_BEAT" index="44" shift="6"/>
+    <Counter name="NE_WF_RD_BEAT" index="45" shift="6"/>
+    <Counter name="NE_OW_WR_BEAT" index="46" shift="5"/>
+    <Counter name="NE_IR_SRC0_TRANS" index="47" shift="5"/>
+    <Counter name="NE_IR_DST_TRANS" index="48" shift="5"/>
+    <Counter name="NE_IR_WF_PORT0_BEAT" index="51" shift="6"/>
+    <Counter name="NE_IR_WF_PORT1_BEAT" index="52" shift="6"/>
+    <Counter name="NE_TU_SB_SRC0_TRANS" index="56" shift="5"/>
+    <Counter name="NE_TU_SB_DST_TRANS" index="57" shift="5"/>
+    <Counter name="NE_TU_OP_ELEM_SELECT" index="58"/>
+    <Counter name="NE_TU_OP_ELEM_ORDER" index="59"/>
+    <Counter name="NE_TU_OP_ELEM_REPLICATE" index="60"/>
+    <Counter name="NE_TU_OP_DIM_CHANGE" index="61"/>
+    <Counter name="NE_TU_OP_WEIGHT_CONVERT" index="62"/>
+    <Counter name="NE_VE_SB_SRC0_TRANS" index="68" shift="7"/>
+    <Counter name="NE_VE_SB_SRC1_TRANS" index="69" shift="7"/>
+    <Counter name="NE_VE_SB_DST_TRANS" index="70" shift="7"/>
+    <Counter name="NE_VE_SB_SRC2_TRANS" index="71" shift="7"/>
+    <Counter name="NE_VE_OP_CE_POST_PROCESS" index="72"/>
+    <Counter name="NE_VE_OP_EWISE_UNARY" index="73"/>
+    <Counter name="NE_VE_OP_EWISE_BINARY" index="74"/>
+    <Counter name="NE_VE_OP_REDUCE_BLOCK" index="75"/>
+    <Counter name="NE_VE_OP_REDUCE_ELEM" index="76"/>
+    <Counter name="NE_VE_OP_RESIZE" index="77"/>
+    <Counter name="NE_WF_SB_WR_TRANS" index="80" shift="5"/>
+  </CounterBlock>
   <CounterBlock type="Tiler" bank="0" size="128">
     <Counter name="TILER_ACTIVE" index="4"/>
     <Counter name="TRIANGLES" index="6"/>
@@ -234,6 +301,8 @@
     <Counter name="PRIM_FRUSTUM_CULLED" index="13"/>
     <Counter name="PRIM_SAMPLE_CULLED" index="14"/>
     <Counter name="BUS_READ" index="17"/>
+    <Counter name="BUS_WRITE_UTLB0" index="18"/>
+    <Counter name="BUS_WRITE_UTLB1" index="19"/>
     <Counter name="POS_SHADER_WARPS" index="21"/>
     <Counter name="POS_SHADER_PARTIAL_WARPS" index="22"/>
     <Counter name="POS_SHADER_STALL" index="23"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -30,8 +30,8 @@
 
 #include "commands.hpp"
 
-#include <debug/ostream_indent.hpp>
-#include <debug/print_array.hpp>
+#include <device/logging/ostream_indent.hpp>
+#include <device/logging/print_array.hpp>
 
 #include <cassert>
 #include <ostream>
@@ -79,8 +79,8 @@ inline std::ostream &operator<<(std::ostream &os, block_type value) {
     switch (value) {
     case block_type::fe:
         return os << "fe";
-    case block_type::tiler:
-        return os << "tiler";
+    case block_type::geometry:
+        return os << "geometry";
     case block_type::memory:
         return os << "memory";
     case block_type::shader_core:
@@ -89,9 +89,12 @@ inline std::ostream &operator<<(std::ostream &os, block_type value) {
         return os << "firmware";
     case block_type::csg:
         return os << "csg";
+    case block_type::neural_accelerator:
+        return os << "neural_accelerator";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
@@ -103,9 +106,10 @@ inline std::ostream &operator<<(std::ostream &os, prfcnt_set value) {
         return os << "secondary";
     case prfcnt_set::tertiary:
         return os << "tertiary";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
@@ -117,9 +121,10 @@ inline std::ostream &operator<<(std::ostream &os, enum_item::item_type value) {
         return os << "request";
     case enum_item::item_type::sample_info:
         return os << "sample_info";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
@@ -152,9 +157,10 @@ inline std::ostream &operator<<(std::ostream &os, enum_item::enum_request::reque
         return os << "enable";
     case enum_item::enum_request::request_type::scope:
         return os << "scope";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
@@ -187,9 +193,10 @@ inline std::ostream &operator<<(std::ostream &os, metadata_item::item_type value
         return os << "clock";
     case metadata_item::item_type::block:
         return os << "block";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
@@ -337,9 +344,10 @@ inline std::ostream &operator<<(std::ostream &os, control_cmd::control_cmd_code 
         return os << "sample_async";
     case control_cmd::control_cmd_code::discard:
         return os << "discard";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
@@ -362,9 +370,10 @@ inline std::ostream &operator<<(std::ostream &os, request_item::item_type value)
         return os << "enable";
     case request_item::item_type::scope:
         return os << "scope";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint16_t>(value) << ">";
 }
 
@@ -383,9 +392,10 @@ inline std::ostream &operator<<(std::ostream &os, request_item::request_mode::sa
         return os << "manual";
     case request_item::request_mode::sampling_mode::periodic:
         return os << "periodic";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
@@ -413,9 +423,10 @@ inline std::ostream &operator<<(std::ostream &os, request_item::request_scope::c
     switch (value) {
     case request_item::request_scope::counters_scope::global:
         return os << "global";
+    default:
+        break;
     }
 
-    assert(!&"Unknown enum value");
     return os << "<unknown = " << static_cast<uint32_t>(value) << ">";
 }
 
@@ -446,6 +457,8 @@ inline std::ostream &operator<<(std::ostream &os, command::command_type cmd) {
         return os << "kinstr_prfcnt::command::get_sample";
     case command::put_sample:
         return os << "kinstr_prfcnt::command::put_sample";
+    default:
+        break;
     }
 
     assert(!&"Unknown command");

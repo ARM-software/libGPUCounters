@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Arm Limited.
+ * Copyright (c) 2024-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -40,10 +40,8 @@ namespace kinstr_prfcnt {
  * @return Clock extents instance parsed from enum info.
  */
 inline hwcnt::clock_extents construct_clock_extents(enum_info ei) {
-    hwcnt::clock_extents clock_extents = hwcnt::clock_extents{
-        ei.has_cycles_top,
-        ei.has_cycles_sc,
-    };
+    hwcnt::clock_extents clock_extents =
+        hwcnt::clock_extents{ei.has_cycles_top, ei.has_cycles_cg, ei.has_cycles_sc, ei.has_cycles_ne};
     return clock_extents;
 }
 

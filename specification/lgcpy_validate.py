@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2019-2025 Arm Limited.
+# Copyright (c) 2019-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -68,8 +68,9 @@ import re
 import sys
 import textwrap
 
-from lgcpy import CounterDatabase, IndexedView
-from lgcpy.data.counterinfo import CounterInfo
+from lgcpy import CounterDatabase, IndexedView, CounterVisibility
+from lgcpy.data.counterinfo import CounterInfo, PerfettoGroup, \
+    PerfettoGroupList
 from lgcpy.data.hardwarelayout import HardwareBlockType as HWBlock
 
 
@@ -78,6 +79,19 @@ from lgcpy.data.hardwarelayout import HardwareBlockType as HWBlock
 
 # Disable false-positive on iterating subclasses of lists
 # pylint: disable=not-an-iterable
+
+# Temporary disable for now pending refactoring
+# pylint: disable=too-many-lines
+
+
+def print_warn(reason: str) -> None:
+    '''
+    Print a formatted warning.
+
+    Args:
+        reason: Human readable warning.
+    '''
+    print(f'WARN: {reason}')
 
 
 def print_err(reason: str) -> None:
@@ -171,7 +185,7 @@ def validate_whitespace() -> int:
                 print_err_cd(reason, field, cname)
                 errors += 1
 
-            if '  ' in field:
+            if '  ' in value:
                 reason = 'Double whitespace in CounterInfo'
                 print_err_cd(reason, field, cname)
                 errors += 1
@@ -365,6 +379,9 @@ def validate_stable_ids() -> int:
         # Else we need a new one
         else:
             stable_id = get_unassigned_id()
+
+            # Set this to mark the ID as assigned
+            found_ids[stable_id] = counters[0]
 
         for counter in counters:
             counter.stable_id = stable_id
@@ -613,32 +630,37 @@ def validate_units_fields() -> int:
         'beats',
         'cycles',
         'issues',
+        'operations',
         # Sizes
         'bits',
         'bytes',
         # Rates
         'bytes/second',
         # Things
-        'boxes',
+        'batches',
         'blocks',
+        'boxes',
+        'calls',
         'instances',
         'instructions',
         'interrupts',
         'jobs',
+        'nodes',
+        'packets',
+        'passes',
         'pixels',
         'primitives',
         'quads',
+        'rays',
         'requests',
         'tasks',
         'tests',
-        'tiles',
         'threads',
+        'tiles',
         'transactions',
-        'warps',
-        'batches',
-        'nodes',
         'triangles',
-        'rays',
+        'vertices',
+        'warps',
     ))
 
     for counter in cnt_db:
@@ -769,8 +791,11 @@ def validate_source_name_consistency(gpu: str) -> int:
     hw_source_names = set(x.name for x in hw_db.iter_counters())
     cnt_source_names = set(x.source_name for x in cnt_db if x.source_name)
 
-    hw_only = hw_source_names.difference(cnt_source_names)
-    cnt_only = cnt_source_names.difference(hw_source_names)
+    hw_only = list(hw_source_names.difference(cnt_source_names))
+    cnt_only = list(cnt_source_names.difference(hw_source_names))
+
+    hw_only.sort()
+    cnt_only.sort()
 
     for counter in hw_only:
         reason = 'SourceName only in HardwareView'
@@ -823,6 +848,7 @@ class Domain(enum.Enum):
     GPU = 'GPU'
     MEM = 'MEM'
     SC = 'SC'
+    NX = 'NX'
 
 
 def validate_derived_equation_cardinality(gpu: str) -> int:
@@ -859,12 +885,14 @@ def validate_derived_equation_cardinality(gpu: str) -> int:
         HWBlock.TILER: Domain.GPU,
         HWBlock.MEMORY_SYSTEM: Domain.MEM,
         HWBlock.SHADER_CORE: Domain.SC,
+        HWBlock.NEURAL_ACCELERATOR: Domain.NX,
     }
 
     # Recognized domain scaling factors
     scaling_constants = {
         'MALI_CONFIG_L2_CACHE_COUNT': Domain.MEM,
         'MALI_CONFIG_SHADER_CORE_COUNT': Domain.SC,
+        'MALI_CONFIG_NEURAL_ACCELERATOR_COUNT': Domain.NX
     }
 
     # Other constants we can ignore
@@ -928,6 +956,49 @@ def validate_derived_equation_cardinality(gpu: str) -> int:
             if domain not in scale_use:
                 reason = f'Missing cardinality scaling for {domain.value}'
                 print_err_gc(reason, gpu, counter.machine_name)
+                errors += 1
+
+    return errors
+
+
+def validate_perfetto_group_consistency(gpu: str) -> int:
+    '''
+    Validate Perfetto group consistency.
+
+    All counters must have a Perfetto group that matches a subset of the
+    supported groups on each of the supported protobuf protocol versions. It
+    can be a different group assignment for each protocol version.
+
+    Args:
+        gpu: GPU database key to check.
+
+    Returns:
+        The number of errors discovered.
+    '''
+    assert CounterDatabase.g_hardware_layout_db
+
+    cnt_db = CounterDatabase.get_indexed_view_for(gpu)
+
+    known_groups = {
+        "Protocol 1": PerfettoGroupList(
+            PerfettoGroup.UNCLASSIFIED,
+            PerfettoGroup.SYSTEM,
+            PerfettoGroup.VERTICES,
+            PerfettoGroup.FRAGMENTS,
+            PerfettoGroup.PRIMITIVES,
+            PerfettoGroup.MEMORY,
+            PerfettoGroup.COMPUTE,
+            PerfettoGroup.RAY_TRACING)
+    }
+
+    errors = 0
+
+    for target, group_list in known_groups.items():
+        for counter in cnt_db:
+            counter_group = counter.get_perfetto_groups(group_list)
+            if counter_group is None:
+                reason = 'Perfetto group missing'
+                print_err_gcd(reason, target, gpu, counter.machine_name)
                 errors += 1
 
     return errors
@@ -1051,10 +1122,27 @@ def validate_semantic_documentation_resolve(gpu: str) -> int:
         source = 'SemanticGroupInfo'
         errors += validate_string_resolve(cnt_db, gpu, cname, docs, source)
 
+    # Check all documentation exists for non-internal counters
+    public_idxv = cnt_db.filter(CounterVisibility.ADVANCED_SYSTEM, True)
+    public_semv = sem_db.filter(CounterVisibility.ADVANCED_SYSTEM, True)
+
+    seen_counters_idxv = set(x for x in public_idxv)
+    seen_counters_semv = set(x for x in public_semv.iter_counters())
+
+    idxv_only = seen_counters_idxv - seen_counters_semv
+
+    # Indexed counters missing from semantic view due to missing documentation
+    for counter in idxv_only:
+        print(f'Missing semantic documentation for {gpu}:{counter.human_name}')
+        errors += 1
+
+    # Semantic counters missing from indexed view should never happen
+    assert not seen_counters_semv - seen_counters_idxv
+
     return errors
 
 
-def parse_cli():
+def parse_cli() -> argparse.Namespace:
     '''
     Parse the command line.
 
@@ -1071,7 +1159,7 @@ def parse_cli():
     return args
 
 
-def main():
+def main() -> int:
     '''
     The main function.
 
@@ -1098,10 +1186,16 @@ def main():
     for gpu in database_keys:
         errors += validate_name_uniqueness(gpu)
         errors += validate_source_name_consistency(gpu)
-        errors += validate_derived_equation_resolve(gpu)
-        errors += validate_derived_equation_cardinality(gpu)
+        errors += validate_perfetto_group_consistency(gpu)
         errors += validate_counter_documentation_resolve(gpu)
         errors += validate_semantic_documentation_resolve(gpu)
+
+    if errors:
+        print_warn('Some checks have been skipped due to earlier errors')
+    else:
+        for gpu in database_keys:
+            errors += validate_derived_equation_resolve(gpu)
+            errors += validate_derived_equation_cardinality(gpu)
 
     # Pretty print everything
     if args.overwrite:
@@ -1115,9 +1209,11 @@ def main():
         sem_db.to_file()
 
         sem_si_db = CounterDatabase.g_semantic_section_info_db
+        sem_si_db.reorder(sem_db)
         sem_si_db.to_file()
 
         sem_sg_db = CounterDatabase.g_semantic_group_info_db
+        sem_sg_db.reorder(sem_db)
         sem_sg_db.to_file()
 
     if errors > 0:

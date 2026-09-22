@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include <device/detail/cast_to_impl.hpp>
+#include <device/error.hpp>
 #include <device/hwcnt/backend_type.hpp>
 #include <device/kbase_version.hpp>
 #include <device/product_id.hpp>
@@ -80,6 +82,8 @@ static bool is_vinstr_available(const kbase_version &version, product_id pid) {
         return version < jm_max_version;
     case ioctl_iface_type::csf:
         return version < csf_max_version;
+    case ioctl_iface_type::panthor:
+        return false;
     }
 
     __builtin_unreachable();
@@ -129,8 +133,11 @@ std::pair<std::error_code, backend_type> backend_type_from_str(const char *str) 
         return std::make_pair(std::error_code{}, backend_type::kinstr_prfcnt_wa);
     if (!strcmp(str, "kinstr_prfcnt_bad"))
         return std::make_pair(std::error_code{}, backend_type::kinstr_prfcnt_bad);
+    if (!strcmp(str, "panthor"))
+        return std::make_pair(std::error_code{}, backend_type::panthor);
 
-    return std::make_pair(std::make_error_code(std::errc::invalid_argument), backend_type{});
+    std::error_code ec = HWCPIPE_MAKE_ERROR_CODE(hwcpipe_errc::backend_invalid_type, "Invalid backend type: %s", str);
+    return std::make_pair(ec, backend_type{});
 }
 
 backend_types_set backend_type_discover(const kbase_version &version, product_id pid) {
@@ -138,6 +145,11 @@ backend_types_set backend_type_discover(const kbase_version &version, product_id
 
     if (version.type() == ioctl_iface_type::jm_pre_r21) {
         result.set(static_cast<size_t>(backend_type::vinstr_pre_r21));
+        return result;
+    }
+
+    if (version.type() == ioctl_iface_type::panthor) {
+        result.set(static_cast<size_t>(backend_type::panthor));
         return result;
     }
 
@@ -157,6 +169,12 @@ backend_types_set backend_type_discover(const kbase_version &version, product_id
     }
 
     return result;
+}
+
+backend_type get_backend_type(const instance &inst) {
+    const auto &ibt = device::detail::cast_to_impl_backend_type(inst);
+
+    return ibt.backend_type();
 }
 
 } // namespace hwcnt

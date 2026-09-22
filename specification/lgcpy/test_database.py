@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -28,7 +28,6 @@ These tests aim to sense check the implementation of the Python code, and
 do not check the validity of the data in the hardware layout database.
 '''
 
-import sys
 import unittest
 
 from .database import CounterDatabase
@@ -117,16 +116,5 @@ class DatabaseTestSuite(unittest.TestCase):
         self.assertGreater(c_count, 0)
 
 
-def main() -> int:
-    '''
-    The main function.
-
-    Returns:
-        Process return code.
-    '''
-    results = unittest.main(exit=False)
-    return 0 if results.result.wasSuccessful() else 1
-
-
 if __name__ == '__main__':
-    sys.exit(main())
+    unittest.main()

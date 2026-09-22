@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Arm Limited.
+ * Copyright (c) 2022-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -50,7 +50,7 @@ inline hwcnt::block_extents construct_block_extents(product_id pid, uint64_t num
     hwcnt::block_extents block_extents = hwcnt::block_extents{
         {{
             1,                                      // num_fe_blocks
-            1,                                      // num_tiler_blocks
+            1,                                      // num_geometry_blocks
             num_memory_blocks,                      // num_memory_blocks
             static_cast<uint8_t>(num_shader_cores), // num_core_blocks
         }},

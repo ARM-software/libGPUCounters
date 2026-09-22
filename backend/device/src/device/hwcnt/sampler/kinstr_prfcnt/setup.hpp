@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -150,7 +150,10 @@ inline auto init_features(const enum_info &ei, kbase_version kbase_ver) {
         assert(kbase_ver.type() != ioctl_iface_type::jm_pre_r21);
     }
     result.has_gpu_cycle = ei.has_cycles_top;
+    result.has_cg_cycle = ei.has_cycles_cg;
     result.has_sc_cycle = ei.has_cycles_sc;
+    result.has_ne_cycle = ei.has_cycles_ne;
+
     result.has_stretched_flag = true;        // always true
     result.overflow_behavior_defined = true; // always true, on tODx under some circumstances false
 

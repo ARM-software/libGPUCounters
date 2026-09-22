@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -364,8 +364,8 @@ struct uk_hwcnt_reader_setup {
     uint32_t jm_bm;
     /** counters selection bitmask (Shader) */
     uint32_t shader_bm;
-    /** counters selection bitmask (Tiler) */
-    uint32_t tiler_bm;
+    /** counters selection bitmask (Geometry) */
+    uint32_t geometry_bm;
     /** counters selection bitmask (MMU_L2) */
     uint32_t mmu_l2_bm;
     /** dumping notification file descriptor */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Arm Limited.
+ * Copyright (c) 2021-2025 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -65,7 +65,7 @@ class block_handle : public detail::handle<block_handle_size, block_handle_align
  *
  * Must be set to the biggest `sizeof` for all implementation dependent sample handles.
  */
-static constexpr size_t sample_handle_size = 16;
+static constexpr size_t sample_handle_size = 40;
 /**
  * Default sample handle alignment.
  *
@@ -104,6 +104,7 @@ struct block_metadata;
  * values overflow. If overflow behavior is defined,
  * @ref features::overflow_behavior_defined is set.
  *
+ * @parblock
  * @par Example
  * @code
  * namespace hwcnt = hwcpipe::device::hwcnt;
@@ -122,6 +123,7 @@ struct block_metadata;
  * // Return sample back to the ring buffer.
  * r.put_sample(sh);
  * @endcode
+ * @endparblock
  */
 class HWCPIPE_DEVICE_API reader {
   public:
@@ -139,6 +141,7 @@ class HWCPIPE_DEVICE_API reader {
      * the @ref handle::create. The hardware counters infrastructure
      * uses its own anonymous node.
      *
+     * @parblock
      * @par Example
      * @code
      * int fd = reader.get_fd();
@@ -147,6 +150,7 @@ class HWCPIPE_DEVICE_API reader {
      * pfds[0].events = POLLIN;
      * bool data_ready = poll(pfds, 1, 0) == 1;
      * @endcode
+     * @endparblock
      *
      * @return hardware counters interface descriptor.
      */
@@ -180,6 +184,7 @@ class HWCPIPE_DEVICE_API reader {
      * Only one sample can be processed at a time. Calling this function twice without
      * putting the first sample back with @ref put_sample will result into an error.
      *
+     * @parblock
      * @par Example
      * @code
      * sample_metadata metadata;
@@ -188,6 +193,7 @@ class HWCPIPE_DEVICE_API reader {
      * if (!ec)
      *     print_metadata(metadata);
      * @endcode
+     * @endparblock
      *
      * @note It is a low level function, it is more convenient to use @ref sample class.
      *

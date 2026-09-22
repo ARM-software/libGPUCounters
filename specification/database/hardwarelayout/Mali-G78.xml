@@ -60,11 +60,6 @@
     <Counter name="MMU_TABLE_READS_L2" index="6"/>
     <Counter name="MMU_HIT_L3" index="7"/>
     <Counter name="MMU_HIT_L2" index="8"/>
-    <Counter name="MMU_S2_REQUESTS" index="9"/>
-    <Counter name="MMU_S2_TABLE_READS_L3" index="10"/>
-    <Counter name="MMU_S2_TABLE_READS_L2" index="11"/>
-    <Counter name="MMU_S2_HIT_L3" index="12"/>
-    <Counter name="MMU_S2_HIT_L2" index="13"/>
     <Counter name="L2_RD_MSG_IN" index="16"/>
     <Counter name="L2_RD_MSG_IN_STALL" index="17"/>
     <Counter name="L2_WR_MSG_IN" index="18"/>
@@ -175,7 +170,10 @@
     <Counter name="PRIM_CLIPPED" index="13"/>
     <Counter name="PRIM_SAT_CULLED" index="14"/>
     <Counter name="BUS_READ" index="17"/>
+    <Counter name="BUS_WRITE_UTLB0" index="18"/>
+    <Counter name="BUS_WRITE_UTLB1" index="19"/>
     <Counter name="IDVS_POS_SHAD_REQ" index="21"/>
+    <Counter name="IDVS_POS_SHAD_WAIT" index="22"/>
     <Counter name="IDVS_POS_SHAD_STALL" index="23"/>
     <Counter name="IDVS_POS_FIFO_FULL" index="24"/>
     <Counter name="VCACHE_HIT" index="26"/>

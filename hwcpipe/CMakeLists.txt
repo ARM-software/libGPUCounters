@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2023 Arm Limited.
+# Copyright (c) 2023-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -9,6 +9,9 @@ cmake_minimum_required(VERSION 3.13.5)
 add_library(hwcpipe
     src/error.cpp
     src/hwcpipe/detail/counter_database.cpp
+    src/hwcpipe/detail/counter_map/5th_generation.cpp
+    src/hwcpipe/detail/counter_map/bifrost.cpp
+    src/hwcpipe/detail/counter_map/valhall.cpp
     src/hwcpipe/all_gpu_counters.cpp
     src/hwcpipe/counter_metadata.cpp
     src/hwcpipe/derived_functions.cpp
@@ -30,5 +33,5 @@ target_include_directories(hwcpipe
 )
 
 target_link_libraries(hwcpipe
-    PUBLIC device
+    PUBLIC device device_interface
 )

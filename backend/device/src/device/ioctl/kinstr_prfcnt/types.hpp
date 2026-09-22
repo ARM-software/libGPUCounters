@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2025 Arm Limited.
+ * Copyright (c) 2022-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -67,8 +67,8 @@ static constexpr const uint16_t api_version = 0;
 enum class block_type : uint8_t {
     /** Front end. */
     fe,
-    /** Tiler. */
-    tiler,
+    /** Geometry (also known as tiler block). */
+    geometry,
     /** Memory system. */
     memory,
     /** Shader core. */
@@ -77,6 +77,8 @@ enum class block_type : uint8_t {
     firmware,
     /** Firmware command stream group. */
     csg,
+    /** Neural accelerator. */
+    neural_accelerator,
 };
 
 /** Type of performance counter block set. */

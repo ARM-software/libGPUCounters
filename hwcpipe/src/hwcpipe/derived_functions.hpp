@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -18,11 +18,20 @@ namespace database {
     double MaliALUIssueCy_v2(const context &ctx);
     double MaliALUIssueCy_v3(const context &ctx);
     double MaliALUIssueCy_v4(const context &ctx);
+    double MaliALUIssueCy_v5(const context &ctx);
+    double MaliALUThroughputCy_v0(const context &ctx);
+    double MaliALUThroughputCy_v1(const context &ctx);
+    double MaliALUThroughputCy_v2(const context &ctx);
+    double MaliALUThroughputCy_v3(const context &ctx);
+    double MaliALUThroughputCy_v4(const context &ctx);
+    double MaliALUThroughputCy_v5(const context &ctx);
+    double MaliALUThroughputCy_v6(const context &ctx);
     double MaliALUUtil_v0(const context &ctx);
     double MaliALUUtil_v1(const context &ctx);
     double MaliALUUtil_v2(const context &ctx);
     double MaliALUUtil_v3(const context &ctx);
     double MaliALUUtil_v4(const context &ctx);
+    double MaliALUUtil_v5(const context &ctx);
     double MaliCoreUtil_v0(const context &ctx);
     double MaliCoreUtil_v1(const context &ctx);
     double MaliEngDivergedInstrRate_v0(const context &ctx);
@@ -39,8 +48,6 @@ namespace database {
     double MaliFragEZSKillRate_v0(const context &ctx);
     double MaliFragEZSTestRate_v0(const context &ctx);
     double MaliFragEZSUpdateRate_v0(const context &ctx);
-    double MaliFragFPKBUtil_v0(const context &ctx);
-    double MaliFragFPKBUtil_v1(const context &ctx);
     double MaliFragFPKKillQd_v0(const context &ctx);
     double MaliFragFPKKillQd_v1(const context &ctx);
     double MaliFragFPKKillQd_v2(const context &ctx);
@@ -64,6 +71,8 @@ namespace database {
     double MaliFragShadedQd_v0(const context &ctx);
     double MaliFragShadedQd_v1(const context &ctx);
     double MaliFragShadedQd_v2(const context &ctx);
+    double MaliFragStagingUtil_v0(const context &ctx);
+    double MaliFragStagingUtil_v1(const context &ctx);
     double MaliFragThread_v0(const context &ctx);
     double MaliFragThread_v1(const context &ctx);
     double MaliFragThread_v2(const context &ctx);
@@ -86,12 +95,6 @@ namespace database {
     double MaliGPUPix_v0(const context &ctx);
     double MaliGPUPix_v1(const context &ctx);
     double MaliGeomFaceXYPlaneCullRate_v0(const context &ctx);
-    double MaliGeomPosShadThread_v0(const context &ctx);
-    double MaliGeomPosShadThread_v1(const context &ctx);
-    double MaliGeomPosShadThreadPerPrim_v0(const context &ctx);
-    double MaliGeomPosShadThreadPerPrim_v1(const context &ctx);
-    double MaliGeomPosShadThreadPerPrim_v2(const context &ctx);
-    double MaliGeomPosShadThreadPerPrim_v3(const context &ctx);
     double MaliGeomSampleCullRate_v0(const context &ctx);
     double MaliGeomSampleCullRate_v1(const context &ctx);
     double MaliGeomSampleCullRate_v2(const context &ctx);
@@ -101,19 +104,25 @@ namespace database {
     double MaliGeomTotalPrim_v0(const context &ctx);
     double MaliGeomTotalPrim_v1(const context &ctx);
     double MaliGeomTotalPrim_v2(const context &ctx);
-    double MaliGeomVarShadThread_v0(const context &ctx);
-    double MaliGeomVarShadThread_v1(const context &ctx);
-    double MaliGeomVarShadThreadPerPrim_v0(const context &ctx);
     double MaliGeomVisibleRate_v0(const context &ctx);
     double MaliGeomVisibleRate_v1(const context &ctx);
     double MaliGeomVisibleRate_v2(const context &ctx);
     double MaliGeomZPlaneCullRate_v0(const context &ctx);
+    double MaliL2CacheRdHitRate_v0(const context &ctx);
     double MaliL2CacheRdMissRate_v0(const context &ctx);
+    double MaliL2CacheWrHitRate_v0(const context &ctx);
     double MaliL2CacheWrMissRate_v0(const context &ctx);
     double MaliLSIssueCy_v0(const context &ctx);
     double MaliLSRdCy_v0(const context &ctx);
+    double MaliLSThroughputCy_v0(const context &ctx);
+    double MaliLSThroughputCy_v1(const context &ctx);
+    double MaliLSThroughputCy_v2(const context &ctx);
+    double MaliLSThroughputCy_v3(const context &ctx);
+    double MaliLSThroughputCy_v4(const context &ctx);
     double MaliLSUtil_v0(const context &ctx);
     double MaliLSWrCy_v0(const context &ctx);
+    double MaliMMUL2HitRate_v0(const context &ctx);
+    double MaliMMUL3HitRate_v0(const context &ctx);
     double MaliNonFragQueueUtil_v0(const context &ctx);
     double MaliNonFragThread_v0(const context &ctx);
     double MaliNonFragThread_v1(const context &ctx);
@@ -135,6 +144,7 @@ namespace database {
     double MaliSCBusLSWrBy_v1(const context &ctx);
     double MaliSCBusLSWrByPerWr_v0(const context &ctx);
     double MaliSCBusLSWrByPerWr_v1(const context &ctx);
+    double MaliSCBusOtherL2RdBy_v0(const context &ctx);
     double MaliSCBusTexExtRdBy_v0(const context &ctx);
     double MaliSCBusTexExtRdByPerRd_v0(const context &ctx);
     double MaliSCBusTexL2RdBy_v0(const context &ctx);
@@ -149,8 +159,11 @@ namespace database {
     double MaliTexCPI_v4(const context &ctx);
     double MaliTexCacheCompressFetchRate_v0(const context &ctx);
     double MaliTexCacheUtil_v0(const context &ctx);
+    double MaliTexFiltUtil_v0(const context &ctx);
     double MaliTexIssueCy_v0(const context &ctx);
     double MaliTexIssueCy_v1(const context &ctx);
+    double MaliTexIssueCy_v2(const context &ctx);
+    double MaliTexIssueCy_v3(const context &ctx);
     double MaliTexMipInstrRate_v0(const context &ctx);
     double MaliTexMipInstrRate_v1(const context &ctx);
     double MaliTexSample_v0(const context &ctx);
@@ -158,14 +171,37 @@ namespace database {
     double MaliTexSample_v2(const context &ctx);
     double MaliTexSample_v3(const context &ctx);
     double MaliTexSample_v4(const context &ctx);
+    double MaliTexThroughputCy_v0(const context &ctx);
+    double MaliTexThroughputCy_v1(const context &ctx);
+    double MaliTexThroughputCy_v2(const context &ctx);
+    double MaliTexThroughputCy_v3(const context &ctx);
+    double MaliTexThroughputCy_v4(const context &ctx);
+    double MaliTexThroughputCy_v5(const context &ctx);
+    double MaliTexThroughputCy_v6(const context &ctx);
     double MaliTexTriInstrRate_v0(const context &ctx);
     double MaliTexTriInstrRate_v1(const context &ctx);
     double MaliTexUtil_v0(const context &ctx);
     double MaliTexUtil_v1(const context &ctx);
+    double MaliTexUtil_v2(const context &ctx);
+    double MaliTexUtil_v3(const context &ctx);
     double MaliTilerPosCacheHitRate_v0(const context &ctx);
+    double MaliTilerPosShadThread_v0(const context &ctx);
+    double MaliTilerPosShadThread_v1(const context &ctx);
+    double MaliTilerPosShadThreadPerPrim_v0(const context &ctx);
+    double MaliTilerPosShadThreadPerPrim_v1(const context &ctx);
+    double MaliTilerPosShadThreadPerPrim_v2(const context &ctx);
+    double MaliTilerPosShadThreadPerPrim_v3(const context &ctx);
+    double MaliTilerRdBy_v0(const context &ctx);
+    double MaliTilerRdBy_v1(const context &ctx);
     double MaliTilerUtil_v0(const context &ctx);
     double MaliTilerUtil_v1(const context &ctx);
     double MaliTilerVarCacheHitRate_v0(const context &ctx);
+    double MaliTilerVarShadThread_v0(const context &ctx);
+    double MaliTilerVarShadThread_v1(const context &ctx);
+    double MaliTilerVarShadThreadPerPrim_v0(const context &ctx);
+    double MaliTilerWrBy_v0(const context &ctx);
+    double MaliTilerWrBy_v1(const context &ctx);
+    double MaliTilerWrBy_v2(const context &ctx);
     double MaliVar16IssueCy_v0(const context &ctx);
     double MaliVar16IssueCy_v1(const context &ctx);
     double MaliVar16IssueCy_v2(const context &ctx);
@@ -175,6 +211,12 @@ namespace database {
     double MaliVarIssueCy_v0(const context &ctx);
     double MaliVarIssueCy_v1(const context &ctx);
     double MaliVarIssueCy_v2(const context &ctx);
+    double MaliVarThroughputCy_v0(const context &ctx);
+    double MaliVarThroughputCy_v1(const context &ctx);
+    double MaliVarThroughputCy_v2(const context &ctx);
+    double MaliVarThroughputCy_v3(const context &ctx);
+    double MaliVarThroughputCy_v4(const context &ctx);
+    double MaliVarThroughputCy_v5(const context &ctx);
     double MaliVarUtil_v0(const context &ctx);
     double MaliVarUtil_v1(const context &ctx);
     double MaliVarUtil_v2(const context &ctx);
@@ -198,8 +240,9 @@ namespace database {
     double MaliTexQuads_v0(const context &ctx);
     double MaliTexQuads_v1(const context &ctx);
     double MaliTexQuads_v2(const context &ctx);
-    double MaliAnyUtil_v0(const context &ctx);
-    double MaliAnyUtil_v1(const context &ctx);
+    double MaliTilerWrBt_v0(const context &ctx);
+    double MaliClockRatioSC_v0(const context &ctx);
+    double MaliClockRatioSC_v1(const context &ctx);
     double MaliCSFCEUUtil_v0(const context &ctx);
     double MaliCSFCEUUtil_v1(const context &ctx);
     double MaliCSFLSUUtil_v0(const context &ctx);
@@ -222,10 +265,13 @@ namespace database {
     double MaliGeomPlaneCullRate_v0(const context &ctx);
     double MaliGeomPlaneCullRate_v1(const context &ctx);
     double MaliRTUIssueCy_v0(const context &ctx);
+    double MaliRTUThroughputCy_v0(const context &ctx);
+    double MaliRTUThroughputCy_v1(const context &ctx);
     double MaliRTUUtil_v0(const context &ctx);
     double MaliBinningQueueActiveCy_v0(const context &ctx);
     double MaliBinningQueueUtil_v0(const context &ctx);
     double MaliCompOrBinningUtil_v0(const context &ctx);
+    double MaliGeomDVSRate_v0(const context &ctx);
     double MaliGeomScissorCullRate_v0(const context &ctx);
     double MaliMainQueueActiveCy_v0(const context &ctx);
     double MaliMainQueueUtil_v0(const context &ctx);
@@ -234,6 +280,7 @@ namespace database {
     double MaliEngBlendBackpressureRate_v0(const context &ctx);
     double MaliEngLSBackpressureRate_v0(const context &ctx);
     double MaliEngSlot0IssueCy_v0(const context &ctx);
+    double MaliEngSlot0IssueCy_v1(const context &ctx);
     double MaliEngTexBackpressureRate_v0(const context &ctx);
     double MaliEngVarBackpressureRate_v0(const context &ctx);
     double MaliEngZSBackpressureRate_v0(const context &ctx);
@@ -248,9 +295,27 @@ namespace database {
     double MaliFragPrepassWarpRate_v0(const context &ctx);
     double MaliAttrUtil_v0(const context &ctx);
     double MaliBlendUtil_v0(const context &ctx);
+    double MaliClockRatioNX_v0(const context &ctx);
     double MaliEngRTUBackpressureRate_v0(const context &ctx);
+    double MaliNXBwTotalRdBy_v0(const context &ctx);
+    double MaliNXCEUtil_v0(const context &ctx);
+    double MaliNXIRUtil_v0(const context &ctx);
+    double MaliNXOWUtil_v0(const context &ctx);
+    double MaliNXProcessingUtil_v0(const context &ctx);
+    double MaliNXTSUUtil_v0(const context &ctx);
+    double MaliNXTUUtil_v0(const context &ctx);
+    double MaliNXVEUtil_v0(const context &ctx);
+    double MaliNXWFUtil_v0(const context &ctx);
+    double MaliNeuralQueueActiveCy_v0(const context &ctx);
+    double MaliNeuralQueueUtil_v0(const context &ctx);
+    double MaliNeuralUtil_v0(const context &ctx);
+    double MaliRTUCacheHitRate_v0(const context &ctx);
     double MaliSCBusRTUExtRdBy_v0(const context &ctx);
     double MaliSCBusRTUL2RdBy_v0(const context &ctx);
+    double MaliCoreThreadOccupancyQ4Cy_v0(const context &ctx);
+    double MaliCoreWarpsRegs128_v0(const context &ctx);
+    double MaliEngSlot1IssueCy_v0(const context &ctx);
+    double MaliNXMEUtil_v0(const context &ctx);
 
 
 } // namespace database

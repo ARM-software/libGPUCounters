@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2024 ARM Limited.
+# Copyright (c) 2021-2025 ARM Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -27,11 +27,6 @@ cmake_minimum_required(VERSION 3.13.5)
 
 project(hwcpipe2)
 
-option(
-    HWCPIPE_ENABLE_TESTS
-    "If set, build unit tests."
-    ON
-)
 option(HWCPIPE_ENABLE_EXCEPTIONS "If set, c++ exceptions are enabled.")
 option(
     HWCPIPE_ENABLE_RTTI
@@ -48,6 +43,11 @@ option(
     "Treat compile and link warning as error."
     ON
 )
+option(
+    HWCPIPE_IGNORE_DEPRECATION_WARNINGS
+    "Ignore deprecation warnings."
+    OFF
+)
 
 set(IS_ARM_BUILD FALSE)
 if(CMAKE_SYSTEM_PROCESSOR
@@ -56,15 +56,6 @@ if(CMAKE_SYSTEM_PROCESSOR
 )
     set(IS_ARM_BUILD TRUE)
 endif()
-
-include(CMakeDependentOption)
-cmake_dependent_option(
-    HWCPIPE_ENABLE_END_TO_END_TESTS
-    "If set, build end-to-end tests."
-    ${IS_ARM_BUILD}
-    "HWCPIPE_ENABLE_TESTS"
-    OFF
-)
 
 option(HWCPIPE_SYSCALL_LIBMALI
        "Load syscall function entries from libmali.so for testing."
@@ -84,6 +75,13 @@ option(
     HWCPIPE_ENABLE_LTO
     "Enable link time optimization. Enabled by default for release builds."
     ${IS_RELEASE_BUILD}
+)
+
+option(
+    HWCPIPE_LOGGER_HEADER
+    "Path to the logger header file defining the logging macros. \
+        Check include/device/logging/logger.hpp for more information \
+        on how to use it."
 )
 
 set(CMAKE_CXX_STANDARD 14)
@@ -131,15 +129,13 @@ if(HWCPIPE_WERROR)
         -Werror
         -pedantic-errors
         -Wno-abi # Silence GCC 7.1 ABI compatibility warning
+        -Wno-error=deprecated-declarations
     )
     add_link_options(-Werror)
 endif()
 
-add_subdirectory(device)
-
-if(HWCPIPE_ENABLE_TESTS)
-    enable_testing()
-
-    add_subdirectory(test)
-    add_subdirectory(third_party/catch2)
+if(HWCPIPE_IGNORE_DEPRECATION_WARNINGS)
+    add_compile_options(-Wno-deprecated-declarations)
 endif()
+
+add_subdirectory(device)
