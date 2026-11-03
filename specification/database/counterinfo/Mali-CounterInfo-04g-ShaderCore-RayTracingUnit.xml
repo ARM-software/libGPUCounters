@@ -804,7 +804,7 @@
   </CounterInfo>
   <!-- ==================================================================== -->
   <CounterInfo>
-    <MachineName>MaliRTUTriCull</MachineName>
+    <MachineName>MaliRTUTriIssue</MachineName>
     <SourceName>RT_TRI_ISSUE_COUNT</SourceName>
     <StableID>433</StableID>
     <HumanName>Ray tracing triangle primitive tests</HumanName>
