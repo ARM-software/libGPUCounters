@@ -55,3 +55,7 @@ printf "Running utility tests\n"
 printf "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = \n"
 printf "\n"
 python3 -m lgcpy.test_xmlutils
+# Exporters are not bundled in the public specification release.
+if [ -f lgcpy_export_renderdoc.py ]; then
+  python3 -m lgcpy.test_export_renderdoc
+fi

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025 Arm Limited.
+ * Copyright (c) 2023-2026 Arm Limited.
  *
  * SPDX-License-Identifier: MIT
  */
@@ -553,6 +553,48 @@ TEST_CASE("SamplerReadsCorrectValues__WhenSamplesAreExpressions") {
         std::vector<block_metadata> blocks_list(2);
         std::vector<uint32_t> values_tiler(5);
         std::vector<uint32_t> values_fe(7);
+        values_tiler[c1_tiler.second] = 1;
+        values_fe[c2_fe.second] = 2;
+
+        blocks_list[0] = {hwcnt::block_type::fe, values_fe.data()};
+        blocks_list[1] = {hwcnt::block_type::tiler, values_tiler.data()};
+        EXPECT_CALL(backend_sample_mock, blocks, blocks_list);
+
+        ec = config.add_counter(hwcpipe_counter::MaliTilerUtil); // (MaliTilerActiveCy / MaliGPUActiveCy) * 100
+        REQUIRE(!ec);
+
+        sampler_t test_sampler = sampler_t(config);
+
+        ec = test_sampler.start_sampling();
+        REQUIRE(!ec);
+        ec = test_sampler.sample_now();
+        REQUIRE(!ec);
+        ec = test_sampler.stop_sampling();
+        REQUIRE(!ec);
+
+        hwcpipe::counter_sample sample{};
+
+        ec = test_sampler.get_counter_value(hwcpipe_counter::MaliTilerUtil, sample);
+        REQUIRE(!ec);
+        REQUIRE(sample.value.float64 == (1.0 / 2.0) * 100.0);
+        REQUIRE(sample.type == counter_sample::type::float64);
+    }
+}
+
+TEST_CASE("SamplerReadsCorrectValues__WhenSamplesArePercentExpressionsAndClamped") {
+    std::error_code ec{};
+
+    sampler_config config(device::product_id::g31, 0);
+
+    SECTION("Read expression") {
+        using counter_offset_pair = std::pair<hwcpipe_counter, uint32_t>;
+
+        counter_offset_pair c1_tiler = {MaliTilerActiveCy, 4};
+        counter_offset_pair c2_fe = {MaliGPUActiveCy, 6};
+
+        std::vector<block_metadata> blocks_list(2);
+        std::vector<uint32_t> values_tiler(5);
+        std::vector<uint32_t> values_fe(7);
         values_tiler[c1_tiler.second] = 4;
         values_fe[c2_fe.second] = 2;
 
@@ -576,9 +618,83 @@ TEST_CASE("SamplerReadsCorrectValues__WhenSamplesAreExpressions") {
 
         ec = test_sampler.get_counter_value(hwcpipe_counter::MaliTilerUtil, sample);
         REQUIRE(!ec);
-        REQUIRE(sample.value.float64 == (4.0 / 2.0) * 100.0);
+        REQUIRE(sample.value.float64 == 100.0); // std::max(100, (4.0 / 2.0) * 100.0)
         REQUIRE(sample.type == counter_sample::type::float64);
     }
+}
+
+TEST_CASE("SamplerReadsCorrectValues__WhenSamplesAreNegativeExpressionsAndClamped") {
+    std::error_code ec{};
+
+    sampler_config config(device::product_id::g31, 0);
+
+    SECTION("Read expression") {
+        using counter_offset_pair = std::pair<hwcpipe_counter, uint32_t>;
+
+        counter_offset_pair rast_quads = {MaliFragRastQd, 11};
+        counter_offset_pair early_zs_killed_quads = {MaliFragEZSKillQd, 14};
+        counter_offset_pair frag_warps = {MaliFragWarp, 9};
+
+        std::vector<block_metadata> blocks_list(1);
+        std::vector<uint32_t> values_core(15);
+        values_core[rast_quads.second] = 4;
+        values_core[early_zs_killed_quads.second] = 3;
+        values_core[frag_warps.second] = 2;
+
+        blocks_list[0] = {hwcnt::block_type::core, values_core.data()};
+        EXPECT_CALL(backend_sample_mock, blocks, blocks_list);
+
+        // MaliFragFPKKillQd_v0: MaliFragRastQd - MaliFragEZSKillQd - MaliFragWarp.
+        ec = config.add_counter(hwcpipe_counter::MaliFragFPKKillQd);
+        REQUIRE(!ec);
+
+        sampler_t test_sampler = sampler_t(config);
+
+        ec = test_sampler.start_sampling();
+        REQUIRE(!ec);
+        ec = test_sampler.sample_now();
+        REQUIRE(!ec);
+        ec = test_sampler.stop_sampling();
+        REQUIRE(!ec);
+
+        hwcpipe::counter_sample sample{};
+
+        ec = test_sampler.get_counter_value(hwcpipe_counter::MaliFragFPKKillQd, sample);
+        REQUIRE(!ec);
+        REQUIRE(sample.value.float64 == 0.0); // 4 - 3 - 2 = -1, clamped to zero.
+        REQUIRE(sample.type == counter_sample::type::float64);
+    }
+}
+
+TEST_CASE("SamplerUsesL2SliceCount__WhenExpressionReferencesL2CacheCount") {
+    device::constants constants{};
+    constants.num_l2_slices = 2;
+    constants.l2_slice_size = 1024;
+    EXPECT_CALL(instance_mock, get_constants, constants);
+
+    sampler_config config(device::product_id::g31, 0);
+    REQUIRE(!config.add_counter(hwcpipe_counter::MaliExtBusRdStallRate));
+
+    std::vector<uint32_t> values_fe(7);
+    std::vector<uint32_t> values_memory(34);
+    values_fe[6] = 2;
+    values_memory[33] = 4;
+
+    std::vector<block_metadata> blocks_list = {
+        {hwcnt::block_type::fe, values_fe.data()},
+        {hwcnt::block_type::memory, values_memory.data()},
+    };
+    EXPECT_CALL(backend_sample_mock, blocks, blocks_list);
+
+    sampler_t test_sampler(config);
+    REQUIRE(!test_sampler.start_sampling());
+    REQUIRE(!test_sampler.sample_now());
+    REQUIRE(!test_sampler.stop_sampling());
+
+    hwcpipe::counter_sample sample{};
+    REQUIRE(!test_sampler.get_counter_value(hwcpipe_counter::MaliExtBusRdStallRate, sample));
+    REQUIRE(sample.value.float64 == 100.0);
+    REQUIRE(sample.type == counter_sample::type::float64);
 }
 
 TEST_CASE("ExpressionCounterGivenToSamplerConfig__CounterDependenciesAreSet") {

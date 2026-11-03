@@ -593,7 +593,7 @@ class sampler : private detail::expression::context {
     }
 
     HWCP_NODISCARD double get_mali_config_l2_cache_count() const override {
-        return static_cast<double>(constants_.l2_slice_size) * static_cast<double>(constants_.num_l2_slices);
+        return static_cast<double>(constants_.num_l2_slices);
     }
 
     HWCP_NODISCARD double get_mali_config_neural_accelerator_count() const override {
