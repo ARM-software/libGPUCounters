@@ -693,7 +693,11 @@ def generate_counter_reference(out_dir: pathlib.Path,
 
             for series in group:
                 # Start series
-                page_content.append(f'<div {get_series_class(series)}>')
+                page_content.append(
+                    f'<div {get_series_class(series)} '
+                    f'data-machine-name="{series.machine_name}" '
+                    f'data-stable-id="{series.stable_id}">'
+                )
 
                 page_content.append(
                     generate_series_block(index_view, series, anchor_link)

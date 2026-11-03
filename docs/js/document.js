@@ -46,20 +46,36 @@ class DataModelNode {
         this.elem = elem;
         this.menuElem = null;
         this.name = name;
+        this.searchTerms = [];
+        if (name != null && name !== '') {
+            this.searchTerms.push(name);
+        }
         this.childNodes = [];
     }
 
+    addSearchTerm(term) {
+        if (term != null && term !== '' && this.searchTerms.indexOf(term) === -1) {
+            this.searchTerms.push(term);
+        }
+    }
+
     propagateFilter(filter) {
-        // Determine if this node is filtered based on substring match
+        // Determine if this node is filtered based on substring match against search terms
         var filtered = false;
-        if (this.name != null && filter != '') {
-            var lname = this.name.toLowerCase();
+        if (this.searchTerms.length > 0 && filter != '') {
             var lfilter = filter.toLowerCase();
-            filtered = lname.indexOf(lfilter) == -1;
+            var matched = false;
+            for (var term of this.searchTerms) {
+                if (term.toLowerCase().indexOf(lfilter) !== -1) {
+                    matched = true;
+                    break;
+                }
+            }
+            filtered = !matched;
         }
 
         // If this node is not filtered then always keep its children
-        if (this.name != null && filtered == false) {
+        if (this.searchTerms.length > 0 && filtered == false) {
             for(var child of this.childNodes) {
                 child.propagateFilter('');
             }
@@ -133,8 +149,41 @@ class DataModelNode {
  */
 function buildDataModelSeries(parent, elem) {
     // Build this series
-    heading = $(elem).find('>:first-child');
-    var series = new DataModelNode('Series', elem, $(heading).text())
+    var heading = $(elem).find('>:first-child');
+    var series = new DataModelNode('Series', elem, $(heading).text());
+
+    // Support search by Machine Name (metadata database primary key)
+    var machineName = $(elem).attr('data-machine-name');
+    if (!machineName) {
+        machineName = $(elem).find('.lgc-equation-format-lgc code').first().text().trim();
+    }
+    if (machineName) {
+        series.addSearchTerm(machineName);
+    }
+
+    // Support search by Stable ID (Android tooling primary key)
+    var stableId = $(elem).attr('data-stable-id');
+    if (!stableId) {
+        var headingId = heading.attr('id');
+        if (headingId && headingId.indexOf('c_') === 0) {
+            stableId = headingId.substring(2);
+        }
+    }
+    if (stableId) {
+        series.addSearchTerm(stableId);
+        series.addSearchTerm('c_' + stableId);
+    }
+
+    // Also support search by Streamline and Hardware format names if available
+    var slName = $(elem).find('.lgc-equation-format-sl code').first().text().trim();
+    if (slName) {
+        series.addSearchTerm(slName);
+    }
+    var hwName = $(elem).find('.lgc-equation-format-hw code').first().text().trim();
+    if (hwName) {
+        series.addSearchTerm(hwName);
+    }
+
     parent.addChildNode(series);
 }
 
