@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2025 Arm Limited.
+# Copyright (c) 2025-2026 Arm Limited.
 #
 # SPDX-License-Identifier: MIT
 #
@@ -36,37 +36,124 @@ var showEquations = false;
 // We are using libGPUCounters dialect?
 var useDialect = 'libgpucounters';
 
+// Is filtering temporarily showing a different dialect?
+var temporaryDialect = null;
+
+// Is filtering temporarily showing advanced counters?
+var temporaryAdvancedApp = false;
+var temporaryAdvancedSys = false;
+
 // What is the current text filter?
 var currentFilter = ''
 
+/**
+ * Compile user filter text as a case-insensitive regular expression.
+ *
+ * Invalid expressions are treated as literal text so that partially typed
+ * patterns do not break live filtering.
+ */
+function compileFilter(filter) {
+    if (filter == null || filter instanceof RegExp) {
+        return filter;
+    }
+
+    if (filter == '') {
+        return null;
+    }
+
+    try {
+        return new RegExp(filter, 'i');
+    } catch (error) {
+        var literalFilter = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(literalFilter, 'i');
+    }
+}
+
 class DataModelNode {
 
-    constructor(nodeType, elem, name) {
+    constructor(nodeType, elem, name, searchAliases=[], dialectSearchNames={}) {
         this.nodeType = nodeType;
         this.elem = elem;
         this.menuElem = null;
         this.name = name;
+
+        this.commonSearchNames = [name, ...searchAliases].filter(
+            searchName => searchName != null && searchName != '');
+
+        this.dialectSearchNames = dialectSearchNames;
+        this.searchNames = [...this.commonSearchNames];
+
+        for (var dialectNames of Object.values(this.dialectSearchNames)) {
+            this.searchNames.push(...dialectNames.filter(
+                searchName => searchName != null && searchName != ''));
+        }
+
         this.childNodes = [];
     }
 
+    collectFilterMatches(filter, matches) {
+        var filterRegex = compileFilter(filter);
+        if (filterRegex == null) {
+            return;
+        }
+
+        if (this.commonSearchNames.some(
+                searchName => filterRegex.test(searchName))) {
+            matches.common = true;
+        }
+
+        for (var [dialect, searchNames] of Object.entries(this.dialectSearchNames)) {
+            if (searchNames.some(searchName => filterRegex.test(searchName))) {
+                matches.dialects.add(dialect);
+            }
+        }
+
+        for (var child of this.childNodes) {
+            child.collectFilterMatches(filterRegex, matches);
+        }
+    }
+
+    collectFilterResultTypes(matches) {
+        if (this.nodeType == 'Series') {
+            if (this.isFiltered()) {
+                return;
+            }
+
+            if (this.isAdvancedApp()) {
+                matches.advancedApp = true;
+            } else if (this.isAdvancedSys()) {
+                matches.advancedSys = true;
+            } else {
+                matches.novice = true;
+            }
+
+            return;
+        }
+
+        for (var child of this.childNodes) {
+            child.collectFilterResultTypes(matches);
+        }
+    }
+
     propagateFilter(filter) {
-        // Determine if this node is filtered based on substring match
+        var filterRegex = compileFilter(filter);
+
+        // Determine if this node is filtered based on regex match
         var filtered = false;
-        if (this.name != null && filter != '') {
-            var lname = this.name.toLowerCase();
-            var lfilter = filter.toLowerCase();
-            filtered = lname.indexOf(lfilter) == -1;
+        if (this.searchNames.length != 0 && filterRegex != null) {
+            filtered = !this.searchNames.some(
+                searchName => filterRegex.test(searchName));
         }
 
         // If this node is not filtered then always keep its children
         if (this.name != null && filtered == false) {
             for(var child of this.childNodes) {
-                child.propagateFilter('');
+                child.propagateFilter(null);
             }
         // Else filter the children based on the filter string
         } else {
             for(var child of this.childNodes) {
-                child.propagateFilter(filter);
+                child.propagateFilter(filterRegex);
             }
         }
 
@@ -133,8 +220,35 @@ class DataModelNode {
  */
 function buildDataModelSeries(parent, elem) {
     // Build this series
-    heading = $(elem).find('>:first-child');
-    var series = new DataModelNode('Series', elem, $(heading).text())
+    var heading = $(elem).find('>:first-child');
+
+    // Lookup names are already emitted as direct children of the series.
+    // Direct-child selection avoids treating derived equations as names.
+    var machineName = $(elem).children(
+        '.lgc-equation-format-lgc').children('code').first().text();
+    var streamlineName = $(elem).children(
+        '.lgc-equation-format-sl').children('code').first().text();
+    var hardwareName = $(elem).children(
+        '.lgc-equation-format-hw').children('code').first().text();
+
+    // Counter anchors have the form "c_<StableID>".
+    var anchor = $(heading).attr('id');
+    var stableID = anchor && anchor.startsWith('c_')
+        ? anchor.substring(2)
+        : null;
+
+
+    var searchAliases = [stableID];
+
+    var dialectSearchNames = {
+        'libgpucounters': [machineName],
+        'streamline': [streamlineName],
+        'hardware': [hardwareName],
+    };
+
+    var series = new DataModelNode(
+        'Series', elem, $(heading).text().trim(), searchAliases, dialectSearchNames)
+
     parent.addChildNode(series);
 }
 
@@ -144,7 +258,7 @@ function buildDataModelSeries(parent, elem) {
 function buildDataModelGroup(parent, elem) {
     // Build this group
     heading = $(elem).find('>:first-child');
-    var group = new DataModelNode('Group', elem, $(heading).text())
+    var group = new DataModelNode('Group', elem, $(heading).text().trim())
     parent.addChildNode(group);
 
     // Find and add series
@@ -159,7 +273,7 @@ function buildDataModelGroup(parent, elem) {
 function buildDataModelSection(parent, elem) {
     // Build this section
     heading = $(elem).find('>:first-child');
-    var section = new DataModelNode('Section', elem, $(heading).text())
+    var section = new DataModelNode('Section', elem, $(heading).text().trim())
     parent.addChildNode(section);
 
     // Find and add groups
@@ -181,8 +295,166 @@ function buildDataModel() {
     return data;
 }
 
-function buildContentSubtree(dataNode, domNode) {
+/**
+ * Return the only dialect matched by a filter, or null if the match is
+ * generic, ambiguous, or absent.
+ */
+function getUnambiguousFilterDialect(filter) {
+    var filterRegex = compileFilter(filter);
+    if (filterRegex == null) {
+        return null;
+    }
 
+    var matches = {
+        common: false,
+        dialects: new Set(),
+    };
+    dataModel.collectFilterMatches(filterRegex, matches);
+
+    if (matches.common || matches.dialects.size != 1) {
+        return null;
+    }
+
+    return matches.dialects.values().next().value;
+}
+
+/**
+ * Show a single naming dialect without changing the user's selection.
+ */
+function showDialect(dialect) {
+    $('.lgc-equation-format-lgc').hide();
+    $('.lgc-equation-format-sl').hide();
+    $('.lgc-equation-format-hw').hide();
+
+    if (dialect == 'libgpucounters') {
+        $('.lgc-equation-format-lgc').show();
+    } else if (dialect == 'streamline') {
+        $('.lgc-equation-format-sl').show();
+    } else if (dialect == 'hardware') {
+        $('.lgc-equation-format-hw').show();
+    }
+}
+
+/**
+ * Apply or clear a temporary filter-driven dialect override.
+ */
+function updateFilterDialect(filter) {
+    var matchedDialect = getUnambiguousFilterDialect(filter);
+    if (matchedDialect != null && matchedDialect != useDialect) {
+        temporaryDialect = matchedDialect;
+    } else {
+        temporaryDialect = null;
+    }
+
+    var displayedDialect = temporaryDialect || useDialect;
+    showDialect(displayedDialect);
+
+    $('input[name="formatRadios"]')
+        .removeClass('lgc-temporary-override')
+        .prop('checked', false);
+
+    var controlIDs = {
+        'libgpucounters': '#lgc-format-lgc',
+        'streamline': '#lgc-format-sl',
+        'hardware': '#lgc-format-hw',
+    };
+
+    $(controlIDs[displayedDialect]).prop('checked', true);
+
+    if (temporaryDialect != null) {
+        $(controlIDs[temporaryDialect]).addClass('lgc-temporary-override');
+    }
+}
+
+/**
+ * Show advanced counters based on the manual and temporary selections.
+ */
+function updateAdvancedVisibility() {
+    var effectiveAdvancedApp = showAdvancedApp || temporaryAdvancedApp;
+    var effectiveAdvancedSys = showAdvancedSys || temporaryAdvancedSys;
+
+    $('.lgc-advanced-app:not(.lgc-advanced-sys)').toggle(effectiveAdvancedApp);
+    $('.lgc-advanced-sys:not(.lgc-advanced-app)').toggle(effectiveAdvancedSys);
+    $('.lgc-advanced-app.lgc-advanced-sys').toggle(
+        effectiveAdvancedApp || effectiveAdvancedSys);
+}
+
+/**
+ * Apply or clear temporary filter-driven advanced-counter overrides.
+ */
+function updateFilterAdvanced(filter) {
+    var matches = {
+        novice: false,
+        advancedApp: false,
+        advancedSys: false,
+    };
+
+    if (compileFilter(filter) != null) {
+        dataModel.collectFilterResultTypes(matches);
+    }
+
+    var onlyAdvanced = !matches.novice &&
+        (matches.advancedApp || matches.advancedSys);
+
+    temporaryAdvancedApp = onlyAdvanced && matches.advancedApp &&
+        !showAdvancedApp;
+    temporaryAdvancedSys = onlyAdvanced && matches.advancedSys &&
+        !showAdvancedSys;
+
+    updateAdvancedVisibility();
+
+    $('#lgc-enableAdvancedApp')
+        .removeClass('lgc-temporary-override')
+        .prop('checked', showAdvancedApp || temporaryAdvancedApp);
+    $('#lgc-enableAdvancedSys')
+        .removeClass('lgc-temporary-override')
+        .prop('checked', showAdvancedSys || temporaryAdvancedSys);
+
+    if (temporaryAdvancedApp) {
+        $('#lgc-enableAdvancedApp').addClass('lgc-temporary-override');
+    }
+
+    if (temporaryAdvancedSys) {
+        $('#lgc-enableAdvancedSys').addClass('lgc-temporary-override');
+    }
+}
+
+/**
+ * Highlight the controls drawer when filtering overrides any control.
+ */
+function updateTemporaryOverrideIndicator() {
+    var hasTemporaryOverride = temporaryDialect != null ||
+        temporaryAdvancedApp || temporaryAdvancedSys;
+    $('.lgc-menu-controls').toggleClass(
+        'lgc-temporary-override', hasTemporaryOverride);
+}
+
+/**
+ * Update all filter-driven control overrides.
+ */
+function updateFilterOverrides(filter) {
+    updateFilterDialect(filter);
+    updateFilterAdvanced(filter);
+    updateTemporaryOverrideIndicator();
+}
+
+function setAdvancedAppFromControl(control) {
+    if ($(control).hasClass('lgc-temporary-override')) {
+        showAdvancedApp = true;
+    } else {
+        showAdvancedApp = $(control).is(':checked');
+    }
+}
+
+function setAdvancedSysFromControl(control) {
+    if ($(control).hasClass('lgc-temporary-override')) {
+        showAdvancedSys = true;
+    } else {
+        showAdvancedSys = $(control).is(':checked');
+    }
+}
+
+function buildContentSubtree(dataNode, domNode) {
     // Leaf node
     if (!dataNode.childNodes.length) {
         var item = $('<li></li>');
@@ -387,9 +659,11 @@ function getQueryString() {
 function isBookmarkVisible(bookmark) {
     var isAdvancedApp = $(bookmark).parent().hasClass('lgc-advanced-app');
     var isAdvancedSys = $(bookmark).parent().hasClass('lgc-advanced-sys');
+    var effectiveAdvancedApp = showAdvancedApp || temporaryAdvancedApp;
+    var effectiveAdvancedSys = showAdvancedSys || temporaryAdvancedSys;
 
-    return (!isAdvancedApp || showAdvancedApp) &&
-           (!isAdvancedSys || showAdvancedSys);
+    return (!isAdvancedApp || effectiveAdvancedApp) &&
+           (!isAdvancedSys || effectiveAdvancedSys);
 }
 
 function needAdvancedAppEnable(bookmark) {
@@ -482,6 +756,7 @@ $(document).ready(function () {
         filter = $(this).val();
         currentFilter = filter;
         dataModel.propagateFilter(filter);
+        updateFilterOverrides(filter);
 
         // TODO: Can we do off return values from propagate?
         filtered = $('.lgc-filtered').length != 0
@@ -495,42 +770,14 @@ $(document).ready(function () {
     });
 
     $('#lgc-enableAdvancedApp').change(function() {
-        if ($(this).is(':checked')) {
-            showAdvancedApp = true;
-
-            $('.lgc-advanced-app').show();
-            if (showAdvancedSys) {
-                $('.lgc-advanced-app.lgc-advanced-sys').show();
-            }
-        }
-        else
-        {
-            showAdvancedApp = false;
-            $('.lgc-advanced-app:not(.lgc-advanced-sys)').hide();
-            if (!showAdvancedSys) {
-                $('.lgc-advanced-app.lgc-advanced-sys').hide();
-            }
-        }
+        setAdvancedAppFromControl(this);
+        updateFilterOverrides(currentFilter);
         updatePageUrl();
     });
 
     $('#lgc-enableAdvancedSys').change(function() {
-        if ($(this).is(':checked')) {
-            showAdvancedSys = true;
-
-            $('.lgc-advanced-sys').show();
-            if (showAdvancedApp) {
-                $('.lgc-advanced-app.lgc-advanced-sys').show();
-            }
-        }
-        else
-        {
-            showAdvancedSys = false;
-            $('.lgc-advanced-sys:not(.lgc-advanced-app)').hide();
-            if (!showAdvancedApp) {
-                $('.lgc-advanced-app.lgc-advanced-sys').hide();
-            }
-        }
+        setAdvancedSysFromControl(this);
+        updateFilterOverrides(currentFilter);
         updatePageUrl();
     });
 
@@ -547,35 +794,26 @@ $(document).ready(function () {
         updatePageUrl();
     });
 
-    $('#lgc-format-lgc').change(function() {
+    $('#lgc-format-lgc').click(function() {
         if ($(this).is(':checked')) {
-            $('.lgc-equation-format-lgc').show();
-            $('.lgc-equation-format-sl').hide();
-            $('.lgc-equation-format-hw').hide();
-
             useDialect = 'libgpucounters';
+            updateFilterOverrides(currentFilter);
             updatePageUrl();
         }
     });
 
-    $('#lgc-format-sl').change(function() {
+    $('#lgc-format-sl').click(function() {
         if ($(this).is(':checked')) {
-            $('.lgc-equation-format-lgc').hide();
-            $('.lgc-equation-format-sl').show();
-            $('.lgc-equation-format-hw').hide();
-
             useDialect = 'streamline';
+            updateFilterOverrides(currentFilter);
             updatePageUrl();
         }
     });
 
-    $('#lgc-format-hw').change(function() {
+    $('#lgc-format-hw').click(function() {
         if ($(this).is(':checked')) {
-            $('.lgc-equation-format-lgc').hide();
-            $('.lgc-equation-format-sl').hide();
-            $('.lgc-equation-format-hw').show();
-
             useDialect = 'hardware';
+            updateFilterOverrides(currentFilter);
             updatePageUrl();
         }
     });

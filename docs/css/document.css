@@ -108,11 +108,12 @@
 
   --switch-checked: light-dark(var(--wfr-blue-600), var(--wfr-blue-600));
   --switch-not-checked: light-dark(var(--wfr-black-300), var(--wfr-black-500));
+  --switch-temporary: light-dark(var(--wfr-orange-500), var(--wfr-orange-400));
   --switch-light-url: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23f0f2f4'/%3e%3c/svg%3e");
   --switch-dark-url: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%230f1216'/%3e%3c/svg%3e");
 
-  --warning-text: light-dark(var(--wfr-white-200), var(--wfr-white-200));
-  --warning-background: light-dark(var(--wfr-orange-500), var(--wfr-orange-800));
+  --warning-text: light-dark(var(--wfr-white-200), var(--wfr-black-800));
+  --warning-background: light-dark(var(--wfr-orange-500), var(--wfr-orange-400));
 
   --text-section-heading: light-dark(var(--wfr-black-700), var(--wfr-white-700));
   --text-hovered: light-dark(var(--wfr-black-600), var(--wfr-white-000));
@@ -397,15 +398,15 @@ aside {
 /* Menu styles - filter input box. */
 .lgc-filter {
   height: 1.75rem;
-  margin-right: 1.6875rem;
+  margin-right: 2.6875rem;
   margin-bottom: 0.625rem;
 }
 
 .lgc-filter-input {
   height: 1.75rem;
   font-size: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  padding-top: 0.5625rem;
+  padding-bottom: 0.4375rem;
   padding-left: 2rem;
   color: var(--text-primary);
   background-color: var(--filter-background);
@@ -431,7 +432,7 @@ aside {
 
 .lgc-filter-input::-webkit-search-cancel-button {
   filter: grayscale(1);
-  transform: translateX(0.25rem) translateY(0.0625rem);
+  transform: translateX(0.25rem) translateY(-0.0625rem);
 }
 
 .lgc-filter-icon {
@@ -439,6 +440,12 @@ aside {
   top: 1.9375rem;
   left: 1.6875rem;
   font-size: 0.75rem;
+}
+
+.lgc-filter-help {
+  position: absolute;
+  top: 1.2075rem;
+  right: 2.25rem;
 }
 
 .lgc-menu-controls {
@@ -465,6 +472,10 @@ aside {
   border-color: var(--controls-border-active);
 }
 
+.lgc-menu-controls.lgc-temporary-override[aria-expanded="false"]:not(:hover) {
+  border-color: var(--switch-temporary);
+}
+
 /* Menu styles - switches. */
 .lgc-menuitem {
   font-size: 1rem;
@@ -480,6 +491,7 @@ aside {
 .lgc-info-icon {
   font-size: 0.75rem;
   color: var(--menu-info);
+  cursor: help;
 }
 
 .lgc-advanced-app {
@@ -519,6 +531,12 @@ aside {
   border-color: var(--switch-checked) !important;
   box-shadow: 0 0 0 var(--switch-checked) !important;
   background-image: var(--switch-light-url);
+}
+
+.form-check-input.lgc-temporary-override {
+  background-color: var(--switch-temporary) !important;
+  border-color: var(--switch-temporary) !important;
+  box-shadow: 0 0 0 var(--switch-temporary) !important;
 }
 
 @media (prefers-color-scheme: dark) {
