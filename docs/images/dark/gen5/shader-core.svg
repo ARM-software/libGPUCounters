@@ -20,15 +20,15 @@
      inkscape:pageopacity="0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#505050"
-     inkscape:zoom="1.9437059"
-     inkscape:cx="225.08549"
-     inkscape:cy="194.21663"
+     inkscape:zoom="3.8874118"
+     inkscape:cx="107.26931"
+     inkscape:cy="239.87683"
      inkscape:window-width="2056"
      inkscape:window-height="1094"
-     inkscape:window-x="880"
+     inkscape:window-x="404"
      inkscape:window-y="146"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="true">
     <inkscape:grid
        id="grid33"
@@ -70,7 +70,7 @@
      style="display:inline"
      transform="translate(-5,-5)">
     <path
-       d="M 150,15 H 274.5 V 260.00001 H 150 Z"
+       d="M 149.99999,15 H 275 V 260.00001 H 149.99999 Z"
        stroke="#333e48"
        id="shape2"
        fill="#e5eceb"
@@ -78,14 +78,14 @@
        fill-rule="nonzero"
        style="fill:#202028;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
     <path
-       d="M 211.01657,69.500005 V 270.50098"
+       d="M 212.5,69.500005 V 270.50098"
        stroke="#333e48"
        id="shape57-1-6-8-9-3"
        stroke-width="1.98011"
        fill="none"
        style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:2;stroke-dasharray:none" />
     <path
-       d="M 160,54.84125 H 264.99999 V 69.5 H 160 Z"
+       d="M 160,54.841251 H 264.99999 V 69.841252 H 160 Z"
        stroke="#333e48"
        id="shape54"
        fill="#002b49"
@@ -109,7 +109,7 @@
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan2" /></text>
     <path
-       d="m 159.5,135 h 104.99999 v 15 H 159.5 Z"
+       d="M 160.00001,135 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4"
        fill="#002b49"
@@ -119,16 +119,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.65625"
+       x="212.15627"
        y="145.80844"
        id="text51-8"><tspan
          sodipodi:role="line"
-         x="211.65625"
+         x="212.15627"
          y="145.80844"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7">Frag Prepass HSR</tspan></text>
     <path
-       d="M 159.50001,215 H 264.5 v 15 H 159.50001 Z"
+       d="m 160.00002,215 h 104.99999 v 15 H 160.00002 Z"
        stroke="#333e48"
        id="shape54-4-79"
        fill="#002b49"
@@ -138,16 +138,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.63022"
+       x="212.13023"
        y="226.31772"
        id="text51-8-3"><tspan
          sodipodi:role="line"
-         x="211.63022"
+         x="212.13023"
          y="226.31772"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-19">FPK HSR</tspan></text>
     <path
-       d="m 159.0426,235.05047 h 104.99999 v 15 H 159.0426 Z"
+       d="M 160.00001,235 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-79-5"
        fill="#002b49"
@@ -157,16 +157,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.17281"
-       y="246.36819"
+       x="212.13022"
+       y="246.31772"
        id="text51-8-3-0"><tspan
          sodipodi:role="line"
-         x="211.17281"
-         y="246.36819"
+         x="212.13022"
+         y="246.31772"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-19-2">Frag Warp Issue</tspan></text>
     <path
-       d="m 159.5,195 h 104.99999 v 15 H 159.5 Z"
+       d="M 160.00001,195 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-7"
        fill="#002b49"
@@ -176,16 +176,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.85677"
-       y="205.26042"
+       x="212.35678"
+       y="205.80612"
        id="text51-8-6"><tspan
          sodipodi:role="line"
-         x="211.85677"
-         y="205.26042"
+         x="212.35678"
+         y="205.80612"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-8">Early ZS</tspan></text>
     <path
-       d="m 159.5,175 h 104.99999 v 15 H 159.5 Z"
+       d="M 160.00001,175 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-1"
        fill="#002b49"
@@ -195,16 +195,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.50781"
+       x="212.00783"
        y="186.25522"
        id="text51-8-7"><tspan
          sodipodi:role="line"
-         x="211.50781"
+         x="212.00783"
          y="186.25522"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-1">Rasterizer</tspan></text>
     <path
-       d="m 159.5,115 h 104.99999 v 15 H 159.5 Z"
+       d="M 160.00001,115 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-7-7"
        fill="#002b49"
@@ -214,16 +214,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.85677"
-       y="125.26043"
+       x="212.35678"
+       y="125.80613"
        id="text51-8-6-9"><tspan
          sodipodi:role="line"
-         x="211.85677"
-         y="125.26043"
+         x="212.35678"
+         y="125.80613"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-8-5">Early ZS</tspan></text>
     <path
-       d="M 159.5,95.000001 H 264.49999 V 110 H 159.5 Z"
+       d="M 160.00001,95.000002 H 265 V 110 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-1-4"
        fill="#002b49"
@@ -233,16 +233,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.50781"
+       x="212.00783"
        y="106.25523"
        id="text51-8-7-3"><tspan
          sodipodi:role="line"
-         x="211.50781"
+         x="212.00783"
          y="106.25523"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-1-1">Rasterizer</tspan></text>
     <path
-       d="m 159.5,74.999999 h 104.99999 v 15 H 159.5 Z"
+       d="M 160.00001,75 H 265 V 90 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-1-4-3"
        fill="#002b49"
@@ -252,16 +252,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.95572"
+       x="212.45573"
        y="86.317719"
        id="text51-8-7-3-4"><tspan
          sodipodi:role="line"
-         x="211.95572"
+         x="212.45573"
          y="86.317719"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-1-1-1">DVS Warp Issue</tspan></text>
     <path
-       d="m 159.5,155 h 104.99999 v 15 H 159.5 Z"
+       d="M 160.00001,155 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-1-4-3-8"
        fill="#002b49"
@@ -271,11 +271,11 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.96353"
+       x="212.46355"
        y="166.31772"
        id="text51-8-7-3-4-7"><tspan
          sodipodi:role="line"
-         x="211.96353"
+         x="212.46355"
          y="166.31772"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-1-1-1-4">DVS Warp Issue</tspan></text>
@@ -296,7 +296,7 @@
          style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none"
          id="tspan10">Front-end</tspan></text>
     <path
-       d="m 150.59095,320.09096 h 124.5 v 104.90905 h -124.5 z"
+       d="M 150,320.09096 H 275.09095 V 425.00001 H 150 Z"
        stroke="#333e48"
        id="shape2-5"
        fill="#e5eceb"
@@ -304,14 +304,14 @@
        fill-rule="nonzero"
        style="display:inline;fill:#202028;stroke:#606060;stroke-width:1;stroke-dasharray:none" />
     <path
-       d="m 211.01659,310.00896 v 60.14981"
+       d="m 212.54547,310.00896 v 60.14981"
        stroke="#333e48"
        id="shape57-1-6-8-9-3-4"
        stroke-width="1.98011"
        fill="none"
        style="display:inline;fill:#6a6a6a;stroke:#606060;stroke-width:1.99998;stroke-dasharray:none" />
     <path
-       d="M 160.00001,330 H 265 v 14.65875 H 160.00001 Z"
+       d="M 160.00001,330.00001 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-2"
        fill="#002b49"
@@ -335,7 +335,7 @@
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan2-3" /></text>
     <path
-       d="M 159.50001,370.15875 H 264.5 v 15 H 159.50001 Z"
+       d="M 160.00001,370 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-1-4-7"
        fill="#002b49"
@@ -345,16 +345,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.50783"
-       y="381.41397"
+       x="212.00783"
+       y="381.25522"
        id="text51-8-7-3-7"><tspan
          sodipodi:role="line"
-         x="211.50783"
-         y="381.41397"
+         x="212.00783"
+         y="381.25522"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-1-1-3">FB Compression</tspan></text>
     <path
-       d="M 159.50001,350.15875 H 264.5 v 15 H 159.50001 Z"
+       d="M 160.00001,350 H 265 v 15 H 160.00001 Z"
        stroke="#333e48"
        id="shape54-4-1-4-3-3"
        fill="#002b49"
@@ -364,12 +364,12 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.6667px;line-height:1.05;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;letter-spacing:0px;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:#ffffff;stroke:#6a6a6a;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9"
-       x="211.95573"
-       y="361.47647"
+       x="212.45573"
+       y="361.31772"
        id="text51-8-7-3-4-5"><tspan
          sodipodi:role="line"
-         x="211.95573"
-         y="361.47647"
+         x="212.45573"
+         y="361.31772"
          style="font-size:10.6667px;line-height:1.05;text-align:center;text-anchor:middle;fill:#ffffff;stroke:none"
          id="tspan7-1-1-1-9">CRC Check</tspan></text>
     <text
@@ -395,7 +395,7 @@
      inkscape:label="Non-main Phase Front-end"
      transform="translate(-5,-5)">
     <path
-       d="M 15.5,194.99999 H 140 V 260 H 15.5 Z"
+       d="M 15.00001,194.99999 H 140 V 260 H 15.00001 Z"
        stroke="#333e48"
        id="shape2-0"
        fill="#e5eceb"
@@ -438,7 +438,7 @@
          style="font-size:13.3333px;line-height:1.05;text-align:start;text-anchor:start;fill:#707080;stroke:none"
          id="tspan10-0">Front-end</tspan></text>
     <path
-       d="m 75,249.99802 v 20.00196"
+       d="m 77.500005,249.99802 v 20.00196"
        stroke="#333e48"
        id="shape57-1-6-8-9"
        stroke-width="1.98011"
